@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/*
+  MatList design tokens — derived from reference/matlist-prototype.jsx
+  Full component library lands in Phase 0 task 0.4. These base tokens exist
+  so the scaffold already renders in the brand palette.
+*/
+@theme {
+  --color-brand: #f4632a;
+  --color-brand-soft: #ff8a50;
+  --color-earth: #b0512f;
+  --color-clay: #a9743f;
+  --color-sand: #c9c2b4;
+  --color-ink: #1c1a17;
+  --color-muted: #8a94a0;
+  --color-surface: #ffffff;
+  --color-canvas: #f5f2ec;
+
+  --radius-card: 1rem;
+  --shadow-soft: 0 8px 24px -12px rgb(28 26 23 / 0.18);
+
+  --font-sans: "Noto Sans Thai", "Inter", system-ui, sans-serif;
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}

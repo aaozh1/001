@@ -1,0 +1,23 @@
+# Local development database for MatList.
+# Usage: docker compose up -d db   (or: npm run db:up)
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: matlist-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: matlist
+      POSTGRES_PASSWORD: matlist
+      POSTGRES_DB: matlist
+    ports:
+      - "5432:5432"
+    volumes:
+      - matlist-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matlist -d matlist"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  matlist-db-data:

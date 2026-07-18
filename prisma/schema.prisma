@@ -1,0 +1,15 @@
+// MatList Prisma schema
+//
+// Task 0.1 sets up the datasource + generator only.
+// The full data model (User, Organization, Project, SpecItem, SpecOption,
+// Material, RFQ, Quote, ...) is defined in docs/DATA_MODEL.md and implemented
+// in task 0.2. Do not change core relations without asking (see CLAUDE.md).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
