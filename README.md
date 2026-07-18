@@ -38,17 +38,21 @@ cp .env.example .env
 # 3) รันฐานข้อมูล Postgres สำหรับ dev
 npm run db:up          # = docker compose up -d db
 
-# 4) (หลังมี schema ใน task 0.2) สร้างตาราง + generate client
+# 4) สร้างตาราง + generate client
 npm run db:migrate
 
-# 5) รัน dev server
+# 5) ใส่ข้อมูลตัวอย่าง (2 org designer/seller + วัสดุ 29 ตัว + โปรเจกต์ตัวอย่าง)
+npm run db:seed
+
+# 6) รัน dev server
 npm run dev
 ```
 
 เปิด <http://localhost:3000> จะเห็นหน้า scaffold ของ MatList
 
-> หมายเหตุ: จนกว่าจะถึง task 0.2 (วาง Prisma schema) ตัว `schema.prisma` ยังมีแต่
-> datasource/generator ดังนั้น `npm run dev` ทำงานได้โดยไม่ต้องต่อฐานข้อมูล
+> หมายเหตุ: ถ้าไม่มี Docker แต่มี PostgreSQL 16 ในเครื่องอยู่แล้ว ให้สร้าง role
+> `matlist` (password `matlist`, สิทธิ์ `CREATEDB` สำหรับ shadow db ของ Prisma)
+> + database `matlist` แล้วใช้ `DATABASE_URL` เดิมได้เลย
 
 ## สคริปต์ที่ใช้บ่อย
 
@@ -61,6 +65,8 @@ npm run dev
 | `npm run typecheck` | ตรวจ TypeScript (`tsc --noEmit`) |
 | `npm run db:up` / `db:down` | เปิด/ปิดฐานข้อมูล dev (Docker) |
 | `npm run db:migrate` | สร้าง/รัน Prisma migration |
+| `npm run db:seed` | ใส่ข้อมูลตัวอย่าง (idempotent — รันซ้ำได้) |
+| `npm run db:reset` | ล้าง+migrate+seed ใหม่ทั้งหมด |
 | `npm run db:studio` | เปิด Prisma Studio |
 
 ## โครงสร้างโปรเจกต์

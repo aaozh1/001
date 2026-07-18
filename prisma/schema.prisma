@@ -1,9 +1,18 @@
 // MatList Prisma schema
 //
-// Task 0.1 sets up the datasource + generator only.
-// The full data model (User, Organization, Project, SpecItem, SpecOption,
-// Material, RFQ, Quote, ...) is defined in docs/DATA_MODEL.md and implemented
-// in task 0.2. Do not change core relations without asking (see CLAUDE.md).
+// Implements every table in docs/DATA_MODEL.md. Field names use idiomatic
+// camelCase (the doc's snake_case is a spec, not literal column names — see
+// its note "ปรับ syntax ตาม ORM จริงได้"). Do NOT change core relations without
+// asking the user (see CLAUDE.md rule + docs/ARCHITECTURE.md decision #1).
+//
+// Design notes carried from DATA_MODEL:
+//  - SpecItem 1─* SpecOption *─1 Material: a spec line holds many material
+//    options before one is confirmed; RFQs reference the SpecItem, not a
+//    material, so VE swaps keep history (see VEHistory — never deleted).
+//  - SpecItem.status is DERIVED in logic (empty|options|chosen|sent|quoted),
+//    not stored.
+//  - RFQ privacy: sellers see project/zone/spec/qty but never the designer's
+//    contact until the designer engages a Quote (enforced in the API layer).
 
 generator client {
   provider = "prisma-client-js"
@@ -12,4 +21,487 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────────────────────
+
+enum Locale {
+  th
+  en
+}
+
+enum OrgType {
+  designer
+  seller
+}
+
+// Designer side: owner | editor | viewer.  Seller side: owner | manager |
+// sales | content.  (owner is shared.)  Allowed values per side are enforced
+// in lib/permissions.
+enum MembershipRole {
+  owner
+  editor
+  viewer
+  manager
+  sales
+  content
+}
+
+enum ProjectStatus {
+  active
+  waiting_client
+  delivered
+  archived
+}
+
+enum MaterialStatus {
+  draft
+  published
+  hidden
+  suspended
+}
+
+enum RFQStatus {
+  open
+  quoted
+  closed_won
+  closed_lost
+  expired
+}
+
+enum DeliveryChannel {
+  line
+  email
+  in_app
+}
+
+enum QuoteStatus {
+  submitted
+  selected
+  rejected
+}
+
+enum ReviewerRole {
+  architect
+  contractor
+  designer
+  owner
+}
+
+// Designer: free | pro | studio.  Seller: free | standard | premium.
+enum SubscriptionPlan {
+  free
+  pro
+  studio
+  standard
+  premium
+}
+
+// ── Identity & org ─────────────────────────────────────────────────────
+
+model User {
+  id                  String   @id @default(cuid())
+  email               String   @unique
+  name                String?
+  phone               String?
+  locale              Locale   @default(th)
+  // เลขใบประกอบวิชาชีพ (ภ.สถ.) — ใช้ verify ผู้ออกแบบจริง
+  professionalLicense String?
+  createdAt           DateTime @default(now())
+
+  memberships     Membership[]
+  reviews         Review[]
+  chatMessages    ChatMessage[]
+  auditLogs       AuditLog[]
+  projectsCreated Project[]     @relation("ProjectCreatedBy")
+  rfqsCreated     RFQ[]         @relation("RFQCreatedBy")
+}
+
+// One model for both design offices and seller companies, split by `type`.
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  type      OrgType
+  taxId     String?
+  verified  Boolean  @default(false)
+  // ที่อยู่จัดส่งตัวอย่าง/คลัง หลายที่ได้
+  addresses Json?
+  createdAt DateTime @default(now())
+
+  memberships       Membership[]
+  projects          Project[]
+  materials         Material[]
+  brands            Brand[]
+  rfqRecipients     RFQRecipient[]
+  quotes            Quote[]
+  subscriptions     Subscription[]
+  invoices          Invoice[]
+  auditLogs         AuditLog[]
+  templates         Template[]
+  materialSets      MaterialSet[]
+  threadsAsDesigner ChatThread[]   @relation("DesignerThreads")
+  threadsAsSeller   ChatThread[]   @relation("SellerThreads")
+
+  @@index([type])
+}
+
+model Membership {
+  id     String         @id @default(cuid())
+  userId String
+  orgId  String
+  role   MembershipRole
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, orgId])
+  @@index([orgId])
+}
+
+// ── Projects & spec schedule (Phase 1 core) ────────────────────────────
+
+model Project {
+  id           String        @id @default(cuid())
+  orgId        String
+  name         String
+  buildingType String?
+  status       ProjectStatus @default(active)
+  createdById  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdBy User?        @relation("ProjectCreatedBy", fields: [createdById], references: [id])
+  specItems SpecItem[]
+  rfqs      RFQ[]
+  specBooks SpecBook[]
+  threads   ChatThread[]
+
+  @@index([orgId])
+}
+
+// ★ ตารางที่สำคัญที่สุด — a line in the spec schedule.
+model SpecItem {
+  id                  String   @id @default(cuid())
+  projectId           String
+  // รหัสตำแหน่ง เช่น FL-01 — แก้ได้อิสระต่อโปรเจกต์ (ห้าม hardcode มาตรฐาน)
+  code                String
+  zone                String?
+  // ตระกูลวัสดุ; nullable ตอนยังไม่เลือกหมวด
+  category            String?
+  qty                 Decimal? @db.Decimal(14, 2)
+  qtyUnit             String?
+  // วัสดุที่ confirm แล้ว (ตัวเลือกทั้งหมดอยู่ใน SpecOption)
+  confirmedMaterialId String?
+  sortOrder           Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  project           Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  confirmedMaterial Material?    @relation("ConfirmedMaterial", fields: [confirmedMaterialId], references: [id])
+  options           SpecOption[]
+  veHistory         VEHistory[]
+  rfqs              RFQ[]
+
+  @@index([projectId, sortOrder])
+}
+
+model SpecOption {
+  id          String   @id @default(cuid())
+  specItemId  String
+  materialId  String
+  isConfirmed Boolean  @default(false)
+  addedAt     DateTime @default(now())
+
+  specItem SpecItem @relation(fields: [specItemId], references: [id], onDelete: Cascade)
+  material Material @relation(fields: [materialId], references: [id])
+
+  @@unique([specItemId, materialId])
+  @@index([specItemId])
+}
+
+// ประวัติการปรับ VE — ห้ามลบของเดิมเมื่อ VE เก็บประวัติเสมอ
+model VEHistory {
+  id             String   @id @default(cuid())
+  specItemId     String
+  fromMaterialId String?
+  toMaterialId   String?
+  savedPercent   Float?
+  createdAt      DateTime @default(now())
+
+  specItem     SpecItem  @relation(fields: [specItemId], references: [id], onDelete: Cascade)
+  fromMaterial Material? @relation("VEFrom", fields: [fromMaterialId], references: [id])
+  toMaterial   Material? @relation("VETo", fields: [toMaterialId], references: [id])
+
+  @@index([specItemId])
+}
+
+// ── Catalog: materials & brands (seller-owned) ─────────────────────────
+
+model Material {
+  id           String         @id @default(cuid())
+  sellerOrgId  String
+  brandId      String?
+  nameTh       String
+  nameEn       String?
+  model        String?
+  sku          String?
+  category     String
+  color        String?
+  size         String?
+  price        Decimal?       @db.Decimal(12, 2)
+  unit         String?
+  // JSON ตาม schema ของหมวด (เช่น กระเบื้อง {water_abs, r_rating, edge})
+  // ฐานของ search + VE Finder
+  spec         Json?
+  cert         String?
+  leadTime     String?
+  moq          String?
+  warranty     String?
+  noteTh       String?
+  noteEn       String?
+  swatchHex    String?
+  images       String[]       @default([])
+  specsheetUrl String?
+  catalogUrl   String?
+  bimUrl       String?
+  status       MaterialStatus @default(draft)
+  // คิดจากความครบของ field (0-100) — ไม่ใช่การซื้ออันดับ
+  completeness Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  seller        Organization   @relation(fields: [sellerOrgId], references: [id], onDelete: Cascade)
+  brand         Brand?         @relation(fields: [brandId], references: [id])
+  specOptions   SpecOption[]
+  confirmedIn   SpecItem[]     @relation("ConfirmedMaterial")
+  veFrom        VEHistory[]    @relation("VEFrom")
+  veTo          VEHistory[]    @relation("VETo")
+  rfqRecipients RFQRecipient[]
+  reviews       Review[]
+
+  @@index([category, status])
+  @@index([sellerOrgId])
+}
+
+model Brand {
+  id                  String  @id @default(cuid())
+  sellerOrgId         String
+  name                String
+  logoUrl             String?
+  story               String?
+  // หนังสือแต่งตั้งตัวแทน
+  authorizationDocUrl String?
+
+  seller    Organization @relation(fields: [sellerOrgId], references: [id], onDelete: Cascade)
+  materials Material[]
+
+  @@index([sellerOrgId])
+}
+
+// ── RFQ engine (Phase 2 — revenue) ─────────────────────────────────────
+
+model RFQ {
+  id          String    @id @default(cuid())
+  specItemId  String
+  // denormalize เพื่อ query เร็ว
+  projectId   String
+  createdById String?
+  deadline    DateTime?
+  note        String?
+  wantSample  Boolean   @default(false)
+  status      RFQStatus @default(open)
+  // สำหรับ countdown ฝั่งผู้ขาย
+  slaDueAt    DateTime?
+  createdAt   DateTime  @default(now())
+
+  specItem   SpecItem       @relation(fields: [specItemId], references: [id], onDelete: Cascade)
+  project    Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy  User?          @relation("RFQCreatedBy", fields: [createdById], references: [id])
+  recipients RFQRecipient[]
+  quotes     Quote[]
+
+  @@index([status, slaDueAt])
+  @@index([projectId])
+}
+
+model RFQRecipient {
+  id           String          @id @default(cuid())
+  rfqId        String
+  sellerOrgId  String
+  // ตัวเลือกที่เกี่ยวกับผู้ขายนี้
+  materialId   String?
+  deliveredVia DeliveryChannel @default(in_app)
+  openedAt     DateTime?
+  respondedAt  DateTime?
+
+  rfq      RFQ          @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  seller   Organization @relation(fields: [sellerOrgId], references: [id], onDelete: Cascade)
+  material Material?    @relation(fields: [materialId], references: [id])
+
+  @@unique([rfqId, sellerOrgId, materialId])
+  @@index([sellerOrgId])
+}
+
+model Quote {
+  id              String      @id @default(cuid())
+  rfqId           String
+  sellerOrgId     String
+  pricePerUnit    Decimal     @db.Decimal(12, 2)
+  projectDiscount Decimal?    @db.Decimal(12, 2)
+  leadTime        String?
+  paymentTerms    String?
+  validUntil      DateTime?
+  specsheetUrl    String?
+  includeSample   Boolean     @default(false)
+  status          QuoteStatus @default(submitted)
+  createdAt       DateTime    @default(now())
+
+  rfq    RFQ          @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  seller Organization @relation(fields: [sellerOrgId], references: [id], onDelete: Cascade)
+
+  @@index([rfqId])
+  @@index([sellerOrgId])
+}
+
+// ── Reviews (verified purchase only) ───────────────────────────────────
+
+model Review {
+  id               String       @id @default(cuid())
+  materialId       String
+  userId           String
+  role             ReviewerRole
+  stars            Int
+  bodyTh           String?
+  bodyEn           String?
+  // ต้อง true ถึงจะแสดง — กัน review ปลอม
+  verifiedPurchase Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@index([materialId])
+}
+
+// ── Templates & material sets (Studio feature) ─────────────────────────
+
+model Template {
+  id           String  @id @default(cuid())
+  // nullable = system template
+  orgId        String?
+  name         String
+  buildingType String?
+  // โครงรหัส (JSON)
+  structure    Json?
+
+  org Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model MaterialSet {
+  id          String   @id @default(cuid())
+  orgId       String
+  name        String
+  materialIds String[] @default([])
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+// ── Billing ────────────────────────────────────────────────────────────
+
+model Subscription {
+  id               String           @id @default(cuid())
+  orgId            String
+  plan             SubscriptionPlan @default(free)
+  seats            Int              @default(1)
+  currentPeriodEnd DateTime?
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  orgId         String
+  amount        Decimal  @db.Decimal(12, 2)
+  // ใบกำกับภาษีเต็มรูป — บังคับมี (ออฟฟิศไทยต้องเบิกได้)
+  taxInvoiceUrl String?
+  issuedAt      DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+// ── Spec Book (versioned export) ───────────────────────────────────────
+
+model SpecBook {
+  id        String   @id @default(cuid())
+  projectId String
+  version   Int
+  pdfUrl    String?
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, version])
+  @@index([projectId])
+}
+
+// ── Audit log ──────────────────────────────────────────────────────────
+
+// บันทึกทุก mutation ที่แตะราคา/สถานะ RFQ/สเปก
+model AuditLog {
+  id         String   @id @default(cuid())
+  orgId      String?
+  userId     String?
+  entityType String
+  entityId   String
+  action     String
+  diff       Json?
+  createdAt  DateTime @default(now())
+
+  org  Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  user User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orgId])
+  @@index([entityType, entityId])
+}
+
+// ── Chat ───────────────────────────────────────────────────────────────
+
+model ChatThread {
+  id            String   @id @default(cuid())
+  designerOrgId String
+  sellerOrgId   String
+  // บริบทโปรเจกต์
+  projectId     String?
+  createdAt     DateTime @default(now())
+
+  designerOrg Organization  @relation("DesignerThreads", fields: [designerOrgId], references: [id], onDelete: Cascade)
+  sellerOrg   Organization  @relation("SellerThreads", fields: [sellerOrgId], references: [id], onDelete: Cascade)
+  project     Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  messages    ChatMessage[]
+
+  @@index([designerOrgId])
+  @@index([sellerOrgId])
+}
+
+model ChatMessage {
+  id           String   @id @default(cuid())
+  threadId     String
+  senderUserId String?
+  body         String
+  attachments  String[] @default([])
+  createdAt    DateTime @default(now())
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender User?      @relation(fields: [senderUserId], references: [id], onDelete: SetNull)
+
+  @@index([threadId])
 }
