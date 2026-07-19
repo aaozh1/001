@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { login, type AuthFormState } from "@/lib/auth/actions";
+import { Button, Input } from "@/components/ui";
 
 const initialState: AuthFormState = {};
 
@@ -14,31 +15,24 @@ export function LoginForm() {
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-earth">
+        <h1 className="text-2xl font-bold tracking-tight text-ink">
           {t("auth.loginTitle")}
         </h1>
-        <p className="mt-1 text-sm text-muted">{t("auth.loginSubtitle")}</p>
+        <p className="mt-1 text-sm text-sub">{t("auth.loginSubtitle")}</p>
       </div>
 
       <label className="flex flex-col gap-1 text-sm font-medium text-ink">
         {t("common.email")}
-        <input
-          type="email"
-          name="email"
-          required
-          autoComplete="email"
-          className="rounded-lg border border-sand bg-canvas px-3 py-2 font-normal outline-none focus:border-brand"
-        />
+        <Input type="email" name="email" required autoComplete="email" />
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium text-ink">
         {t("common.password")}
-        <input
+        <Input
           type="password"
           name="password"
           required
           autoComplete="current-password"
-          className="rounded-lg border border-sand bg-canvas px-3 py-2 font-normal outline-none focus:border-brand"
         />
       </label>
 
@@ -48,15 +42,11 @@ export function LoginForm() {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-soft disabled:opacity-60"
-      >
+      <Button type="submit" fullWidth disabled={pending}>
         {pending ? t("common.loading") : t("auth.submitLogin")}
-      </button>
+      </Button>
 
-      <p className="text-center text-sm text-muted">
+      <p className="text-center text-sm text-sub">
         {t("auth.noAccount")}{" "}
         <Link href="/register" className="font-medium text-brand hover:underline">
           {t("common.register")}

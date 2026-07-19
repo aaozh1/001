@@ -14,7 +14,7 @@
   - AC: `prisma migrate` ผ่าน · seed แล้ว query ได้ · ครบทุกตารางใน DATA_MODEL
 - [x] **0.3 ตั้ง i18n (TH default, EN toggle) + ระบบ auth 2 บทบาท**
   - AC: สมัคร/login/logout ได้ · แยก designer/seller · หน้าใน (designer)/(seller) ต้อง login · สลับภาษาทั้งเว็บได้
-- [ ] **0.4 ย้าย design system จาก prototype** — สี ปุ่ม การ์ด modal ขอบมน เงานุ่ม (ดู reference/) เป็น component ใช้ซ้ำ
+- [x] **0.4 ย้าย design system จาก prototype** — สี ปุ่ม การ์ด modal ขอบมน เงานุ่ม (ดู reference/) เป็น component ใช้ซ้ำ
   - AC: มี component library พื้นฐาน (Button, Card, Modal, StatusChip, Swatch) ตรงกับ prototype
 
 ## PHASE 1 — Core: ตารางสเปก (คุณค่าตั้งแต่ยังไม่มีผู้ขาย)

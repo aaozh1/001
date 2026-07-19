@@ -24,6 +24,26 @@
     "designer": "ผู้ออกแบบ",
     "seller": "ผู้ขาย"
   },
+  "status": {
+    "empty": "ยังไม่เลือกวัสดุ",
+    "options": "ตัวเลือก",
+    "chosen": "เลือกแล้ว",
+    "sent": "รอราคา",
+    "quoted": "ได้ราคาแล้ว"
+  },
+  "uikit": {
+    "title": "ชุดคอมโพเนนต์ MatList",
+    "subtitle": "Design system พื้นฐาน (ยกจาก prototype) — ใช้ซ้ำทั้งเว็บ",
+    "buttons": "ปุ่ม",
+    "cards": "การ์ด",
+    "statusChips": "ป้ายสถานะสเปก",
+    "chips": "ชิปกรอง",
+    "swatches": "ตัวอย่างวัสดุ",
+    "modal": "โมดัล",
+    "openModal": "เปิดโมดัลตัวอย่าง",
+    "modalBody": "โมดัลใช้พื้นหลังจาง เบลอ ปิดด้วย Esc หรือคลิกนอกกรอบ",
+    "sampleCard": "การ์ดตัวอย่าง — ขอบมน เงานุ่ม hover ยกขึ้น"
+  },
   "auth": {
     "loginTitle": "เข้าสู่ระบบ",
     "loginSubtitle": "ยินดีต้อนรับกลับสู่ MatList",

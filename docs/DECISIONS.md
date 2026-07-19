@@ -36,3 +36,15 @@
 ### ทำไม workspace มี URL prefix (/designer, /seller)
 - route group `(designer)`/`(seller)` **ไม่ปรากฏใน URL** ถ้าให้ทั้งสองฝั่งใช้ path เปล่า จะชนกันที่ segment ร่วม (`/rfq`, `/billing`) — Next.js ไม่ยอม
 - จึง prefix ด้วยชื่อ workspace (`/designer/*`, `/seller/*`) → แยก workspace ชัด, gate ด้วย path ใน middleware ได้ตรงไปตรงมา, และ role ผิดฝั่ง redirect ไป workspace ของตัวเองอัตโนมัติ
+
+## Phase 0.4 — design system (บันทึกการตัดสินใจ)
+
+### tokens ยกจาก prototype `:root` ตรง ๆ (ไม่ทับด้วยชุดสีเดา)
+- scaffold 0.1 วางสี placeholder ไว้ (earth/clay/sand ฯลฯ) — 0.4 แทนที่ด้วย token จริงจาก prototype `:root` ทั้งชุด (brand, ink, sub, mut, line, line-2, canvas, surface, ok/warn/info + soft, r/r-sm, sh/sh-2) ใน `app/globals.css` (`@theme` ของ Tailwind v4)
+- **กฎ**: component ห้าม hardcode สี/รัศมี/เงา — ต้องผ่าน token เสมอ
+
+### component library อยู่ `components/ui/` (แยกจาก `app/_components/`)
+- `components/ui/` = primitives ใช้ซ้ำทั้งเว็บ (Button, Card, Modal, StatusChip, Swatch + Badge, Chip, Input) — มี barrel `index.ts`
+- `app/_components/` = ชิ้นที่ผูกกับ layout/flow เฉพาะ (LangToggle, WorkspaceShell ฯลฯ) ที่ประกอบจาก primitives อีกที
+- texture engine (CSS วัสดุ) ย้ายไป `lib/ui/texture.ts` เพื่อให้ Material Board (Phase 1.5) เรียกใช้ซ้ำได้
+- สถานะสเปก (empty|options|chosen|sent|quoted) เป็น logic derived → อยู่ `lib/spec/status.ts` (มี test) StatusChip เอา label จาก i18n + สีจาก status→variant map

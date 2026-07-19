@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
+import { Card, StatusChip } from "@/components/ui";
+import { SPEC_STATUSES } from "@/lib/spec/status";
 
 export default async function DesignerDashboard() {
   const session = await auth();
@@ -8,15 +10,20 @@ export default async function DesignerDashboard() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="text-2xl font-bold tracking-tight text-earth">
+      <h1 className="text-2xl font-bold tracking-tight text-ink">
         {t("welcome", { name })}
       </h1>
-      <p className="mt-2 text-muted">{t("dashboardIntro")}</p>
+      <p className="mt-2 text-sub">{t("dashboardIntro")}</p>
 
-      <div className="mt-6 rounded-card border border-sand bg-surface p-6 shadow-soft">
+      <Card className="mt-6 gap-3 p-6">
         <h2 className="font-semibold text-ink">{t("myWork")}</h2>
-        <p className="mt-1 text-sm text-muted">Phase 1 →</p>
-      </div>
+        <div className="flex flex-wrap gap-2">
+          {SPEC_STATUSES.map((s) => (
+            <StatusChip key={s} status={s} />
+          ))}
+        </div>
+        <p className="text-sm text-sub">Phase 1 →</p>
+      </Card>
     </div>
   );
 }
