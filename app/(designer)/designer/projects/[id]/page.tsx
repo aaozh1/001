@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { Card } from "@/components/ui";
 import { canManageProjects } from "@/lib/permissions";
@@ -8,9 +8,11 @@ import { getDesignerContext, getProject } from "@/lib/projects/service";
 import { isProjectStatus } from "@/lib/projects/status";
 import { deriveSpecStatus } from "@/lib/spec/status";
 import { getMaterialsByIds } from "@/lib/materials/service";
+import { listSpecBooks } from "@/lib/spec-book/service";
 import { ProjectStatusBadge } from "../_components/project-status-badge";
 import { EditProjectButton } from "../_components/edit-project-button";
 import { SpecViews } from "./_components/spec-views";
+import { SpecBookPanel } from "./_components/spec-book-panel";
 import type { SpecRow } from "./_components/types";
 
 type Props = { params: Promise<{ id: string }> };
@@ -62,6 +64,15 @@ export default async function ProjectDetailPage({ params }: Props) {
     }),
   }));
 
+  const locale = await getLocale();
+  const dateFmt = new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
+    dateStyle: "medium",
+  });
+  const bookVersions = ((await listSpecBooks(ctx.orgId, id)) ?? []).map((b) => ({
+    version: b.version,
+    dateLabel: dateFmt.format(b.createdAt),
+  }));
+
   return (
     <div className="mx-auto max-w-4xl">
       <Link href="/designer/projects" className="text-sm text-sub hover:text-ink">
@@ -96,6 +107,8 @@ export default async function ProjectDetailPage({ params }: Props) {
       <Card className="mt-4" padded={false}>
         <SpecViews projectId={project.id} canManage={canManage} items={rows} />
       </Card>
+
+      <SpecBookPanel projectId={project.id} canManage={canManage} books={bookVersions} />
     </div>
   );
 }

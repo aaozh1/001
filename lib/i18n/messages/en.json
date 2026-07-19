@@ -175,6 +175,13 @@
     "boardEmpty": "No materials yet — add options from the catalog, then come back for the mood view",
     "confirmedMaterial": "Confirmed material",
     "editInFull": "Editable in the “Full detail” view",
+    "specBook": "Spec Book",
+    "specBookHint": "A PDF with full manufacturer info + notes · every version kept",
+    "createSpecBook": "＋ Create Spec Book (PDF)",
+    "creating": "Creating…",
+    "sbVersion": "Version",
+    "downloadPdf": "Download PDF",
+    "noVersions": "No Spec Book created yet",
     "status": {
       "active": "Active",
       "waiting_client": "Waiting client",

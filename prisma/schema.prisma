@@ -449,6 +449,11 @@ model SpecBook {
   projectId String
   version   Int
   pdfUrl    String?
+  // Frozen render data for this version (project + items + options + material
+  // details at export time). The PDF is regenerated from this so an old version
+  // stays faithful even after the schedule changes. pdfUrl stays for future S3.
+  snapshot  Json?
+  createdBy String?
   createdAt DateTime @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)

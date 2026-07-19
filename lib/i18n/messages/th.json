@@ -175,6 +175,13 @@
     "boardEmpty": "ยังไม่มีวัสดุในตาราง — เพิ่มตัวเลือกจากคลังก่อน แล้วกลับมาดู mood รวมที่นี่",
     "confirmedMaterial": "วัสดุที่เลือก",
     "editInFull": "แก้ไขได้ในมุมมอง “รายละเอียดเต็ม”",
+    "specBook": "Spec Book",
+    "specBookHint": "PDF รวมข้อมูลผู้ผลิตครบ + หมายเหตุ · เก็บทุกเวอร์ชัน",
+    "createSpecBook": "＋ สร้าง Spec Book (PDF)",
+    "creating": "กำลังสร้าง…",
+    "sbVersion": "เวอร์ชัน",
+    "downloadPdf": "ดาวน์โหลด PDF",
+    "noVersions": "ยังไม่เคยสร้าง Spec Book",
     "status": {
       "active": "กำลังทำ",
       "waiting_client": "รอลูกค้า",
