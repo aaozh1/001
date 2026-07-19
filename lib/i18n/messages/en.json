@@ -73,6 +73,27 @@
     "goProjects": "Go to my projects",
     "goCatalog": "Open the catalog"
   },
+  "rfq": {
+    "title": "Request samples + quotes (RFQ)",
+    "hint": "Tick the lines that have materials, then request quotes from sellers in one click",
+    "privacy": "Sellers see your spec context but not your contact details until you reply",
+    "noItems": "No lines with materials yet — add material options first",
+    "options": "options",
+    "selected": "{n} selected",
+    "send": "Request samples + quotes",
+    "sending": "Sending…",
+    "confirmTitle": "Confirm the request",
+    "deadline": "Response deadline (optional)",
+    "note": "Note to sellers (optional)",
+    "notePlaceholder": "e.g. quote for a 500 m² project, delivery this month",
+    "wantSample": "Also request product samples",
+    "confirm": "Send request",
+    "cancel": "Cancel",
+    "sentToast": "Sent {created} lines · {recipients} sellers",
+    "alreadySent": "Sent",
+    "stateSent": "Awaiting quotes",
+    "stateQuoted": "Quoted"
+  },
   "import": {
     "title": "Import from Excel / CSV",
     "subtitle": "Upload an .xlsx/.csv file or paste from your clipboard, then create a project",
