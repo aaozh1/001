@@ -23,9 +23,17 @@ export default async function DesignerDashboard() {
             <StatusChip key={s} status={s} />
           ))}
         </div>
-        <Link href="/designer/projects" className={buttonClasses({ size: "sm" })}>
-          {t("goProjects")}
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/designer/projects" className={buttonClasses({ size: "sm" })}>
+            {t("goProjects")}
+          </Link>
+          <Link
+            href="/designer/catalog"
+            className={buttonClasses({ size: "sm", variant: "ghost" })}
+          >
+            {t("goCatalog")}
+          </Link>
+        </div>
       </Card>
     </div>
   );
