@@ -44,7 +44,13 @@ export function getProject(orgId: string, projectId: string) {
       _count: { select: { specItems: true } },
       specItems: {
         orderBy: { sortOrder: "asc" },
-        include: { _count: { select: { options: true } } },
+        include: {
+          _count: { select: { options: true } },
+          options: {
+            orderBy: { addedAt: "asc" },
+            select: { id: true, materialId: true, isConfirmed: true },
+          },
+        },
       },
     },
   });

@@ -7,6 +7,7 @@ import { canManageProjects } from "@/lib/permissions";
 import { getDesignerContext, getProject } from "@/lib/projects/service";
 import { isProjectStatus } from "@/lib/projects/status";
 import { deriveSpecStatus } from "@/lib/spec/status";
+import { getMaterialsByIds } from "@/lib/materials/service";
 import { ProjectStatusBadge } from "../_components/project-status-badge";
 import { EditProjectButton } from "../_components/edit-project-button";
 import { SpecTable, type SpecRow } from "./_components/spec-table";
@@ -27,6 +28,37 @@ export default async function ProjectDetailPage({ params }: Props) {
   const t = await getTranslations("projects");
   const canManage = canManageProjects(ctx.role);
   const status = isProjectStatus(project.status) ? project.status : "active";
+
+  // Resolve material summaries for every option across the schedule.
+  const optionMaterialIds = project.specItems.flatMap((i) =>
+    i.options.map((o) => o.materialId),
+  );
+  const materials = await getMaterialsByIds(optionMaterialIds);
+
+  const rows: SpecRow[] = project.specItems.map((item) => ({
+    id: item.id,
+    code: item.code,
+    zone: item.zone ?? "",
+    category: item.category ?? "",
+    qty: item.qty ? item.qty.toString() : "",
+    qtyUnit: item.qtyUnit ?? "",
+    confirmedMaterialId: item.confirmedMaterialId,
+    status: deriveSpecStatus({
+      confirmedMaterialId: item.confirmedMaterialId,
+      optionCount: item._count.options,
+    }),
+    options: item.options.map((o) => {
+      const m = materials.get(o.materialId);
+      return {
+        materialId: o.materialId,
+        name: m?.nameTh ?? "—",
+        brand: m?.brand ?? null,
+        model: m?.model ?? null,
+        swatchHex: m?.swatchHex ?? null,
+        isConfirmed: o.isConfirmed,
+      };
+    }),
+  }));
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -63,25 +95,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         <div className="border-b border-line px-5 py-3 font-semibold text-ink">
           {t("specItems")}
         </div>
-        <SpecTable
-          projectId={project.id}
-          canManage={canManage}
-          items={project.specItems.map(
-            (item): SpecRow => ({
-              id: item.id,
-              code: item.code,
-              zone: item.zone ?? "",
-              category: item.category ?? "",
-              qty: item.qty ? item.qty.toString() : "",
-              qtyUnit: item.qtyUnit ?? "",
-              optionCount: item._count.options,
-              status: deriveSpecStatus({
-                confirmedMaterialId: item.confirmedMaterialId,
-                optionCount: item._count.options,
-              }),
-            }),
-          )}
-        />
+        <SpecTable projectId={project.id} canManage={canManage} items={rows} />
       </Card>
     </div>
   );
