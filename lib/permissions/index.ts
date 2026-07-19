@@ -71,3 +71,9 @@ export const PROJECT_MANAGER_ROLES = ["owner", "editor"] as const;
 export function canManageProjects(role: string): boolean {
   return (PROJECT_MANAGER_ROLES as readonly string[]).includes(role);
 }
+
+// Only the org owner controls billing (plan changes, tax-invoice details). A
+// mis-billed office is a hard problem, so this stays tighter than project edit.
+export function canManageBilling(role: string): boolean {
+  return role === "owner";
+}
