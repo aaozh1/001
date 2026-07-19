@@ -1,7 +1,12 @@
 import { PrismaClient, Prisma } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { CATEGORIES, RAW_MATERIALS } from "./seed-data";
 
 const prisma = new PrismaClient();
+
+// Dev-only password for the seeded accounts so they can log in locally.
+// designer@matlist.dev / seller@matlist.dev — both use this password.
+const SEED_PASSWORD = "matlist123";
 
 /**
  * Compute a rough data-completeness score (0-100) from how many meaningful
@@ -75,6 +80,8 @@ async function main() {
   await prisma.organization.deleteMany();
   await prisma.user.deleteMany();
 
+  const passwordHash = await bcrypt.hash(SEED_PASSWORD, 10);
+
   // ── Designer org + owner ──
   const designerOrg = await prisma.organization.create({
     data: {
@@ -93,6 +100,7 @@ async function main() {
       email: "designer@matlist.dev",
       name: "ปวีณ์ สถาปนิก",
       locale: "th",
+      passwordHash,
       professionalLicense: "ภ.สถ. 12345",
       memberships: { create: { orgId: designerOrg.id, role: "owner" } },
     },
@@ -116,6 +124,7 @@ async function main() {
       email: "seller@matlist.dev",
       name: "สมชาย ฝ่ายขาย",
       locale: "th",
+      passwordHash,
       memberships: { create: { orgId: sellerOrg.id, role: "owner" } },
     },
   });

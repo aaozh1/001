@@ -105,6 +105,9 @@ model User {
   name                String?
   phone               String?
   locale              Locale   @default(th)
+  // bcrypt hash สำหรับ credentials login (Auth.js) — เพิ่มใน task 0.3
+  // additive field เพื่อรองรับ auth; ไม่กระทบ relation หลักใน DATA_MODEL
+  passwordHash        String?
   // เลขใบประกอบวิชาชีพ (ภ.สถ.) — ใช้ verify ผู้ออกแบบจริง
   professionalLicense String?
   createdAt           DateTime @default(now())

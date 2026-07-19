@@ -1,0 +1,51 @@
+{
+  "common": {
+    "appName": "MatList",
+    "tagline": "วัสดุครบ จบที่ลิสต์เดียว",
+    "language": "ภาษา",
+    "loading": "กำลังโหลด…"
+  },
+  "nav": {
+    "designerWorkspace": "พื้นที่ผู้ออกแบบ",
+    "sellerCenter": "ศูนย์ผู้ขาย",
+    "login": "เข้าสู่ระบบ",
+    "register": "สมัครใช้งาน",
+    "logout": "ออกจากระบบ"
+  },
+  "landing": {
+    "heroTitle": "เครื่องมือทำตารางสเปกวัสดุ สำหรับสถาปนิกไทย",
+    "heroSubtitle": "ทำสเปก ส่งขอราคา เทียบใบเสนอ — จบในที่เดียว",
+    "forDesigners": "สำหรับผู้ออกแบบ",
+    "forSellers": "สำหรับผู้ขาย"
+  },
+  "auth": {
+    "loginTitle": "เข้าสู่ระบบ",
+    "registerTitle": "สมัครใช้งาน",
+    "email": "อีเมล",
+    "password": "รหัสผ่าน",
+    "name": "ชื่อ",
+    "role": "ประเภทบัญชี",
+    "roleDesigner": "ผู้ออกแบบ (Designer)",
+    "roleSeller": "ผู้ขาย (Seller)",
+    "loginButton": "เข้าสู่ระบบ",
+    "registerButton": "สร้างบัญชี",
+    "logoutButton": "ออกจากระบบ",
+    "noAccount": "ยังไม่มีบัญชี?",
+    "haveAccount": "มีบัญชีอยู่แล้ว?",
+    "goRegister": "สมัครที่นี่",
+    "goLogin": "เข้าสู่ระบบ",
+    "errorInvalid": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+    "errorEmailTaken": "อีเมลนี้ถูกใช้แล้ว",
+    "errorGeneric": "เกิดข้อผิดพลาด กรุณาลองใหม่",
+    "errorRequired": "กรุณากรอกข้อมูลให้ครบ",
+    "passwordHint": "อย่างน้อย 8 ตัวอักษร"
+  },
+  "workspace": {
+    "designerHome": "ภาพรวมผู้ออกแบบ",
+    "sellerHome": "ภาพรวมผู้ขาย",
+    "welcome": "ยินดีต้อนรับ",
+    "comingSoon": "เนื้อหาส่วนนี้จะมาใน phase ถัดไป",
+    "yourOrgs": "องค์กรของคุณ",
+    "role": "บทบาท"
+  }
+}

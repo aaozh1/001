@@ -63,6 +63,7 @@ npm run dev
 | `npm run start` | รัน production build |
 | `npm run lint` | ตรวจ ESLint |
 | `npm run typecheck` | ตรวจ TypeScript (`tsc --noEmit`) |
+| `npm run test` | รัน unit tests (Vitest) |
 | `npm run db:up` / `db:down` | เปิด/ปิดฐานข้อมูล dev (Docker) |
 | `npm run db:migrate` | สร้าง/รัน Prisma migration |
 | `npm run db:seed` | ใส่ข้อมูลตัวอย่าง (idempotent — รันซ้ำได้) |
@@ -82,6 +83,17 @@ CLAUDE.md            กติกา + วิธีทำงานสำหร�
 
 โครงสร้างเป้าหมายเต็ม (workspace 2 ฝั่ง, catalog, business logic modules)
 อยู่ใน [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
+
+## บัญชี & ภาษา (auth + i18n)
+
+- **Auth**: Auth.js (NextAuth v5) แบบ credentials (อีเมล+รหัสผ่าน, JWT session)
+  แยก 2 ฝั่ง — `/designer` (ผู้ออกแบบ) และ `/seller` (ผู้ขาย) ต้อง login และ
+  middleware กันข้ามฝั่ง ผู้ใช้ 1 คนมีได้ทั้งสองฝั่ง (คนละ Organization)
+- **i18n**: next-intl — default **TH**, สลับ EN ได้ทั้งเว็บ (เก็บใน cookie
+  `NEXT_LOCALE`) dictionary อยู่ที่ `lib/i18n/messages/{th,en}.json`
+- **บัญชีตัวอย่างจาก seed** (รหัสผ่านเดียวกัน `matlist123`):
+  - ผู้ออกแบบ: `designer@matlist.dev`
+  - ผู้ขาย: `seller@matlist.dev`
 
 ## กติกาเหล็ก (อ่านก่อนพัฒนา)
 

@@ -1,0 +1,51 @@
+{
+  "common": {
+    "appName": "MatList",
+    "tagline": "Every material. One list.",
+    "language": "Language",
+    "loading": "Loading…"
+  },
+  "nav": {
+    "designerWorkspace": "Designer Workspace",
+    "sellerCenter": "Seller Center",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out"
+  },
+  "landing": {
+    "heroTitle": "Material spec schedules for Thai architects",
+    "heroSubtitle": "Spec, request quotes, compare offers — all in one place",
+    "forDesigners": "For designers",
+    "forSellers": "For sellers"
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "registerTitle": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "role": "Account type",
+    "roleDesigner": "Designer",
+    "roleSeller": "Seller",
+    "loginButton": "Log in",
+    "registerButton": "Create account",
+    "logoutButton": "Log out",
+    "noAccount": "No account yet?",
+    "haveAccount": "Already have an account?",
+    "goRegister": "Sign up here",
+    "goLogin": "Log in",
+    "errorInvalid": "Invalid email or password",
+    "errorEmailTaken": "This email is already registered",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "errorRequired": "Please fill in all fields",
+    "passwordHint": "At least 8 characters"
+  },
+  "workspace": {
+    "designerHome": "Designer Overview",
+    "sellerHome": "Seller Overview",
+    "welcome": "Welcome",
+    "comingSoon": "This section lands in a later phase",
+    "yourOrgs": "Your organizations",
+    "role": "Role"
+  }
+}
