@@ -30,7 +30,7 @@
   - AC: search ทำงาน (ชื่อ/แบรนด์/รุ่น/sku) · เรียงตามความตรงสเปกเท่านั้น (กติกาข้อ 1) · เพิ่มวัสดุลงรายการได้
 - [x] **1.5 มุมมองตาราง 4 แบบ** — full / compact / grid / material board
   - AC: สลับได้ · board แสดง swatch ตาม option · ตรง prototype
-- [ ] **1.6 Spec Book export (PDF)** — มีข้อมูลผู้ผลิตครบ + โลโก้ท้าย + versioned
+- [x] **1.6 Spec Book export (PDF)** — มีข้อมูลผู้ผลิตครบ + โลโก้ท้าย + versioned
   - AC: export PDF จริง · เก็บเวอร์ชันใน DB · รายการ option แสดงหมายเหตุ
 - [ ] **1.7 นำเข้า Excel** — อัปโหลด .xlsx/.csv + วางจากคลิปบอร์ด → สร้างโปรเจกต์
   - AC: parse หัวคอลัมน์ TH/EN · preview ก่อนยืนยัน · เก็บ mapping ที่ใช้บ่อย
