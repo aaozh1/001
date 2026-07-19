@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
-import { Card, StatusChip } from "@/components/ui";
+import { Card, StatusChip, buttonClasses } from "@/components/ui";
 import { SPEC_STATUSES } from "@/lib/spec/status";
 
 export default async function DesignerDashboard() {
@@ -22,7 +23,9 @@ export default async function DesignerDashboard() {
             <StatusChip key={s} status={s} />
           ))}
         </div>
-        <p className="text-sm text-sub">Phase 1 →</p>
+        <Link href="/designer/projects" className={buttonClasses({ size: "sm" })}>
+          {t("goProjects")}
+        </Link>
       </Card>
     </div>
   );
