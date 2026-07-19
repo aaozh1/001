@@ -1,7 +1,12 @@
 import { PrismaClient, Prisma } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { CATEGORIES, RAW_MATERIALS } from "./seed-data";
 
 const prisma = new PrismaClient();
+
+// Demo login password for the seeded designer + seller accounts (dev only).
+// Emails: designer@matlist.dev / seller@matlist.dev
+const DEMO_PASSWORD = "matlist1234";
 
 /**
  * Compute a rough data-completeness score (0-100) from how many meaningful
@@ -50,6 +55,8 @@ function slug(s: string): string {
 async function main() {
   console.log("🌱 Seeding MatList…");
 
+  const demoPasswordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
+
   // Idempotent: wipe existing seed rows (dev only) so re-running is safe.
   // Order respects FK dependencies.
   await prisma.chatMessage.deleteMany();
@@ -93,6 +100,7 @@ async function main() {
       email: "designer@matlist.dev",
       name: "ปวีณ์ สถาปนิก",
       locale: "th",
+      passwordHash: demoPasswordHash,
       professionalLicense: "ภ.สถ. 12345",
       memberships: { create: { orgId: designerOrg.id, role: "owner" } },
     },
@@ -116,6 +124,7 @@ async function main() {
       email: "seller@matlist.dev",
       name: "สมชาย ฝ่ายขาย",
       locale: "th",
+      passwordHash: demoPasswordHash,
       memberships: { create: { orgId: sellerOrg.id, role: "owner" } },
     },
   });

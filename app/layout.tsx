@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -6,15 +8,19 @@ export const metadata: Metadata = {
   description: "วัสดุครบ จบที่ลิสต์เดียว — Every material. One list.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Default locale is Thai (see CLAUDE.md). i18n toggle lands in task 0.3.
+  // Locale comes from the NEXT_LOCALE cookie (default th). NextIntlClientProvider
+  // inherits the locale + messages resolved in lib/i18n/request.ts.
+  const locale = await getLocale();
   return (
-    <html lang="th">
-      <body>{children}</body>
+    <html lang={locale}>
+      <body>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      </body>
     </html>
   );
 }

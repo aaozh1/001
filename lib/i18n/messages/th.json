@@ -1,0 +1,60 @@
+{
+  "common": {
+    "appName": "MatList",
+    "tagline": "วัสดุครบ จบที่ลิสต์เดียว",
+    "language": "ภาษา",
+    "thai": "ไทย",
+    "english": "อังกฤษ",
+    "login": "เข้าสู่ระบบ",
+    "logout": "ออกจากระบบ",
+    "register": "สมัครสมาชิก",
+    "email": "อีเมล",
+    "password": "รหัสผ่าน",
+    "name": "ชื่อ",
+    "loading": "กำลังทำงาน…",
+    "backHome": "กลับหน้าแรก"
+  },
+  "home": {
+    "badge": "Phase 0 · โครงตั้งต้น",
+    "heroSub": "เครื่องมือทำตารางสเปกวัสดุสำหรับสถาปนิกไทย ที่ต่อท่อส่งใบขอราคาไปหาผู้ขายในตัว",
+    "goDesigner": "เข้าสู่ Workspace ผู้ออกแบบ",
+    "goSeller": "เข้าสู่ Center ผู้ขาย"
+  },
+  "roles": {
+    "designer": "ผู้ออกแบบ",
+    "seller": "ผู้ขาย"
+  },
+  "auth": {
+    "loginTitle": "เข้าสู่ระบบ",
+    "loginSubtitle": "ยินดีต้อนรับกลับสู่ MatList",
+    "registerTitle": "สมัครสมาชิก",
+    "registerSubtitle": "เริ่มใช้งาน MatList ฟรี",
+    "chooseRole": "คุณคือใคร",
+    "designerHint": "ออฟฟิศออกแบบ — ทำตารางสเปกและขอราคา",
+    "sellerHint": "บริษัทผู้ขายวัสดุ — รับใบขอราคาและตอบราคา",
+    "orgName": "ชื่อองค์กร / ออฟฟิศ",
+    "orgNamePlaceholder": "เช่น สตูดิโอ อาศรม",
+    "submitLogin": "เข้าสู่ระบบ",
+    "submitRegister": "สร้างบัญชี",
+    "haveAccount": "มีบัญชีอยู่แล้ว?",
+    "noAccount": "ยังไม่มีบัญชี?",
+    "invalidCredentials": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+    "emailTaken": "อีเมลนี้ถูกใช้งานแล้ว",
+    "registerFailed": "สมัครไม่สำเร็จ ลองใหม่อีกครั้ง",
+    "passwordTooShort": "รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร",
+    "invalidEmail": "รูปแบบอีเมลไม่ถูกต้อง",
+    "fieldRequired": "กรุณากรอกข้อมูลให้ครบ"
+  },
+  "designer": {
+    "workspace": "Workspace ผู้ออกแบบ",
+    "welcome": "สวัสดี {name}",
+    "dashboardIntro": "นี่คือพื้นที่ทำงานของผู้ออกแบบ — ตารางสเปก โปรเจกต์ และใบขอราคา จะมาในเฟสถัดไป",
+    "myWork": "งานของฉัน"
+  },
+  "seller": {
+    "center": "Center ผู้ขาย",
+    "welcome": "สวัสดี {name}",
+    "dashboardIntro": "นี่คือพื้นที่ทำงานของผู้ขาย — ใบขอราคา คลังวัสดุ และผลงาน จะมาในเฟสถัดไป",
+    "inbox": "กล่องใบขอราคา"
+  }
+}
