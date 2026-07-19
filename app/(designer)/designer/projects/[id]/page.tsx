@@ -9,10 +9,12 @@ import { isProjectStatus } from "@/lib/projects/status";
 import { deriveSpecStatus } from "@/lib/spec/status";
 import { getMaterialsByIds } from "@/lib/materials/service";
 import { listSpecBooks } from "@/lib/spec-book/service";
+import { getRfqStatusMap } from "@/lib/rfq/service";
 import { ProjectStatusBadge } from "../_components/project-status-badge";
 import { EditProjectButton } from "../_components/edit-project-button";
 import { SpecViews } from "./_components/spec-views";
 import { SpecBookPanel } from "./_components/spec-book-panel";
+import { RfqSendPanel, type RfqItem } from "./_components/rfq-send-panel";
 import type { SpecRow } from "./_components/types";
 
 type Props = { params: Promise<{ id: string }> };
@@ -37,6 +39,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     i.options.map((o) => o.materialId),
   );
   const materials = await getMaterialsByIds(optionMaterialIds);
+  const rfqMap = await getRfqStatusMap(project.id);
 
   const rows: SpecRow[] = project.specItems.map((item) => ({
     id: item.id,
@@ -49,6 +52,8 @@ export default async function ProjectDetailPage({ params }: Props) {
     status: deriveSpecStatus({
       confirmedMaterialId: item.confirmedMaterialId,
       optionCount: item._count.options,
+      hasSentRfq: rfqMap.has(item.id),
+      hasQuote: rfqMap.get(item.id) === "quoted",
     }),
     options: item.options.map((o) => {
       const m = materials.get(o.materialId);
@@ -71,6 +76,14 @@ export default async function ProjectDetailPage({ params }: Props) {
   const bookVersions = ((await listSpecBooks(ctx.orgId, id)) ?? []).map((b) => ({
     version: b.version,
     dateLabel: dateFmt.format(b.createdAt),
+  }));
+
+  const rfqItems: RfqItem[] = project.specItems.map((item) => ({
+    id: item.id,
+    code: item.code,
+    zone: item.zone ?? "",
+    optionCount: item._count.options,
+    state: rfqMap.get(item.id) ?? "none",
   }));
 
   return (
@@ -107,6 +120,8 @@ export default async function ProjectDetailPage({ params }: Props) {
       <Card className="mt-4" padded={false}>
         <SpecViews projectId={project.id} canManage={canManage} items={rows} />
       </Card>
+
+      <RfqSendPanel projectId={project.id} canManage={canManage} items={rfqItems} />
 
       <SpecBookPanel projectId={project.id} canManage={canManage} books={bookVersions} />
     </div>
