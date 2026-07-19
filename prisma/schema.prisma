@@ -143,10 +143,28 @@ model Organization {
   auditLogs         AuditLog[]
   templates         Template[]
   materialSets      MaterialSet[]
+  importMappings    ImportMapping[]
   threadsAsDesigner ChatThread[]   @relation("DesignerThreads")
   threadsAsSeller   ChatThread[]   @relation("SellerThreads")
 
   @@index([type])
+}
+
+// Remembered column→field mapping for Excel/CSV import, keyed by a fingerprint
+// of the header row, so the same sheet layout auto-maps next time (ROADMAP 1.7:
+// "เก็บ mapping ที่ใช้บ่อย").
+model ImportMapping {
+  id          String   @id @default(cuid())
+  orgId       String
+  fingerprint String
+  mapping     Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, fingerprint])
+  @@index([orgId])
 }
 
 model Membership {
