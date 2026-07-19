@@ -62,3 +62,12 @@ export function isRoleAllowedForWorkspace(
 ): role is MembershipRole {
   return (WORKSPACE_ROLES[workspace] as readonly string[]).includes(role);
 }
+
+// Designer-side roles that may create/edit/duplicate/archive/delete projects.
+// `viewer` is read-only (docs/DATA_MODEL Membership.role).
+export const PROJECT_MANAGER_ROLES = ["owner", "editor"] as const;
+
+/** Can a member with this designer-side role mutate projects? */
+export function canManageProjects(role: string): boolean {
+  return (PROJECT_MANAGER_ROLES as readonly string[]).includes(role);
+}
