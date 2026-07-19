@@ -5,6 +5,7 @@ export interface OptionView {
   name: string;
   brand: string | null;
   model: string | null;
+  category: string;
   swatchHex: string | null;
   isConfirmed: boolean;
 }
@@ -20,3 +21,6 @@ export interface SpecRow {
   confirmedMaterialId: string | null;
   options: OptionView[];
 }
+
+export const SPEC_VIEWS = ["full", "compact", "grid", "board"] as const;
+export type SpecView = (typeof SPEC_VIEWS)[number];
