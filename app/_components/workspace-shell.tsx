@@ -20,12 +20,12 @@ export async function WorkspaceShell({
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
-      <header className="flex items-center justify-between border-b border-sand bg-surface px-6 py-3">
+      <header className="flex items-center justify-between border-b border-line bg-surface px-6 py-3">
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="font-bold tracking-tight text-earth">
+          <Link href="/" className="text-[21px] font-bold tracking-tight text-brand">
             {t("common.appName")}
           </Link>
-          <span className="text-sm text-muted">{label}</span>
+          <span className="text-sm text-sub">{label}</span>
         </div>
         <div className="flex items-center gap-3">
           <LangToggle />

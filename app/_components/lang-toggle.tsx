@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { setLocale } from "@/lib/i18n/actions";
 import { locales, type Locale } from "@/lib/i18n/config";
+import { cn } from "@/lib/ui/cn";
 
 // Whole-site language toggle. Writes the locale cookie via a server action, then
 // refreshes so every Server Component re-renders in the new language.
@@ -24,7 +25,7 @@ export function LangToggle() {
 
   return (
     <div
-      className="inline-flex items-center rounded-full border border-sand bg-surface p-0.5 text-sm"
+      className="inline-flex items-center rounded-pill border border-line-2 bg-surface p-0.5 text-sm"
       role="group"
       aria-label={t("language")}
     >
@@ -37,9 +38,10 @@ export function LangToggle() {
             onClick={() => choose(locale)}
             aria-pressed={selected}
             disabled={pending}
-            className={`rounded-full px-3 py-1 font-medium uppercase transition-colors ${
-              selected ? "bg-brand text-white" : "text-muted hover:text-ink"
-            }`}
+            className={cn(
+              "rounded-pill px-3 py-1 font-medium uppercase transition-colors",
+              selected ? "bg-brand text-white" : "text-sub hover:text-ink",
+            )}
           >
             {locale}
           </button>

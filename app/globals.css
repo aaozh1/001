@@ -1,23 +1,45 @@
 @import "tailwindcss";
 
 /*
-  MatList design tokens — derived from reference/matlist-prototype.jsx
-  Full component library lands in Phase 0 task 0.4. These base tokens exist
-  so the scaffold already renders in the brand palette.
+  MatList design system — tokens ported verbatim from reference/matlist-prototype.jsx
+  (the agreed UX reference, :root block). Component primitives that consume these
+  tokens live in components/ui/. Do not hardcode colors/radii/shadows in
+  components — always go through these tokens (task 0.4).
 */
 @theme {
+  /* Brand */
   --color-brand: #f4632a;
-  --color-brand-soft: #ff8a50;
-  --color-earth: #b0512f;
-  --color-clay: #a9743f;
-  --color-sand: #c9c2b4;
-  --color-ink: #1c1a17;
-  --color-muted: #8a94a0;
-  --color-surface: #ffffff;
-  --color-canvas: #f5f2ec;
+  --color-brand-soft: #fff1ea; /* light tint — chip/hero backgrounds, focus ring */
 
-  --radius-card: 1rem;
-  --shadow-soft: 0 8px 24px -12px rgb(28 26 23 / 0.18);
+  /* Text */
+  --color-ink: #1f2430; /* primary text / headings */
+  --color-sub: #6b7280; /* secondary text */
+  --color-mut: #9aa1ac; /* muted / disabled */
+
+  /* Lines & surfaces */
+  --color-line: #ecedf0;
+  --color-line-2: #e2e4e9;
+  --color-canvas: #f5f6f8; /* page background */
+  --color-surface: #ffffff; /* cards */
+
+  /* Semantic (with soft background pair) — used by StatusChip / Badge */
+  --color-ok: #12a150;
+  --color-ok-soft: #e6f6ec;
+  --color-warn: #b45309;
+  --color-warn-soft: #fdf3e3;
+  --color-info: #4f46e5;
+  --color-info-soft: #efeefc;
+  --color-quoted: #0b6bae;
+  --color-quoted-soft: #e8f4fd;
+
+  /* Radii */
+  --radius-sm: 10px;
+  --radius-card: 14px;
+  --radius-pill: 999px;
+
+  /* Soft shadows (nudged, layered — matches prototype --sh / --sh-2) */
+  --shadow-soft: 0 1px 3px rgb(16 24 40 / 0.06), 0 1px 2px rgb(16 24 40 / 0.04);
+  --shadow-lifted: 0 4px 12px rgb(16 24 40 / 0.1);
 
   --font-sans: "Noto Sans Thai", "Inter", system-ui, sans-serif;
 }
@@ -26,4 +48,5 @@ html,
 body {
   background: var(--color-canvas);
   color: var(--color-ink);
+  font-family: var(--font-sans);
 }

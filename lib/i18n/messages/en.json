@@ -24,6 +24,26 @@
     "designer": "Designer",
     "seller": "Seller"
   },
+  "status": {
+    "empty": "No material yet",
+    "options": "Options",
+    "chosen": "Confirmed",
+    "sent": "Awaiting quotes",
+    "quoted": "Quoted"
+  },
+  "uikit": {
+    "title": "MatList component kit",
+    "subtitle": "Base design system (ported from the prototype) — reused across the app",
+    "buttons": "Buttons",
+    "cards": "Cards",
+    "statusChips": "Spec status chips",
+    "chips": "Filter chips",
+    "swatches": "Material swatches",
+    "modal": "Modal",
+    "openModal": "Open sample modal",
+    "modalBody": "The modal dims and blurs the backdrop; close with Esc or a click outside.",
+    "sampleCard": "Sample card — rounded, soft shadow, lifts on hover"
+  },
   "auth": {
     "loginTitle": "Log in",
     "loginSubtitle": "Welcome back to MatList",
