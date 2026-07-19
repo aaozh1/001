@@ -196,6 +196,7 @@ export async function submitQuote(
 
 export interface ItemQuote {
   quoteId: string;
+  sellerOrgId: string;
   sellerName: string;
   pricePerUnit: string;
   projectDiscount: string | null;
@@ -233,6 +234,7 @@ export async function getProjectQuotes(
           validUntil: true,
           includeSample: true,
           status: true,
+          sellerOrgId: true,
           seller: { select: { name: true } },
         },
       },
@@ -247,6 +249,7 @@ export async function getProjectQuotes(
       rfqStatus: r.status,
       quotes: r.quotes.map((q) => ({
         quoteId: q.id,
+        sellerOrgId: q.sellerOrgId,
         sellerName: q.seller.name,
         pricePerUnit: q.pricePerUnit.toString(),
         projectDiscount: q.projectDiscount ? q.projectDiscount.toString() : null,

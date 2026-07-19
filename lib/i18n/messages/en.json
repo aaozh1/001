@@ -301,5 +301,22 @@
     "perUnit": "/unit",
     "won": "Won 🎉",
     "lost": "Not selected"
+  },
+  "chat": {
+    "title": "Chat",
+    "designerSubtitle": "Your conversations with sellers — tied to each project",
+    "sellerSubtitle": "Conversations with design offices about their projects",
+    "privacy": "You see the project's spec context; the designer's contact stays private",
+    "noThreads": "No conversations yet",
+    "open": "Open",
+    "back": "← Back to chats",
+    "withSeller": "Chat with",
+    "withSellerShort": "Chat",
+    "projectContext": "Project",
+    "specItems": "spec items",
+    "empty": "No messages yet — say hello 👋",
+    "placeholder": "Type a message… e.g. quote for a 500 m² project",
+    "send": "Send",
+    "sending": "Sending…"
   }
 }

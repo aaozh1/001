@@ -6,9 +6,11 @@ import { Button, Input, Modal, StatusChip } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import { sendRfqsAction } from "@/lib/rfq/actions";
 import { QuoteCompareButton } from "./quote-compare";
+import { ChatWithSellerButton } from "./chat-with-seller";
 
 export interface RfqItemQuote {
   quoteId: string;
+  sellerOrgId: string;
   sellerName: string;
   pricePerUnit: string;
   projectDiscount: string | null;
@@ -133,16 +135,26 @@ export function RfqSendPanel({
                         {it.quotes.map((q) => (
                           <span
                             key={q.quoteId}
-                            className={cn(
-                              "rounded-pill px-2 py-0.5 text-xs",
-                              q.status === "selected"
-                                ? "bg-ok-soft font-semibold text-ok"
-                                : q.status === "rejected"
-                                  ? "text-mut line-through"
-                                  : "text-sub",
-                            )}
+                            className="flex items-center gap-1.5"
                           >
-                            {q.sellerName} ฿{q.pricePerUnit}
+                            <span
+                              className={cn(
+                                "rounded-pill px-2 py-0.5 text-xs",
+                                q.status === "selected"
+                                  ? "bg-ok-soft font-semibold text-ok"
+                                  : q.status === "rejected"
+                                    ? "text-mut line-through"
+                                    : "text-sub",
+                              )}
+                            >
+                              {q.sellerName} ฿{q.pricePerUnit}
+                            </span>
+                            {canManage && (
+                              <ChatWithSellerButton
+                                projectId={projectId}
+                                sellerOrgId={q.sellerOrgId}
+                              />
+                            )}
                           </span>
                         ))}
                       </div>
