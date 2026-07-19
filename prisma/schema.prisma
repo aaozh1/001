@@ -105,6 +105,10 @@ model User {
   name                String?
   phone               String?
   locale              Locale   @default(th)
+  // bcrypt hash — credentials auth (task 0.3). Nullable so accounts created by
+  // other flows (e.g. a seller who first replies to an RFQ, Phase 2) can exist
+  // before a password is set. Never returned to the client.
+  passwordHash        String?
   // เลขใบประกอบวิชาชีพ (ภ.สถ.) — ใช้ verify ผู้ออกแบบจริง
   professionalLicense String?
   createdAt           DateTime @default(now())

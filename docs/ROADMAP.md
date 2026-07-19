@@ -12,7 +12,7 @@
   - AC: `npm run dev` ขึ้นหน้าเปล่าได้ · `.env.example` ครบ · README บอกวิธีรัน
 - [ ] **0.2 วาง Prisma schema ตาม DATA_MODEL.md** — migrate + seed ตัวอย่าง (วัสดุ ~30 ตัวจาก prototype, 2 org designer/seller)
   - AC: `prisma migrate` ผ่าน · seed แล้ว query ได้ · ครบทุกตารางใน DATA_MODEL
-- [ ] **0.3 ตั้ง i18n (TH default, EN toggle) + ระบบ auth 2 บทบาท**
+- [x] **0.3 ตั้ง i18n (TH default, EN toggle) + ระบบ auth 2 บทบาท**
   - AC: สมัคร/login/logout ได้ · แยก designer/seller · หน้าใน (designer)/(seller) ต้อง login · สลับภาษาทั้งเว็บได้
 - [ ] **0.4 ย้าย design system จาก prototype** — สี ปุ่ม การ์ด modal ขอบมน เงานุ่ม (ดู reference/) เป็น component ใช้ซ้ำ
   - AC: มี component library พื้นฐาน (Button, Card, Modal, StatusChip, Swatch) ตรงกับ prototype

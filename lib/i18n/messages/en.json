@@ -1,0 +1,60 @@
+{
+  "common": {
+    "appName": "MatList",
+    "tagline": "Every material. One list.",
+    "language": "Language",
+    "thai": "Thai",
+    "english": "English",
+    "login": "Log in",
+    "logout": "Log out",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loading": "Working…",
+    "backHome": "Back to home"
+  },
+  "home": {
+    "badge": "Phase 0 · scaffold",
+    "heroSub": "A material spec-schedule tool for Thai architects, with a built-in pipe that sends RFQs straight to sellers",
+    "goDesigner": "Enter Designer Workspace",
+    "goSeller": "Enter Seller Center"
+  },
+  "roles": {
+    "designer": "Designer",
+    "seller": "Seller"
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "loginSubtitle": "Welcome back to MatList",
+    "registerTitle": "Sign up",
+    "registerSubtitle": "Get started with MatList for free",
+    "chooseRole": "Who are you?",
+    "designerHint": "Design office — build spec schedules and request quotes",
+    "sellerHint": "Material seller — receive RFQs and send quotes",
+    "orgName": "Organization / office name",
+    "orgNamePlaceholder": "e.g. Ashram Studio",
+    "submitLogin": "Log in",
+    "submitRegister": "Create account",
+    "haveAccount": "Already have an account?",
+    "noAccount": "No account yet?",
+    "invalidCredentials": "Invalid email or password",
+    "emailTaken": "That email is already registered",
+    "registerFailed": "Sign up failed, please try again",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "invalidEmail": "Invalid email format",
+    "fieldRequired": "Please fill in all fields"
+  },
+  "designer": {
+    "workspace": "Designer Workspace",
+    "welcome": "Hi {name}",
+    "dashboardIntro": "This is the designer workspace — spec schedules, projects and RFQs arrive in the next phases",
+    "myWork": "My Work"
+  },
+  "seller": {
+    "center": "Seller Center",
+    "welcome": "Hi {name}",
+    "dashboardIntro": "This is the seller workspace — RFQ inbox, materials and performance arrive in the next phases",
+    "inbox": "RFQ inbox"
+  }
+}

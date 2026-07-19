@@ -14,3 +14,25 @@
 
 ## กับดักที่ต้องระวัง
 ถ้าวันไหน RFQ ไหลช้าแล้วมีแบรนด์เสนอเงินทำ "คอนเทนต์สปอนเซอร์/ขึ้นอันดับ" — นั่นคือจุดที่จะกลายเป็น Wazzadu ห้ามรับ ขายความตั้งใจซื้อ (RFQ) ไม่ใช่ขายสายตา (impression)
+
+## Phase 0.3 — auth + i18n (บันทึกการตัดสินใจ)
+
+### ทำไม Auth.js (NextAuth v5) + Credentials + JWT session
+- ARCHITECTURE เสนอ NextAuth/Auth.js หรือ Clerk — เลือก Auth.js เพราะ Clerk พึ่ง service ภายนอก (ต่อ LINE/องค์กรไทยยืดหยุ่นน้อยกว่า) ส่วน Auth.js self-host ได้เต็มตัว
+- ใช้ **Credentials (email + password)** ก่อน เพราะ onboarding ผู้ขาย/ออฟฟิศไทยเริ่มด้วยอีเมล-รหัสผ่านเข้าใจง่ายสุด — provider อื่น (LINE Login, OAuth) เพิ่มทีหลังได้โดยไม่รื้อ
+- ใช้ **JWT session strategy** ไม่ใช่ database session → ไม่ต้องเพิ่มตาราง Account/Session/VerificationToken ของ adapter; schema เปลี่ยนน้อยสุด (เพิ่มแค่ `User.passwordHash`)
+- **Split config** (`auth.config.ts` ปลอด DB/bcrypt สำหรับ Edge middleware + `auth.ts` ตัวเต็มบน Node) — จำเป็นเพราะ Prisma/bcrypt รันบน Edge ไม่ได้ นี่คือ pattern มาตรฐานของ Auth.js กับ middleware
+- `trustHost: true` — เรา self-host หลัง proxy ของตัวเอง (ไม่ใช่ Vercel) Auth.js จะปฏิเสธด้วย UntrustedHost ถ้าไม่ตั้ง
+
+### role = ประเภท Organization (ไม่ใช่ field บน User)
+- ตาม ARCHITECTURE decision #3: ผู้ใช้คนเดียวมีได้ทั้ง designer และ seller แต่ workspace แยกกัน → สิทธิ์เข้า workspace จึงมาจาก "ชุดประเภท org ที่เป็นสมาชิก" ไม่ใช่ enum เดียวบน User
+- logic คิดสิทธิ์อยู่ใน `lib/permissions/` (pure functions, มี test) ตามที่ CLAUDE.md กำหนด
+
+### ทำไม i18n แบบ cookie (next-intl แบบไม่มี locale ใน URL)
+- ARCHITECTURE เสนอ next-intl หรือ i18next — เลือก **next-intl แบบ no-routing** (locale อยู่ใน cookie `NEXT_LOCALE`)
+- เหตุผล: prototype เป็น toggle ปุ่มเดียวสลับทั้งเว็บ + AC "สลับภาษาทั้งเว็บได้" → cookie ให้ URL สะอาด ไม่ต้อง `/th` `/en` ทุกหน้า และ toggle ปุ่มเดียวรีเฟรชทั้ง tree
+- dictionaries อยู่ `lib/i18n/messages/{th,en}.json`; มี test เช็คว่า key ตรงกันสองภาษา (กัน string ตกหล่น) — default = th
+
+### ทำไม workspace มี URL prefix (/designer, /seller)
+- route group `(designer)`/`(seller)` **ไม่ปรากฏใน URL** ถ้าให้ทั้งสองฝั่งใช้ path เปล่า จะชนกันที่ segment ร่วม (`/rfq`, `/billing`) — Next.js ไม่ยอม
+- จึง prefix ด้วยชื่อ workspace (`/designer/*`, `/seller/*`) → แยก workspace ชัด, gate ด้วย path ใน middleware ได้ตรงไปตรงมา, และ role ผิดฝั่ง redirect ไป workspace ของตัวเองอัตโนมัติ

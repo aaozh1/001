@@ -48,7 +48,18 @@ npm run db:seed
 npm run dev
 ```
 
-เปิด <http://localhost:3000> จะเห็นหน้า scaffold ของ MatList
+เปิด <http://localhost:3000> จะเห็นหน้าแรกของ MatList (สลับภาษา TH/EN ได้ที่มุมขวาบน)
+
+### เข้าสู่ระบบด้วยบัญชีตัวอย่าง (หลัง seed)
+
+| บทบาท | อีเมล | รหัสผ่าน | เข้า workspace |
+|---|---|---|---|
+| ผู้ออกแบบ (designer) | `designer@matlist.dev` | `matlist1234` | `/designer` |
+| ผู้ขาย (seller) | `seller@matlist.dev` | `matlist1234` | `/seller` |
+
+หรือกด **สมัครสมาชิก** เพื่อสร้างบัญชีใหม่ (เลือกบทบาท designer/seller ตอนสมัคร)
+แต่ละบทบาทเข้าได้เฉพาะ workspace ของตัวเอง — เข้าผิดฝั่งจะถูกพากลับ workspace ที่มีสิทธิ์
+โดยอัตโนมัติ ส่วนหน้า `/designer` `/seller` ต้อง login ก่อนเสมอ
 
 > หมายเหตุ: ถ้าไม่มี Docker แต่มี PostgreSQL 16 ในเครื่องอยู่แล้ว ให้สร้าง role
 > `matlist` (password `matlist`, สิทธิ์ `CREATEDB` สำหรับ shadow db ของ Prisma)
@@ -63,6 +74,7 @@ npm run dev
 | `npm run start` | รัน production build |
 | `npm run lint` | ตรวจ ESLint |
 | `npm run typecheck` | ตรวจ TypeScript (`tsc --noEmit`) |
+| `npm test` | รัน unit test (Vitest — permissions / i18n / validation) |
 | `npm run db:up` / `db:down` | เปิด/ปิดฐานข้อมูล dev (Docker) |
 | `npm run db:migrate` | สร้าง/รัน Prisma migration |
 | `npm run db:seed` | ใส่ข้อมูลตัวอย่าง (idempotent — รันซ้ำได้) |
