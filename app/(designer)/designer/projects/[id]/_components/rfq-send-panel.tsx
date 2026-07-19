@@ -6,12 +6,20 @@ import { Button, Input, Modal, StatusChip } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import { sendRfqsAction } from "@/lib/rfq/actions";
 
+export interface RfqItemQuote {
+  sellerName: string;
+  pricePerUnit: string;
+  leadTime: string | null;
+  includeSample: boolean;
+}
+
 export interface RfqItem {
   id: string;
   code: string;
   zone: string;
   optionCount: number;
   state: "none" | "sent" | "quoted";
+  quotes: RfqItemQuote[];
 }
 
 export function RfqSendPanel({
@@ -83,28 +91,52 @@ export function RfqSendPanel({
             {withOptions.map((it) => {
               const sent = it.state !== "none";
               return (
-                <li key={it.id} className="flex items-center justify-between gap-3 py-2 text-sm">
-                  <label
-                    className={cn(
-                      "flex items-center gap-2",
-                      sent ? "text-mut" : "cursor-pointer text-ink",
+                <li key={it.id} className="py-2 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <label
+                      className={cn(
+                        "flex items-center gap-2",
+                        sent ? "text-mut" : "cursor-pointer text-ink",
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        disabled={sent || !canManage}
+                        checked={selected.has(it.id)}
+                        onChange={() => toggle(it.id)}
+                        className="h-4 w-4 accent-brand"
+                      />
+                      <span className="font-medium">{it.code}</span>
+                      {it.zone && <span className="text-sub">· {it.zone}</span>}
+                      <span className="text-xs text-mut">
+                        · {it.optionCount} {t("options")}
+                      </span>
+                    </label>
+                    {sent && (
+                      <StatusChip status={it.state === "quoted" ? "quoted" : "sent"} />
                     )}
-                  >
-                    <input
-                      type="checkbox"
-                      disabled={sent || !canManage}
-                      checked={selected.has(it.id)}
-                      onChange={() => toggle(it.id)}
-                      className="h-4 w-4 accent-brand"
-                    />
-                    <span className="font-medium">{it.code}</span>
-                    {it.zone && <span className="text-sub">· {it.zone}</span>}
-                    <span className="text-xs text-mut">
-                      · {it.optionCount} {t("options")}
-                    </span>
-                  </label>
-                  {sent && (
-                    <StatusChip status={it.state === "quoted" ? "quoted" : "sent"} />
+                  </div>
+                  {it.quotes.length > 0 && (
+                    <div className="mt-1.5 ml-6 flex flex-col gap-1">
+                      <span className="text-xs font-medium text-mut">
+                        {t("quotesReceived")}
+                      </span>
+                      {it.quotes.map((q, i) => (
+                        <div key={i} className="flex flex-wrap items-center gap-2 text-xs">
+                          <span className="text-sub">{q.sellerName}</span>
+                          <span className="font-semibold text-ok">
+                            ฿{q.pricePerUnit}
+                            <span className="font-normal text-mut">{t("perUnit")}</span>
+                          </span>
+                          {q.leadTime && (
+                            <span className="text-mut">· {t("lead")} {q.leadTime}</span>
+                          )}
+                          {q.includeSample && (
+                            <span className="text-brand">{t("withSample")}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </li>
               );

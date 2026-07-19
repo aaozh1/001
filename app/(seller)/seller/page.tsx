@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
-import { Card } from "@/components/ui";
+import { Card, buttonClasses } from "@/components/ui";
 
 export default async function SellerDashboard() {
   const session = await auth();
@@ -14,9 +15,11 @@ export default async function SellerDashboard() {
       </h1>
       <p className="mt-2 text-sub">{t("dashboardIntro")}</p>
 
-      <Card className="mt-6 gap-1 p-6">
+      <Card className="mt-6 gap-3 p-6">
         <h2 className="font-semibold text-ink">{t("inbox")}</h2>
-        <p className="text-sm text-sub">Phase 2 →</p>
+        <Link href="/seller/rfq" className={buttonClasses({ size: "sm" })}>
+          {t("goInbox")}
+        </Link>
       </Card>
     </div>
   );
