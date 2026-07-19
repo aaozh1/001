@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { canManageProjects } from "@/lib/permissions";
 import { getDesignerContext, listProjects } from "@/lib/projects/service";
 import { isProjectStatus } from "@/lib/projects/status";
+import { buttonClasses } from "@/components/ui";
 import { NewProjectButton } from "./_components/new-project-button";
 import { ProjectCard } from "./_components/project-card";
 
@@ -33,7 +35,17 @@ export default async function ProjectsPage() {
           </h1>
           <p className="mt-1 text-sub">{t("subtitle")}</p>
         </div>
-        {canManage && <NewProjectButton />}
+        {canManage && (
+          <div className="flex items-center gap-2">
+            <Link
+              href="/designer/projects/import"
+              className={buttonClasses({ variant: "ghost", size: "sm" })}
+            >
+              {t("importExcel")}
+            </Link>
+            <NewProjectButton />
+          </div>
+        )}
       </header>
 
       {projects.length === 0 ? (

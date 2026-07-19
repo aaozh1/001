@@ -32,7 +32,7 @@
   - AC: สลับได้ · board แสดง swatch ตาม option · ตรง prototype
 - [x] **1.6 Spec Book export (PDF)** — มีข้อมูลผู้ผลิตครบ + โลโก้ท้าย + versioned
   - AC: export PDF จริง · เก็บเวอร์ชันใน DB · รายการ option แสดงหมายเหตุ
-- [ ] **1.7 นำเข้า Excel** — อัปโหลด .xlsx/.csv + วางจากคลิปบอร์ด → สร้างโปรเจกต์
+- [x] **1.7 นำเข้า Excel** — อัปโหลด .xlsx/.csv + วางจากคลิปบอร์ด → สร้างโปรเจกต์
   - AC: parse หัวคอลัมน์ TH/EN · preview ก่อนยืนยัน · เก็บ mapping ที่ใช้บ่อย
 
 ## PHASE 2 — Core: RFQ ข้ามคนจริง (เครื่องยนต์รายได้)
