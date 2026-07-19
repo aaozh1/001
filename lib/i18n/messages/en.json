@@ -92,7 +92,11 @@
     "sentToast": "Sent {created} lines · {recipients} sellers",
     "alreadySent": "Sent",
     "stateSent": "Awaiting quotes",
-    "stateQuoted": "Quoted"
+    "stateQuoted": "Quoted",
+    "quotesReceived": "Quotes received",
+    "perUnit": "/unit",
+    "lead": "lead",
+    "withSample": "+ sample"
   },
   "import": {
     "title": "Import from Excel / CSV",
@@ -247,6 +251,39 @@
     "center": "Seller Center",
     "welcome": "Hi {name}",
     "dashboardIntro": "This is the seller workspace — RFQ inbox, materials and performance arrive in the next phases",
-    "inbox": "RFQ inbox"
+    "inbox": "RFQ inbox",
+    "goInbox": "Open RFQ inbox"
+  },
+  "sellerRfq": {
+    "title": "RFQ inbox",
+    "subtitle": "Requests you've received — quote to win the order",
+    "privacy": "You see the client's spec context; contact details open once they reply",
+    "empty": "No RFQs yet",
+    "back": "← Back to inbox",
+    "project": "Project",
+    "material": "Material asked",
+    "qty": "Quantity",
+    "sla": "Respond by",
+    "overdue": "Overdue",
+    "wantSample": "Client also requested a sample",
+    "note": "Client note",
+    "respond": "Quote",
+    "responded": "Answered",
+    "open": "Open",
+    "quoteTitle": "Build a quote",
+    "pricePerUnit": "Price per unit (THB)",
+    "projectDiscount": "Project discount / unit (THB)",
+    "leadTime": "Lead time",
+    "leadPlaceholder": "e.g. 7 days",
+    "paymentTerms": "Payment terms",
+    "paymentPlaceholder": "e.g. 30% deposit, balance before delivery",
+    "validUntil": "Valid until",
+    "includeSample": "Include a sample",
+    "submit": "Send quote",
+    "submitting": "Sending…",
+    "updateQuote": "Update quote",
+    "submitted": "Quote sent ✓ the price flows back to the client",
+    "yourQuote": "Your quote",
+    "perUnit": "/unit"
   }
 }

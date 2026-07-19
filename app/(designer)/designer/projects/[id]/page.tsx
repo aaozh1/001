@@ -10,6 +10,7 @@ import { deriveSpecStatus } from "@/lib/spec/status";
 import { getMaterialsByIds } from "@/lib/materials/service";
 import { listSpecBooks } from "@/lib/spec-book/service";
 import { getRfqStatusMap } from "@/lib/rfq/service";
+import { getProjectQuotes } from "@/lib/quote/service";
 import { ProjectStatusBadge } from "../_components/project-status-badge";
 import { EditProjectButton } from "../_components/edit-project-button";
 import { SpecViews } from "./_components/spec-views";
@@ -78,12 +79,19 @@ export default async function ProjectDetailPage({ params }: Props) {
     dateLabel: dateFmt.format(b.createdAt),
   }));
 
+  const quotesMap = await getProjectQuotes(ctx.orgId, project.id);
   const rfqItems: RfqItem[] = project.specItems.map((item) => ({
     id: item.id,
     code: item.code,
     zone: item.zone ?? "",
     optionCount: item._count.options,
     state: rfqMap.get(item.id) ?? "none",
+    quotes: (quotesMap.get(item.id) ?? []).map((q) => ({
+      sellerName: q.sellerName,
+      pricePerUnit: q.pricePerUnit,
+      leadTime: q.leadTime,
+      includeSample: q.includeSample,
+    })),
   }));
 
   return (
