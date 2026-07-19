@@ -6,8 +6,10 @@ import { Card } from "@/components/ui";
 import { canManageProjects } from "@/lib/permissions";
 import { getDesignerContext, getProject } from "@/lib/projects/service";
 import { isProjectStatus } from "@/lib/projects/status";
+import { deriveSpecStatus } from "@/lib/spec/status";
 import { ProjectStatusBadge } from "../_components/project-status-badge";
 import { EditProjectButton } from "../_components/edit-project-button";
+import { SpecTable, type SpecRow } from "./_components/spec-table";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -57,46 +59,29 @@ export default async function ProjectDetailPage({ params }: Props) {
         )}
       </header>
 
-      <p className="mt-4 text-sm text-mut">{t("detailIntro")}</p>
-
       <Card className="mt-4" padded={false}>
         <div className="border-b border-line px-5 py-3 font-semibold text-ink">
           {t("specItems")}
         </div>
-        {project.specItems.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sub">{t("noItems")}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-line text-xs text-mut">
-                  <th className="px-5 py-2 font-semibold">{t("colCode")}</th>
-                  <th className="px-5 py-2 font-semibold">{t("colZone")}</th>
-                  <th className="px-5 py-2 font-semibold">{t("colCategory")}</th>
-                  <th className="px-5 py-2 font-semibold">{t("colQty")}</th>
-                  <th className="px-5 py-2 font-semibold">{t("colOptions")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {project.specItems.map((item) => (
-                  <tr key={item.id} className="border-b border-line last:border-0">
-                    <td className="px-5 py-2.5 font-medium text-ink">
-                      {item.code}
-                    </td>
-                    <td className="px-5 py-2.5 text-sub">{item.zone ?? "—"}</td>
-                    <td className="px-5 py-2.5 text-sub">
-                      {item.category ?? "—"}
-                    </td>
-                    <td className="px-5 py-2.5 text-sub">
-                      {item.qty ? `${item.qty.toString()} ${item.qtyUnit ?? ""}` : "—"}
-                    </td>
-                    <td className="px-5 py-2.5 text-sub">{item._count.options}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <SpecTable
+          projectId={project.id}
+          canManage={canManage}
+          items={project.specItems.map(
+            (item): SpecRow => ({
+              id: item.id,
+              code: item.code,
+              zone: item.zone ?? "",
+              category: item.category ?? "",
+              qty: item.qty ? item.qty.toString() : "",
+              qtyUnit: item.qtyUnit ?? "",
+              optionCount: item._count.options,
+              status: deriveSpecStatus({
+                confirmedMaterialId: item.confirmedMaterialId,
+                optionCount: item._count.options,
+              }),
+            }),
+          )}
+        />
       </Card>
     </div>
   );
