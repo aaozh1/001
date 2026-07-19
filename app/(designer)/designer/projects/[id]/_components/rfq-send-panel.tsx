@@ -5,12 +5,18 @@ import { useTranslations } from "next-intl";
 import { Button, Input, Modal, StatusChip } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import { sendRfqsAction } from "@/lib/rfq/actions";
+import { QuoteCompareButton } from "./quote-compare";
 
 export interface RfqItemQuote {
+  quoteId: string;
   sellerName: string;
   pricePerUnit: string;
+  projectDiscount: string | null;
   leadTime: string | null;
+  paymentTerms: string | null;
+  validUntil: string | null;
   includeSample: boolean;
+  status: string;
 }
 
 export interface RfqItem {
@@ -19,6 +25,8 @@ export interface RfqItem {
   zone: string;
   optionCount: number;
   state: "none" | "sent" | "quoted";
+  rfqId: string | null;
+  rfqStatus: string | null;
   quotes: RfqItemQuote[];
 }
 
@@ -116,26 +124,38 @@ export function RfqSendPanel({
                       <StatusChip status={it.state === "quoted" ? "quoted" : "sent"} />
                     )}
                   </div>
-                  {it.quotes.length > 0 && (
-                    <div className="mt-1.5 ml-6 flex flex-col gap-1">
+                  {it.quotes.length > 0 && it.rfqId && (
+                    <div className="mt-1.5 ml-6 flex flex-col gap-1.5">
                       <span className="text-xs font-medium text-mut">
-                        {t("quotesReceived")}
+                        {t("quotesReceived")} ({it.quotes.length})
                       </span>
-                      {it.quotes.map((q, i) => (
-                        <div key={i} className="flex flex-wrap items-center gap-2 text-xs">
-                          <span className="text-sub">{q.sellerName}</span>
-                          <span className="font-semibold text-ok">
-                            ฿{q.pricePerUnit}
-                            <span className="font-normal text-mut">{t("perUnit")}</span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {it.quotes.map((q) => (
+                          <span
+                            key={q.quoteId}
+                            className={cn(
+                              "rounded-pill px-2 py-0.5 text-xs",
+                              q.status === "selected"
+                                ? "bg-ok-soft font-semibold text-ok"
+                                : q.status === "rejected"
+                                  ? "text-mut line-through"
+                                  : "text-sub",
+                            )}
+                          >
+                            {q.sellerName} ฿{q.pricePerUnit}
                           </span>
-                          {q.leadTime && (
-                            <span className="text-mut">· {t("lead")} {q.leadTime}</span>
-                          )}
-                          {q.includeSample && (
-                            <span className="text-brand">{t("withSample")}</span>
-                          )}
+                        ))}
+                      </div>
+                      {canManage && (
+                        <div>
+                          <QuoteCompareButton
+                            projectId={projectId}
+                            rfqId={it.rfqId}
+                            rfqStatus={it.rfqStatus ?? "quoted"}
+                            quotes={it.quotes}
+                          />
                         </div>
-                      ))}
+                      )}
                     </div>
                   )}
                 </li>

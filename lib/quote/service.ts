@@ -3,7 +3,8 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
 import type { SellerContext } from "@/lib/seller/context";
-import { rfqStatusAfterQuote } from "./logic";
+import type { DesignerContext } from "@/lib/projects/service";
+import { rfqStatusAfterQuote, selectionOutcome } from "./logic";
 import type { QuoteInput } from "./schemas";
 
 // ── Seller: RFQ inbox + detail ─────────────────────────────────────────
@@ -20,6 +21,7 @@ export interface SellerInboxRfq {
   slaDueAt: string | null;
   status: string;
   responded: boolean;
+  quoteStatus: string | null; // this seller's quote: submitted | selected | rejected
   materials: { materialId: string; name: string }[];
 }
 
@@ -42,6 +44,7 @@ export async function listSellerInbox(sellerOrgId: string): Promise<SellerInboxR
           material: { select: { nameTh: true } },
         },
       },
+      quotes: { where: { sellerOrgId }, take: 1, select: { status: true } },
     },
   });
 
@@ -56,6 +59,7 @@ export async function listSellerInbox(sellerOrgId: string): Promise<SellerInboxR
     slaDueAt: r.slaDueAt ? r.slaDueAt.toISOString() : null,
     status: r.status,
     responded: r.recipients.some((rc) => rc.respondedAt != null),
+    quoteStatus: r.quotes[0]?.status ?? null,
     materials: r.recipients.map((rc) => ({
       materialId: rc.materialId ?? "",
       name: rc.material?.nameTh ?? "—",
@@ -112,6 +116,7 @@ export async function getSellerRfqDetail(
     slaDueAt: r.slaDueAt ? r.slaDueAt.toISOString() : null,
     status: r.status,
     responded: r.recipients.some((rc) => rc.respondedAt != null),
+    quoteStatus: q?.status ?? null,
     materials: r.recipients.map((rc) => ({
       materialId: rc.materialId ?? "",
       name: rc.material?.nameTh ?? "—",
@@ -190,51 +195,141 @@ export async function submitQuote(
 // ── Designer: quotes flowing back into the schedule ────────────────────
 
 export interface ItemQuote {
+  quoteId: string;
   sellerName: string;
   pricePerUnit: string;
   projectDiscount: string | null;
   leadTime: string | null;
+  paymentTerms: string | null;
   validUntil: string | null;
   includeSample: boolean;
+  status: string; // submitted | selected | rejected
+}
+export interface ItemQuoteGroup {
+  rfqId: string;
+  rfqStatus: string;
+  quotes: ItemQuote[];
 }
 
-/** specItemId → quotes received, for showing returned prices to the designer. */
+/** specItemId → the RFQ + quotes received, for compare/select on the designer side. */
 export async function getProjectQuotes(
   orgId: string,
   projectId: string,
-): Promise<Map<string, ItemQuote[]>> {
+): Promise<Map<string, ItemQuoteGroup>> {
   const rfqs = await prisma.rFQ.findMany({
     where: { projectId, project: { orgId } },
     select: {
+      id: true,
       specItemId: true,
+      status: true,
       quotes: {
         orderBy: { pricePerUnit: "asc" },
         select: {
+          id: true,
           pricePerUnit: true,
           projectDiscount: true,
           leadTime: true,
+          paymentTerms: true,
           validUntil: true,
           includeSample: true,
+          status: true,
           seller: { select: { name: true } },
         },
       },
     },
   });
 
-  const map = new Map<string, ItemQuote[]>();
+  const map = new Map<string, ItemQuoteGroup>();
   for (const r of rfqs) {
     if (r.quotes.length === 0) continue;
-    map.set(
-      r.specItemId,
-      r.quotes.map((q) => ({
+    map.set(r.specItemId, {
+      rfqId: r.id,
+      rfqStatus: r.status,
+      quotes: r.quotes.map((q) => ({
+        quoteId: q.id,
         sellerName: q.seller.name,
         pricePerUnit: q.pricePerUnit.toString(),
         projectDiscount: q.projectDiscount ? q.projectDiscount.toString() : null,
         leadTime: q.leadTime,
+        paymentTerms: q.paymentTerms,
         validUntil: q.validUntil ? q.validUntil.toISOString() : null,
         includeSample: q.includeSample,
+        status: q.status,
       })),
-    );
+    });
   }
   return map;
+}
+
+export type SelectQuoteResult = { ok: true } | { ok: false; error: "not_found" | "bad_quote" };
+
+/**
+ * Designer picks a winning quote: mark it `selected`, the rest `rejected`
+ * (their sellers are notified in-app via that status), close the RFQ
+ * `closed_won`, and confirm the winning material on the spec line — recording
+ * the real chosen price. Scoped to the designer's org.
+ */
+export async function selectQuote(
+  ctx: DesignerContext,
+  rfqId: string,
+  quoteId: string,
+): Promise<SelectQuoteResult> {
+  const rfq = await prisma.rFQ.findFirst({
+    where: { id: rfqId, project: { orgId: ctx.orgId } },
+    select: {
+      id: true,
+      specItemId: true,
+      quotes: { select: { id: true, sellerOrgId: true } },
+    },
+  });
+  if (!rfq) return { ok: false, error: "not_found" };
+
+  const outcome = selectionOutcome(
+    rfq.quotes.map((q) => q.id),
+    quoteId,
+  );
+  if (!outcome) return { ok: false, error: "bad_quote" };
+
+  const winner = rfq.quotes.find((q) => q.id === quoteId)!;
+  // The material to confirm = the winning seller's recipient option (first).
+  const recipient = await prisma.rFQRecipient.findFirst({
+    where: { rfqId, sellerOrgId: winner.sellerOrgId, materialId: { not: null } },
+    select: { materialId: true },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    await tx.quote.update({ where: { id: quoteId }, data: { status: "selected" } });
+    if (outcome.rejected.length > 0) {
+      await tx.quote.updateMany({
+        where: { id: { in: outcome.rejected } },
+        data: { status: "rejected" },
+      });
+    }
+    await tx.rFQ.update({ where: { id: rfqId }, data: { status: "closed_won" } });
+
+    if (recipient?.materialId) {
+      await tx.specOption.updateMany({
+        where: { specItemId: rfq.specItemId },
+        data: { isConfirmed: false },
+      });
+      await tx.specOption.updateMany({
+        where: { specItemId: rfq.specItemId, materialId: recipient.materialId },
+        data: { isConfirmed: true },
+      });
+      await tx.specItem.update({
+        where: { id: rfq.specItemId },
+        data: { confirmedMaterialId: recipient.materialId },
+      });
+    }
+
+    await writeAudit(tx, {
+      orgId: ctx.orgId,
+      userId: ctx.userId,
+      entityType: "rfq",
+      entityId: rfqId,
+      action: "select",
+      diff: { quoteId, rejected: outcome.rejected.length },
+    });
+  });
+  return { ok: true };
 }

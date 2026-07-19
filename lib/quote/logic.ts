@@ -26,3 +26,27 @@ export function isQuoteValid(validUntil: Date | null, now: Date): boolean {
 export function rfqStatusAfterQuote(current: string): string {
   return current === "open" ? "quoted" : current;
 }
+
+// ── Selection (Phase 2.4) ──────────────────────────────────────────────
+// Choosing a winner sets that quote `selected` and every other `rejected`; the
+// rejected sellers are thereby notified in-app (courtesy). Pure + tested.
+
+export interface SelectionOutcome {
+  selected: string;
+  rejected: string[];
+}
+
+/**
+ * Resolve which quotes win/lose. Returns null if the chosen id isn't among the
+ * quotes (guards the endpoint against a foreign quote id).
+ */
+export function selectionOutcome(
+  quoteIds: readonly string[],
+  selectedId: string,
+): SelectionOutcome | null {
+  if (!quoteIds.includes(selectedId)) return null;
+  return {
+    selected: selectedId,
+    rejected: quoteIds.filter((id) => id !== selectedId),
+  };
+}

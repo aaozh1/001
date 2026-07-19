@@ -96,7 +96,21 @@
     "quotesReceived": "ราคาที่ได้รับ",
     "perUnit": "/หน่วย",
     "lead": "ส่ง",
-    "withSample": "+ ตัวอย่าง"
+    "withSample": "+ ตัวอย่าง",
+    "compareOpen": "เทียบราคา + เลือก",
+    "compareTitle": "เทียบใบเสนอราคา",
+    "colSeller": "ผู้ขาย",
+    "colPrice": "ราคา/หน่วย",
+    "colEffective": "หลังส่วนลด",
+    "colLead": "ส่งของ",
+    "colTerms": "เงื่อนไข",
+    "colValid": "ยืนราคาถึง",
+    "colSample": "ตัวอย่าง",
+    "choose": "เลือกเจ้านี้",
+    "won": "✓ เลือกแล้ว",
+    "closedWon": "ปิดดีลแล้ว — เลือกผู้ชนะ",
+    "selecting": "กำลังเลือก…",
+    "yes": "มี"
   },
   "import": {
     "title": "นำเข้าจาก Excel / CSV",
@@ -284,6 +298,8 @@
     "updateQuote": "อัปเดตใบเสนอราคา",
     "submitted": "ส่งใบเสนอราคาแล้ว ✓ ราคาถูกส่งกลับให้ลูกค้า",
     "yourQuote": "ใบเสนอราคาของคุณ",
-    "perUnit": "/หน่วย"
+    "perUnit": "/หน่วย",
+    "won": "ได้งาน 🎉",
+    "lost": "ไม่ได้เลือกครั้งนี้"
   }
 }
