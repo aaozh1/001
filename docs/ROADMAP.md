@@ -28,7 +28,7 @@
   - AC: 1 รายการมีได้ ≤4 ตัวเลือก · confirm แล้วสถานะเปลี่ยน · logic สถานะมี test
 - [x] **1.4 คลังวัสดุ + ค้นหา + filter หมวด** — จากหน้าเลือกหมวดก่อน → คลัง
   - AC: search ทำงาน (ชื่อ/แบรนด์/รุ่น/sku) · เรียงตามความตรงสเปกเท่านั้น (กติกาข้อ 1) · เพิ่มวัสดุลงรายการได้
-- [ ] **1.5 มุมมองตาราง 4 แบบ** — full / compact / grid / material board
+- [x] **1.5 มุมมองตาราง 4 แบบ** — full / compact / grid / material board
   - AC: สลับได้ · board แสดง swatch ตาม option · ตรง prototype
 - [ ] **1.6 Spec Book export (PDF)** — มีข้อมูลผู้ผลิตครบ + โลโก้ท้าย + versioned
   - AC: export PDF จริง · เก็บเวอร์ชันใน DB · รายการ option แสดงหมายเหตุ

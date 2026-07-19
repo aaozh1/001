@@ -10,7 +10,8 @@ import { deriveSpecStatus } from "@/lib/spec/status";
 import { getMaterialsByIds } from "@/lib/materials/service";
 import { ProjectStatusBadge } from "../_components/project-status-badge";
 import { EditProjectButton } from "../_components/edit-project-button";
-import { SpecTable, type SpecRow } from "./_components/spec-table";
+import { SpecViews } from "./_components/spec-views";
+import type { SpecRow } from "./_components/types";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -54,6 +55,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         name: m?.nameTh ?? "—",
         brand: m?.brand ?? null,
         model: m?.model ?? null,
+        category: m?.category ?? item.category ?? "",
         swatchHex: m?.swatchHex ?? null,
         isConfirmed: o.isConfirmed,
       };
@@ -92,10 +94,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       </header>
 
       <Card className="mt-4" padded={false}>
-        <div className="border-b border-line px-5 py-3 font-semibold text-ink">
-          {t("specItems")}
-        </div>
-        <SpecTable projectId={project.id} canManage={canManage} items={rows} />
+        <SpecViews projectId={project.id} canManage={canManage} items={rows} />
       </Card>
     </div>
   );
