@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { jsonError, readJson } from "@/lib/http";
+import { jsonError, readJson, tooManyRequests } from "@/lib/http";
+import { RULES, consume } from "@/lib/rate-limit";
 import { resolveChatActor } from "@/lib/chat/access";
 import { postMessageSchema } from "@/lib/chat/schemas";
 import { listMessages, postMessage } from "@/lib/chat/service";
@@ -26,6 +27,8 @@ export async function POST(request: Request, { params }: Params) {
   if (!actor.actor.canPost) {
     return jsonError("forbidden", "Read-only role cannot send messages", 403);
   }
+  const rl = consume(`chatPost:${actor.actor.userId}`, RULES.chatPost);
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterSec);
 
   const parsed = postMessageSchema.safeParse(await readJson(request));
   if (!parsed.success) return jsonError("invalid_input", "Validation failed", 422);

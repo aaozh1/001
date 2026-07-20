@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { jsonError } from "@/lib/http";
+import { jsonError, tooManyRequests } from "@/lib/http";
+import { RULES, consume } from "@/lib/rate-limit";
 import { requireDesigner } from "@/lib/projects/guard";
 import {
   detectColumns,
@@ -32,6 +33,9 @@ async function readGrid(request: Request): Promise<string[][] | null> {
 export async function POST(request: Request) {
   const guard = await requireDesigner({ manage: true });
   if (!guard.ok) return guard.response;
+
+  const rl = consume(`importParse:${guard.ctx.userId}`, RULES.importParse);
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterSec);
 
   let grid: string[][] | null;
   try {

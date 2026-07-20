@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { jsonError, readJson } from "@/lib/http";
+import { jsonError, readJson, tooManyRequests } from "@/lib/http";
+import { RULES, consume } from "@/lib/rate-limit";
 import { requireDesigner } from "@/lib/projects/guard";
 import { prisma } from "@/lib/db";
 import { getDesignerContext } from "@/lib/projects/service";
@@ -11,6 +12,9 @@ import { listDesignerRfqs, listSellerRfqs, sendRfqs } from "@/lib/rfq/service";
 export async function POST(request: Request) {
   const guard = await requireDesigner({ manage: true });
   if (!guard.ok) return guard.response;
+
+  const rl = consume(`rfqSend:${guard.ctx.orgId}`, RULES.rfqSend);
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterSec);
 
   const parsed = sendRfqSchema.safeParse(await readJson(request));
   if (!parsed.success) return jsonError("invalid_input", "Validation failed", 422);

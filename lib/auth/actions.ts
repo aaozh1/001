@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/db";
+import { RULES, consume } from "@/lib/rate-limit";
 import { loginSchema, registerSchema } from "./schemas";
 import { createAccount } from "./register";
 import {
@@ -41,6 +42,11 @@ export async function login(
     password: formData.get("password"),
   });
   if (!parsed.success) return { error: "invalidCredentials" };
+
+  // Brute-force guard per account (Phase 4.3). Successful logins also count,
+  // but 10 per 15 min never bothers a human.
+  const rl = consume(`auth:${parsed.data.email}`, RULES.auth);
+  if (!rl.allowed) return { error: "tooManyAttempts" };
 
   try {
     await signIn("credentials", { ...parsed.data, redirect: false });
