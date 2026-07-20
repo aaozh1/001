@@ -2,6 +2,7 @@ import "server-only";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { rankMaterials } from "./relevance";
+import type { CatalogFilters, CatalogSort } from "./catalog-query";
 
 // Catalog reads. NEUTRALITY (CLAUDE.md rule #1): every ordering here goes through
 // rankMaterials — spec relevance then data completeness, never a paid signal.
@@ -20,6 +21,13 @@ export interface MaterialSummary {
   completeness: number;
   specTh: string | null;
   specEn: string | null;
+  // Extra facts for the table/compare views (ปรับ field column ได้).
+  cert: string | null;
+  leadTime: string | null;
+  warranty: string | null;
+  moq: string | null;
+  size: string | null;
+  color: string | null;
 }
 
 const SELECT = {
@@ -34,6 +42,12 @@ const SELECT = {
   unit: true,
   completeness: true,
   spec: true,
+  cert: true,
+  leadTime: true,
+  warranty: true,
+  moq: true,
+  size: true,
+  color: true,
   brand: { select: { name: true } },
 } satisfies Prisma.MaterialSelect;
 
@@ -62,6 +76,12 @@ function toSummary(m: Row): MaterialSummary {
     completeness: m.completeness,
     specTh: specText(m.spec, "summary_th"),
     specEn: specText(m.spec, "summary_en"),
+    cert: m.cert,
+    leadTime: m.leadTime,
+    warranty: m.warranty,
+    moq: m.moq,
+    size: m.size,
+    color: m.color,
   };
 }
 
@@ -83,22 +103,21 @@ export interface CatalogResult {
   pageSize: number;
 }
 
-// Fetch cap before in-memory ranking. The seed catalog is tiny; at real scale
-// this moves to a search index, but the neutral ordering rule stays identical.
-const RANK_CAP = 500;
+// Fetch cap before in-memory ranking. Sized above the demo catalog (~1,000
+// items) so browsing never silently truncates; at real scale this moves to a
+// search index, but the neutral ordering rule stays identical.
+const RANK_CAP = 3000;
 
-export async function searchCatalog(opts: {
+function catalogWhere(opts: {
   query?: string;
   category?: string;
-  page?: number;
-  pageSize?: number;
-}): Promise<CatalogResult> {
+  filters?: CatalogFilters;
+}): Prisma.MaterialWhereInput {
   const query = opts.query?.trim() ?? "";
-  const page = Math.max(1, opts.page ?? 1);
-  const pageSize = Math.min(opts.pageSize ?? 24, 60);
-
+  const f = opts.filters;
   const where: Prisma.MaterialWhereInput = { status: "published" };
-  if (opts.category) where.category = opts.category;
+  const category = f?.category ?? opts.category;
+  if (category) where.category = category;
   if (query) {
     where.OR = [
       { nameTh: { contains: query, mode: "insensitive" } },
@@ -107,6 +126,60 @@ export async function searchCatalog(opts: {
       { sku: { contains: query, mode: "insensitive" } },
       { brand: { name: { contains: query, mode: "insensitive" } } },
     ];
+  }
+  if (f) {
+    if (f.brands.length > 0) where.brand = { name: { in: f.brands } };
+    if (f.priceMin !== undefined || f.priceMax !== undefined) {
+      where.price = {
+        ...(f.priceMin !== undefined ? { gte: f.priceMin } : {}),
+        ...(f.priceMax !== undefined ? { lte: f.priceMax } : {}),
+      };
+    }
+    if (f.certOnly) where.cert = { not: null, notIn: ["", "—"] };
+    if (f.verifiedOnly) where.seller = { verified: true };
+  }
+  return where;
+}
+
+// Explicit user-chosen orderings (never a paid signal — rule #1). Relevance is
+// handled separately via rankMaterials.
+const SORT_ORDER: Record<
+  Exclude<CatalogSort, "relevance">,
+  Prisma.MaterialOrderByWithRelationInput[]
+> = {
+  priceAsc: [{ price: { sort: "asc", nulls: "last" } }, { nameTh: "asc" }],
+  priceDesc: [{ price: { sort: "desc", nulls: "last" } }, { nameTh: "asc" }],
+  newest: [{ createdAt: "desc" }, { nameTh: "asc" }],
+  nameAsc: [{ nameTh: "asc" }],
+};
+
+export async function searchCatalog(opts: {
+  query?: string;
+  category?: string;
+  filters?: CatalogFilters;
+  sort?: CatalogSort;
+  page?: number;
+  pageSize?: number;
+}): Promise<CatalogResult> {
+  const query = opts.query?.trim() ?? "";
+  const page = Math.max(1, opts.page ?? 1);
+  const pageSize = Math.min(opts.pageSize ?? 24, 60);
+  const sort = opts.sort ?? "relevance";
+  const where = catalogWhere(opts);
+
+  if (sort !== "relevance") {
+    // Deterministic user-chosen sort — paginate in the database.
+    const [rows, total] = await Promise.all([
+      prisma.material.findMany({
+        where,
+        select: SELECT,
+        orderBy: SORT_ORDER[sort],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.material.count({ where }),
+    ]);
+    return { materials: rows.map(toSummary), total, page, pageSize };
   }
 
   // Deterministic order for the rank pool: without it, WHICH rows fall inside
@@ -127,6 +200,32 @@ export async function searchCatalog(opts: {
     page,
     pageSize,
   };
+}
+
+export interface BrandFacet {
+  name: string;
+  count: number;
+}
+
+/** Brand names (with counts) available in a category — for the filter panel.
+ *  Ordered by count then name: an availability fact, not a ranking. */
+export async function listBrandFacets(category?: string): Promise<BrandFacet[]> {
+  const groups = await prisma.material.groupBy({
+    by: ["brandId"],
+    where: { status: "published", ...(category ? { category } : {}), brandId: { not: null } },
+    _count: { _all: true },
+  });
+  const ids = groups.map((g) => g.brandId).filter((v): v is string => Boolean(v));
+  const brands = await prisma.brand.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, name: true },
+  });
+  const nameById = new Map(brands.map((b) => [b.id, b.name]));
+  return groups
+    .map((g) => ({ name: nameById.get(g.brandId ?? "") ?? "", count: g._count._all }))
+    .filter((b) => b.name)
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+    .slice(0, 40);
 }
 
 export interface MaterialDetail {

@@ -6,7 +6,7 @@ import { Button, Modal } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import { effectiveUnitPrice } from "@/lib/quote/logic";
 import { selectQuoteAction } from "@/lib/quote/select-actions";
-import type { RfqItemQuote } from "./rfq-send-panel";
+import type { RfqQuoteView } from "./types";
 
 export function QuoteCompareButton({
   projectId,
@@ -17,7 +17,7 @@ export function QuoteCompareButton({
   projectId: string;
   rfqId: string;
   rfqStatus: string;
-  quotes: RfqItemQuote[];
+  quotes: RfqQuoteView[];
 }) {
   const t = useTranslations("rfq");
   const [open, setOpen] = useState(false);

@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { CATEGORIES, RAW_MATERIALS } from "./seed-data";
+import { generateBulkMaterials } from "./seed-bulk";
 
 const prisma = new PrismaClient();
 
@@ -265,6 +266,65 @@ async function main() {
       nameTh: m.th,
     });
   }
+
+  // ── Bulk catalog (~1,000 ชิ้น) — ให้คลังวัสดุรู้สึกเหมือน marketplace จริง ──
+  // (ไม่แตะ demo journey: โปรเจกต์/RFQ ทั้งหมดยังอ้างจาก 29 ตัว curated ข้างบน)
+  const bulk = generateBulkMaterials();
+  const bulkBrandNames = [...new Set(bulk.map((b) => b.brand))].filter(
+    (n) => !brandByName.has(n),
+  );
+  // สลับเจ้าของแบรนด์ใหม่ทีละเจ้า — ทั้งสองบริษัทเดโม่มีแคตตาล็อกใหญ่ทั้งคู่
+  for (const [i, name] of bulkBrandNames.entries()) {
+    const orgId = i % 2 === 0 ? sellerOrg.id : sellerOrg2.id;
+    const b = await prisma.brand.create({
+      data: {
+        sellerOrgId: orgId,
+        name,
+        story: `แบรนด์ ${name} — ตัวแทนจำหน่ายอย่างเป็นทางการ`,
+      },
+    });
+    brandByName.set(name, { id: b.id, orgId });
+  }
+  const skuSeen = new Set(
+    RAW_MATERIALS.map((m) => `${slug(m.brand)}-${slug(m.model)}`.toUpperCase()),
+  );
+  const bulkRows: Prisma.MaterialCreateManyInput[] = [];
+  for (const m of bulk) {
+    const brand = brandByName.get(m.brand)!;
+    let sku = `${slug(m.brand)}-${slug(m.model)}`.toUpperCase();
+    let bump = 2;
+    while (skuSeen.has(sku)) sku = `${slug(m.brand)}-${slug(m.model)}-${bump++}`.toUpperCase();
+    skuSeen.add(sku);
+    const [firstColorName, firstColorHex] = m.colors[0] ?? [null, null];
+    const data = {
+      sellerOrgId: brand.orgId,
+      brandId: brand.id,
+      nameTh: m.th,
+      nameEn: m.en,
+      model: m.model,
+      sku,
+      category: CATEGORIES[m.cat].key,
+      color: firstColorName,
+      size: m.sizes[0] ?? null,
+      price: new Prisma.Decimal(m.price),
+      unit: m.unit,
+      spec: {
+        summary_th: m.specTh,
+        summary_en: m.specEn,
+        colors: m.colors,
+        sizes: m.sizes,
+      } as Prisma.InputJsonValue,
+      cert: m.cert,
+      leadTime: m.lead,
+      moq: m.moq,
+      warranty: m.wty,
+      swatchHex: firstColorHex,
+      status: "published" as const,
+    };
+    bulkRows.push({ ...data, completeness: completenessOf(data) });
+  }
+  await prisma.material.createMany({ data: bulkRows });
+  console.log(`  bulk catalog: +${bulkRows.length} materials`);
 
   // สินค้า 1 ตัวของผู้ขายหลักเป็น "ฉบับร่าง" ข้อมูลบาง ๆ → เดโม่แถบ completeness ต่ำ
   const draftMat = materials.filter((x) => x.sellerOrgId === sellerOrg.id).at(-1)!;
@@ -701,6 +761,25 @@ async function main() {
           },
         ],
       },
+    },
+  });
+
+  // ── Template กลางของระบบ (orgId null) — เดโม่ flow "แก้ไขแล้วได้สำเนา" ──
+  await prisma.template.create({
+    data: {
+      orgId: null,
+      name: "โครงมาตรฐานบ้านพักอาศัย (ระบบ)",
+      buildingType: "บ้านเดี่ยว",
+      structure: [
+        { code: "FL-01", zone: "พื้นส่วนกลาง", category: CATEGORIES[0].key, qtyUnit: "ตร.ม." },
+        { code: "FL-02", zone: "พื้นห้องนอน", category: CATEGORIES[2].key, qtyUnit: "ตร.ม." },
+        { code: "WL-01", zone: "ผนังภายนอก", category: CATEGORIES[5].key, qtyUnit: "ตร.ม." },
+        { code: "WL-02", zone: "ผนังห้องน้ำ", category: CATEGORIES[0].key, qtyUnit: "ตร.ม." },
+        { code: "CL-01", zone: "ฝ้าเพดาน", category: CATEGORIES[6].key, qtyUnit: "ตร.ม." },
+        { code: "DR-01", zone: "ประตู-หน้าต่าง", category: CATEGORIES[8].key, qtyUnit: "ชุด" },
+        { code: "LT-01", zone: "แสงสว่าง", category: CATEGORIES[13].key, qtyUnit: "จุด" },
+        { code: "SN-01", zone: "สุขภัณฑ์", category: CATEGORIES[12].key, qtyUnit: "ชุด" },
+      ] as Prisma.InputJsonValue,
     },
   });
 

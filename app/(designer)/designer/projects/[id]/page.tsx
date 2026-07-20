@@ -7,6 +7,7 @@ import { canManageProjects } from "@/lib/permissions";
 import { getDesignerContext, getProject } from "@/lib/projects/service";
 import { isProjectStatus } from "@/lib/projects/status";
 import { deriveSpecStatus, rfqFlags } from "@/lib/spec/status";
+import { type BoardLayout, boardLayoutSchema } from "@/lib/spec/board";
 import { getMaterialsByIds } from "@/lib/materials/service";
 import { listSpecBooks } from "@/lib/spec-book/service";
 import { getRfqStatusMap } from "@/lib/rfq/service";
@@ -17,9 +18,6 @@ import { listMaterialSets } from "@/lib/templates/service";
 import { ProjectStatusBadge } from "../_components/project-status-badge";
 import { EditProjectButton } from "../_components/edit-project-button";
 import { SpecViews } from "./_components/spec-views";
-import { SpecBookPanel } from "./_components/spec-book-panel";
-import { RfqSendPanel, type RfqItem } from "./_components/rfq-send-panel";
-import { StudioTools } from "./_components/studio-tools";
 import type { SpecRow } from "./_components/types";
 
 type Props = { params: Promise<{ id: string }> };
@@ -43,36 +41,62 @@ export default async function ProjectDetailPage({ params }: Props) {
   const optionMaterialIds = project.specItems.flatMap((i) =>
     i.options.map((o) => o.materialId),
   );
-  const materials = await getMaterialsByIds(optionMaterialIds);
-  const rfqMap = await getRfqStatusMap(project.id);
+  const [materials, rfqMap, quotesMap] = await Promise.all([
+    getMaterialsByIds(optionMaterialIds),
+    getRfqStatusMap(project.id),
+    getProjectQuotes(ctx.orgId, project.id),
+  ]);
 
   const rows: SpecRow[] = project.specItems.map((item) => {
     const rfqState = rfqMap.get(item.id);
+    const group = quotesMap.get(item.id);
     return {
-    id: item.id,
-    code: item.code,
-    zone: item.zone ?? "",
-    category: item.category ?? "",
-    qty: item.qty ? item.qty.toString() : "",
-    qtyUnit: item.qtyUnit ?? "",
-    confirmedMaterialId: item.confirmedMaterialId,
-    status: deriveSpecStatus({
+      id: item.id,
+      code: item.code,
+      zone: item.zone ?? "",
+      category: item.category ?? "",
+      qty: item.qty ? item.qty.toString() : "",
+      qtyUnit: item.qtyUnit ?? "",
       confirmedMaterialId: item.confirmedMaterialId,
-      optionCount: item._count.options,
-      ...rfqFlags(rfqState),
-    }),
-    options: item.options.map((o) => {
-      const m = materials.get(o.materialId);
-      return {
-        materialId: o.materialId,
-        name: m?.nameTh ?? "—",
-        brand: m?.brand ?? null,
-        model: m?.model ?? null,
-        category: m?.category ?? item.category ?? "",
-        swatchHex: m?.swatchHex ?? null,
-        isConfirmed: o.isConfirmed,
-      };
-    }),
+      status: deriveSpecStatus({
+        confirmedMaterialId: item.confirmedMaterialId,
+        optionCount: item._count.options,
+        ...rfqFlags(rfqState),
+      }),
+      options: item.options.map((o) => {
+        const m = materials.get(o.materialId);
+        return {
+          materialId: o.materialId,
+          name: m?.nameTh ?? "—",
+          brand: m?.brand ?? null,
+          model: m?.model ?? null,
+          category: m?.category ?? item.category ?? "",
+          swatchHex: m?.swatchHex ?? null,
+          isConfirmed: o.isConfirmed,
+          price: m?.price ?? null,
+          unit: m?.unit ?? null,
+          leadTime: m?.leadTime ?? null,
+          warranty: m?.warranty ?? null,
+          cert: m?.cert ?? null,
+        };
+      }),
+      rfq: {
+        state: rfqState ?? "none",
+        rfqId: group?.rfqId ?? null,
+        rfqStatus: group?.rfqStatus ?? null,
+        quotes: (group?.quotes ?? []).map((q) => ({
+          quoteId: q.quoteId,
+          sellerOrgId: q.sellerOrgId,
+          sellerName: q.sellerName,
+          pricePerUnit: q.pricePerUnit,
+          projectDiscount: q.projectDiscount,
+          leadTime: q.leadTime,
+          paymentTerms: q.paymentTerms,
+          validUntil: q.validUntil,
+          includeSample: q.includeSample,
+          status: q.status,
+        })),
+      },
     };
   });
 
@@ -80,43 +104,22 @@ export default async function ProjectDetailPage({ params }: Props) {
   const dateFmt = new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
     dateStyle: "medium",
   });
-  const bookVersions = ((await listSpecBooks(ctx.orgId, id)) ?? []).map((b) => ({
+  const [bookRows, sub, materialSets] = await Promise.all([
+    listSpecBooks(ctx.orgId, id),
+    getSubscription(ctx.orgId),
+    listMaterialSets(ctx.orgId),
+  ]);
+  const bookVersions = (bookRows ?? []).map((b) => ({
     version: b.version,
     dateLabel: dateFmt.format(b.createdAt),
   }));
 
-  const quotesMap = await getProjectQuotes(ctx.orgId, project.id);
-  const [sub, materialSets] = await Promise.all([
-    getSubscription(ctx.orgId),
-    listMaterialSets(ctx.orgId),
-  ]);
-  const rfqItems: RfqItem[] = project.specItems.map((item) => {
-    const group = quotesMap.get(item.id);
-    return {
-      id: item.id,
-      code: item.code,
-      zone: item.zone ?? "",
-      optionCount: item._count.options,
-      state: rfqMap.get(item.id) ?? "none",
-      rfqId: group?.rfqId ?? null,
-      rfqStatus: group?.rfqStatus ?? null,
-      quotes: (group?.quotes ?? []).map((q) => ({
-        quoteId: q.quoteId,
-        sellerOrgId: q.sellerOrgId,
-        sellerName: q.sellerName,
-        pricePerUnit: q.pricePerUnit,
-        projectDiscount: q.projectDiscount,
-        leadTime: q.leadTime,
-        paymentTerms: q.paymentTerms,
-        validUntil: q.validUntil,
-        includeSample: q.includeSample,
-        status: q.status,
-      })),
-    };
-  });
+  // Stored board layout (tolerant parse — junk becomes "no layout").
+  const parsedLayout = boardLayoutSchema.safeParse(project.boardLayout);
+  const boardLayout: BoardLayout | null = parsedLayout.success ? parsedLayout.data : null;
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <Link href="/designer/projects" className="text-sm text-sub hover:text-ink">
         {t("back")}
       </Link>
@@ -149,19 +152,18 @@ export default async function ProjectDetailPage({ params }: Props) {
       {!canManage && <p className="mt-3 text-xs text-mut">👁 {t("viewerHint")}</p>}
 
       <Card className="mt-4" padded={false}>
-        <SpecViews projectId={project.id} canManage={canManage} items={rows} />
+        <SpecViews
+          projectId={project.id}
+          canManage={canManage}
+          items={rows}
+          canStudio={canUseMaterialSets(sub.plan)}
+          sets={materialSets.map((s) => ({ id: s.id, name: s.name }))}
+          books={bookVersions}
+          boardLayout={boardLayout}
+        />
       </Card>
 
-      <RfqSendPanel projectId={project.id} canManage={canManage} items={rfqItems} />
-
-      <StudioTools
-        projectId={project.id}
-        canStudio={canUseMaterialSets(sub.plan)}
-        canManage={canManage}
-        sets={materialSets.map((s) => ({ id: s.id, name: s.name }))}
-      />
-
-      <SpecBookPanel projectId={project.id} canManage={canManage} books={bookVersions} />
+      <p className="mt-3 text-xs text-mut">🔒 {t("rfqToolbarHint")}</p>
     </div>
   );
 }

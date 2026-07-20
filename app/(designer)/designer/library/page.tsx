@@ -9,6 +9,7 @@ import { getSubscription } from "@/lib/billing/service";
 import { canUseTemplates } from "@/lib/templates/logic";
 import { listMaterialSets, listTemplates } from "@/lib/templates/service";
 import { DeleteButton, UseTemplateButton } from "./_components/library-actions";
+import { EditTemplateButton } from "./_components/edit-template-button";
 
 // Library — templates + material sets (Studio features, ROADMAP 3.2). The
 // lists are visible on any plan so the value is discoverable; every action is
@@ -65,6 +66,13 @@ export default async function LibraryPage() {
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <UseTemplateButton templateId={tp.id} disabled={!actionable} />
+                  <EditTemplateButton
+                    templateId={tp.id}
+                    name={tp.name}
+                    lines={tp.lines}
+                    isSystem={tp.isSystem}
+                    disabled={!actionable}
+                  />
                   {!tp.isSystem && (
                     <DeleteButton
                       url={`/api/templates/${tp.id}`}

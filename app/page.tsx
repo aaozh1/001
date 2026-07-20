@@ -14,8 +14,10 @@ export default async function Home() {
         <span className="text-[22px] font-bold tracking-tight text-brand">
           {t("common.appName")}
         </span>
-        <GlobalSearch target="/catalog" className="min-w-[220px] max-w-md flex-1" />
-        <div className="ml-auto flex items-center gap-3">
+        <div className="order-last w-full flex-none sm:order-none sm:flex sm:w-auto sm:flex-1 sm:justify-center">
+          <GlobalSearch target="/catalog" className="w-full sm:max-w-md" />
+        </div>
+        <div className="ml-auto flex items-center gap-3 sm:ml-0">
           <LangToggle />
           <Link
             href="/login"
@@ -37,14 +39,18 @@ export default async function Home() {
         <p className="max-w-md text-lg font-medium text-ink">
           {t("common.tagline")}
         </p>
-        <p className="max-w-md text-sub">{t("home.heroSub")}</p>
+        <p className="max-w-xl text-sub">{t("home.heroSub")}</p>
+        <p className="max-w-xl text-xs text-mut">{t("home.audience")}</p>
 
         {/* The open front door: browse products with no account (ความ public
-            ของแพลตฟอร์ม) — one big button + a chip per material family. */}
+            ของแพลตฟอร์ม) — one big button + search + a chip per family. */}
         <div className="mt-2">
           <Link href="/catalog" className={buttonClasses({ size: "md" })}>
             🧱 {t("home.browseAll")}
           </Link>
+        </div>
+        <div className="w-full max-w-md">
+          <GlobalSearch target="/catalog" />
         </div>
         <div className="max-w-2xl">
           <p className="mb-2 text-xs text-mut">{t("home.browseByCat")}</p>

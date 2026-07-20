@@ -1,13 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { StatusChip, Swatch } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import { categoryTexture } from "@/lib/materials/categories";
-import { boardOrder } from "@/lib/spec/board";
+import { boardOrder, type BoardLayout } from "@/lib/spec/board";
 import { SpecTable } from "./spec-table";
-import { SPEC_VIEWS, type SpecRow, type SpecView } from "./types";
+import { RfqSendModal } from "./rfq-send-modal";
+import { SpecBookModal, type SpecBookVersion } from "./spec-book-modal";
+import { StudioToolsModal, type SetOption } from "./studio-tools-modal";
+import { MaterialBoard } from "./material-board";
+import {
+  DEFAULT_MLIST_COLS,
+  MLIST_COLS,
+  type MlistCol,
+  SPEC_VIEWS,
+  type SpecRow,
+  type SpecView,
+} from "./types";
 
 const VIEW_LABEL: Record<SpecView, string> = {
   full: "vFull",
@@ -16,46 +27,212 @@ const VIEW_LABEL: Record<SpecView, string> = {
   board: "vBoard",
 };
 
+const COLS_KEY = "matlist.mlist.cols";
+
+// The Material List surface: table views + the action toolbar above them
+// (ขอราคา/ตัวอย่างจากแถวที่เลือก, Spec Book, เครื่องมือ Studio — ปุ่ม icon
+// อยู่เหนือตาราง ไม่แยกเป็น section ใหญ่อีกต่อไป).
 export function SpecViews({
   projectId,
   items,
   canManage,
+  canStudio,
+  sets,
+  books,
+  boardLayout,
 }: {
   projectId: string;
   items: SpecRow[];
   canManage: boolean;
+  canStudio: boolean;
+  sets: SetOption[];
+  books: SpecBookVersion[];
+  boardLayout: BoardLayout | null;
 }) {
   const t = useTranslations("projects");
   const [view, setView] = useState<SpecView>("full");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [modal, setModal] = useState<"rfq" | "book" | "studio" | null>(null);
+  const [cols, setCols] = useState<MlistCol[]>(DEFAULT_MLIST_COLS);
+  const [colsOpen, setColsOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(COLS_KEY);
+      if (raw) {
+        const saved = (JSON.parse(raw) as string[]).filter((c): c is MlistCol =>
+          MLIST_COLS.includes(c as MlistCol),
+        );
+        setCols(saved);
+      }
+    } catch {
+      // Keep defaults on corrupt prefs.
+    }
+  }, []);
+
+  function toggleCol(c: MlistCol) {
+    setCols((prev) => {
+      const next = prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c];
+      window.localStorage.setItem(COLS_KEY, JSON.stringify(next));
+      return next;
+    });
+  }
+
+  // Only rows that HAVE options and are not already in an RFQ can be sent.
+  const sendable = useMemo(
+    () => new Set(items.filter((i) => i.options.length > 0 && i.rfq.state === "none").map((i) => i.id)),
+    [items],
+  );
+  const selectedValid = [...selected].filter((id) => sendable.has(id));
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const iconBtn =
+    "rounded-pill border border-line-2 px-2.5 py-1.5 text-[13px] text-sub transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40";
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-        <span className="font-semibold text-ink">{t("specItems")}</span>
-        <div className="inline-flex rounded-pill border border-line-2 bg-canvas p-0.5 text-xs">
-          {SPEC_VIEWS.map((v) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => setView(v)}
-              aria-pressed={view === v}
-              className={cn(
-                "rounded-pill px-3 py-1 font-medium transition-colors",
-                view === v ? "bg-brand text-white" : "text-sub hover:text-ink",
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
+        <span className="font-semibold text-ink">{t("materialList")}</span>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {canManage && (
+            <>
+              {/* ขอราคา/ตัวอย่าง — works off the rows ticked in the table. */}
+              <button
+                type="button"
+                onClick={() => setModal("rfq")}
+                disabled={selectedValid.length === 0}
+                title={selectedValid.length === 0 ? t("rfqPickHint") : undefined}
+                className={cn(
+                  iconBtn,
+                  selectedValid.length > 0 &&
+                    "border-brand bg-brand font-medium text-white hover:text-white",
+                )}
+              >
+                📨 {t("requestQuote")}
+                {selectedValid.length > 0 ? ` (${selectedValid.length})` : ""}
+              </button>
+              <button
+                type="button"
+                onClick={() => setModal("book")}
+                title={t("specBook")}
+                aria-label={t("specBook")}
+                className={iconBtn}
+              >
+                📕
+              </button>
+              <button
+                type="button"
+                onClick={() => setModal("studio")}
+                title={t("studioTools")}
+                aria-label={t("studioTools")}
+                className={iconBtn}
+              >
+                🧰
+              </button>
+            </>
+          )}
+
+          {view === "full" && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setColsOpen((v) => !v)}
+                aria-expanded={colsOpen}
+                title={t("columnsHint")}
+                className={iconBtn}
+              >
+                ⚙ {t("columns")}
+              </button>
+              {colsOpen && (
+                <div className="absolute right-0 top-full z-20 mt-1 w-48 rounded-card border border-line bg-surface p-2 shadow-lifted">
+                  {MLIST_COLS.map((c) => (
+                    <label
+                      key={c}
+                      className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1 text-sm text-ink hover:bg-canvas"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={cols.includes(c)}
+                        onChange={() => toggleCol(c)}
+                        className="h-4 w-4 accent-brand"
+                      />
+                      {t(`mcol_${c}`)}
+                    </label>
+                  ))}
+                </div>
               )}
-            >
-              {t(VIEW_LABEL[v])}
-            </button>
-          ))}
+            </div>
+          )}
+
+          <div className="inline-flex rounded-pill border border-line-2 bg-canvas p-0.5 text-xs">
+            {SPEC_VIEWS.map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                aria-pressed={view === v}
+                className={cn(
+                  "rounded-pill px-3 py-1 font-medium transition-colors",
+                  view === v ? "bg-brand text-white" : "text-sub hover:text-ink",
+                )}
+              >
+                {t(VIEW_LABEL[v])}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {view === "full" && (
-        <SpecTable projectId={projectId} items={items} canManage={canManage} />
+        <SpecTable
+          projectId={projectId}
+          items={items}
+          canManage={canManage}
+          cols={cols}
+          selected={selected}
+          sendable={sendable}
+          onToggleSelect={toggleSelect}
+        />
       )}
       {view === "compact" && <CompactView items={items} />}
       {view === "grid" && <GridView items={items} />}
-      {view === "board" && <BoardView items={items} />}
+      {view === "board" && (
+        <MaterialBoard projectId={projectId} items={items} canManage={canManage} initialLayout={boardLayout} />
+      )}
+
+      {canManage && (
+        <>
+          <RfqSendModal
+            open={modal === "rfq"}
+            onClose={() => setModal(null)}
+            projectId={projectId}
+            items={items.filter((i) => selectedValid.includes(i.id))}
+            onSent={() => setSelected(new Set())}
+          />
+          <SpecBookModal
+            open={modal === "book"}
+            onClose={() => setModal(null)}
+            projectId={projectId}
+            books={books}
+          />
+          <StudioToolsModal
+            open={modal === "studio"}
+            onClose={() => setModal(null)}
+            projectId={projectId}
+            canStudio={canStudio}
+            sets={sets}
+          />
+        </>
+      )}
     </div>
   );
 }
@@ -161,50 +338,6 @@ function GridView({ items }: { items: SpecRow[] }) {
           )}
         </div>
       ))}
-    </div>
-  );
-}
-
-// ── Material Board: mood/tone wall of swatches ────────────────────────
-function BoardView({ items }: { items: SpecRow[] }) {
-  const t = useTranslations("projects");
-  const withOptions = items.filter((i) => i.options.length > 0);
-
-  if (withOptions.length === 0) {
-    return <p className="p-8 text-center text-sm text-sub">{t("boardEmpty")}</p>;
-  }
-
-  return (
-    <div className="p-4">
-      <p className="mb-4 text-xs text-mut">{t("boardHint")}</p>
-      <div className="flex flex-col gap-5">
-        {withOptions.map((it) => (
-          <div key={it.id}>
-            <div className="mb-2 text-xs font-medium text-sub">
-              {it.code}
-              {it.zone ? ` · ${it.zone}` : ""}
-            </div>
-            <div className="flex flex-wrap items-end gap-2">
-              {boardOrder(it.options).map((o) => (
-                <figure key={o.materialId} className="flex flex-col items-center gap-1">
-                  <OptSwatch
-                    hex={o.swatchHex}
-                    category={o.category}
-                    className={cn(
-                      o.isConfirmed
-                        ? "h-24 w-24 rounded-card ring-2 ring-ok"
-                        : "h-16 w-16 rounded-sm opacity-45",
-                    )}
-                  />
-                  <figcaption className="max-w-[6rem] truncate text-[11px] text-mut">
-                    {o.name}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

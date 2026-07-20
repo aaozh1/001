@@ -21,8 +21,10 @@ export default async function PublicCatalogLayout({
         <Link href="/" className="text-[22px] font-bold tracking-tight text-brand">
           {t("common.appName")}
         </Link>
-        <GlobalSearch target="/catalog" className="min-w-[220px] max-w-md flex-1" />
-        <div className="ml-auto flex items-center gap-3">
+        <div className="order-last w-full flex-none sm:order-none sm:flex sm:w-auto sm:flex-1 sm:justify-center">
+          <GlobalSearch target="/catalog" className="w-full sm:max-w-md" />
+        </div>
+        <div className="ml-auto flex items-center gap-3 sm:ml-0">
           <LangToggle />
           {loggedIn ? (
             <Link href="/designer" className={buttonClasses({ size: "sm", variant: "ghost" })}>
