@@ -568,5 +568,17 @@
     "errAlreadyMember": "Already a member",
     "errFailed": "Something went wrong, please try again",
     "rolesLegend": "Owner = everything + billing · Manager = quote + edit products · Sales = quote only · Content = edit products only"
+  },
+  "ops": {
+    "title": "Platform metrics",
+    "subtitle": "Last {days} days · {total} events",
+    "designerFunnel": "Designer funnel (signup → project → options → RFQ → winner)",
+    "sellerFunnel": "Seller funnel (signup → publish → quote → win)",
+    "colStep": "Step",
+    "colOrgs": "Orgs",
+    "colOfFirst": "% of first",
+    "colOfPrev": "% of previous",
+    "topEvents": "All events",
+    "noEvents": "No events in this window yet"
   }
 }

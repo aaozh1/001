@@ -2,6 +2,8 @@ import "server-only";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import type { DesignerContext } from "@/lib/projects/service";
 import {
   fingerprintHeader,
@@ -93,5 +95,15 @@ export async function createProjectFromImport(
     return created;
   });
 
+  await track(EVENTS.projectCreated, {
+    orgId: ctx.orgId,
+    userId: ctx.userId,
+    props: { via: "import" },
+  });
+  await track(EVENTS.excelImported, {
+    orgId: ctx.orgId,
+    userId: ctx.userId,
+    props: { rows: items.length },
+  });
   return { ok: true, projectId: project.id, itemCount: items.length };
 }

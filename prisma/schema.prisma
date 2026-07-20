@@ -538,3 +538,20 @@ model ChatMessage {
 
   @@index([threadId])
 }
+
+// ── Analytics (Phase 4.2) ──────────────────────────────────────────────
+// Persistent event log replacing the prototype's in-session metrics panel.
+// Internal funnel instrumentation only — never sold per-org (iron rule #3
+// governs what leaves the platform; this table powers aggregate views).
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  event     String
+  orgId     String?
+  userId    String?
+  props     Json?
+  createdAt DateTime @default(now())
+
+  @@index([event, createdAt])
+  @@index([orgId])
+}

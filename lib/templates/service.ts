@@ -2,6 +2,8 @@ import "server-only";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import type { DesignerContext } from "@/lib/projects/service";
 import { getSubscription } from "@/lib/billing/service";
 import {
@@ -91,6 +93,7 @@ export async function saveTemplateFromProject(
     },
     select: { id: true },
   });
+  await track(EVENTS.templateSaved, { orgId: ctx.orgId, userId: ctx.userId });
   return { ok: true, templateId: created.id };
 }
 
@@ -142,6 +145,12 @@ export async function createProjectFromTemplate(
       diff: { templateId, itemCount: lines.length },
     });
     return created;
+  });
+  await track(EVENTS.templateUsed, { orgId: ctx.orgId, userId: ctx.userId });
+  await track(EVENTS.projectCreated, {
+    orgId: ctx.orgId,
+    userId: ctx.userId,
+    props: { via: "template" },
   });
   return { ok: true, projectId: project.id, itemCount: lines.length };
 }
@@ -285,6 +294,13 @@ export async function applySetToProject(
         action: "apply_material_set",
         diff: { setId, added: plan.additions.length },
       });
+    });
+  }
+  if (plan.additions.length > 0) {
+    await track(EVENTS.setApplied, {
+      orgId: ctx.orgId,
+      userId: ctx.userId,
+      props: { added: plan.additions.length },
     });
   }
   return {

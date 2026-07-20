@@ -2,6 +2,8 @@ import "server-only";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import type { SellerContext } from "@/lib/seller/context";
 import { computeCompleteness } from "./completeness";
 import type { EditableMaterialStatus, MaterialFormInput } from "./seller-schemas";
@@ -188,5 +190,8 @@ export async function setMaterialStatus(
       diff: { status },
     });
   });
+  if (status === "published") {
+    await track(EVENTS.materialPublished, { orgId: ctx.orgId, userId: ctx.userId });
+  }
   return { ok: true };
 }
