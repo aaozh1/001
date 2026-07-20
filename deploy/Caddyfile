@@ -1,0 +1,12 @@
+# Caddy reverse proxy for MatList (HTTPS อัตโนมัติผ่าน Let's Encrypt).
+# แก้ matlist.example.com เป็นโดเมนจริง แล้วชี้ DNS A record มาที่เซิร์ฟเวอร์ก่อนรัน
+#
+# ใช้กับ docker-compose.prod.yml (upstream = app:3000)
+# ถ้าติดตั้งแบบไม่ใช้ Docker (ทางเลือก B) เปลี่ยน upstream เป็น 127.0.0.1:3000
+
+matlist.example.com {
+	reverse_proxy app:3000
+	encode gzip
+
+	# Next.js ตั้ง security headers เองแล้ว (next.config.ts) — ไม่ต้องซ้ำที่นี่
+}
