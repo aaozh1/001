@@ -2,6 +2,11 @@ import "server-only";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { jsonError } from "@/lib/http";
+import { canManageMaterials, canQuote } from "@/lib/permissions";
+
+// Pure role rules live in lib/permissions (unit-tested there); re-export for
+// existing callers.
+export { canManageMaterials, canQuote };
 
 // Seller-side counterpart to the designer context/guard. A user may belong to
 // several seller companies; we act as their first seller membership.
@@ -25,9 +30,6 @@ type GuardResult =
   | { ok: true; ctx: SellerContext }
   | { ok: false; response: ReturnType<typeof jsonError> };
 
-// Seller roles that may answer RFQs / manage quotes (owner|manager|sales).
-const QUOTE_ROLES = ["owner", "manager", "sales"];
-
 export async function requireSeller(
   opts: { quote?: boolean } = {},
 ): Promise<GuardResult> {
@@ -39,12 +41,8 @@ export async function requireSeller(
   if (!ctx) {
     return { ok: false, response: jsonError("forbidden", "No seller workspace", 403) };
   }
-  if (opts.quote && !QUOTE_ROLES.includes(ctx.role)) {
+  if (opts.quote && !canQuote(ctx.role)) {
     return { ok: false, response: jsonError("forbidden", "Insufficient role", 403) };
   }
   return { ok: true, ctx };
-}
-
-export function canQuote(role: string): boolean {
-  return QUOTE_ROLES.includes(role);
 }

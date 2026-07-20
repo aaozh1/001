@@ -25,7 +25,8 @@
     "dashboard": "Dashboard",
     "projects": "Projects",
     "catalog": "Catalog",
-    "rfqInbox": "RFQ inbox"
+    "rfqInbox": "RFQ inbox",
+    "materials": "My products"
   },
   "roles": {
     "designer": "Designer",
@@ -282,7 +283,9 @@
     "statOverdue": "Past the deadline",
     "statWon": "Won",
     "inboxPending": "{n} to answer",
-    "inboxHint": "Sellers who reply fast win more — quotes flow straight back into the client's spec schedule"
+    "inboxHint": "Sellers who reply fast win more — quotes flow straight back into the client's spec schedule",
+    "slaCardTitle": "Most urgent — answer before time runs out",
+    "slaCardCta": "Quote now"
   },
   "sellerRfq": {
     "title": "RFQ inbox",
@@ -320,7 +323,17 @@
     "lost": "Not selected",
     "errClosed": "This RFQ is closed — the quote can no longer change",
     "errInvalid": "Invalid input — check the price and try again",
-    "errFailed": "Sending failed, please try again"
+    "errFailed": "Sending failed, please try again",
+    "tab": {
+      "all": "All",
+      "awaiting": "To answer",
+      "answered": "Answered",
+      "won": "Won",
+      "lost": "Lost"
+    },
+    "emptyTab": "Nothing in this tab",
+    "slaLeft": "{hours}h {minutes}m left",
+    "slaOverdueBy": "Overdue by {hours}h"
   },
   "chat": {
     "title": "Chat",
@@ -451,5 +464,47 @@
     "apply": "Apply",
     "applying": "Applying…",
     "cancel": "Cancel"
+  },
+  "sellerMat": {
+    "title": "My products",
+    "subtitle": "Richer data ranks higher in the designers' catalog — placement is never for sale",
+    "new": "＋ Add product",
+    "newTitle": "Add a product",
+    "editTitle": "Edit product",
+    "edit": "Edit",
+    "empty": "No products yet — add your first so designers can find you",
+    "publish": "Publish",
+    "unpublish": "Hide from catalog",
+    "completeness": "Data completeness",
+    "completenessHint": "The more you fill in, the higher the completeness score — and the better your default ranking (data, not money)",
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "hidden": "Hidden",
+      "suspended": "Suspended"
+    },
+    "fNameTh": "Name (Thai)",
+    "fNameEn": "Name (English)",
+    "fCategory": "Material family",
+    "fModel": "Model",
+    "fSku": "SKU",
+    "fPrice": "Price (THB)",
+    "fUnit": "Unit",
+    "fUnitPh": "e.g. m², sheet, set",
+    "fLeadTime": "Lead time",
+    "fLeadTimePh": "e.g. 7 days",
+    "fMoq": "MOQ",
+    "fWarranty": "Warranty",
+    "fCert": "Standard / certification",
+    "fColor": "Color",
+    "fSize": "Size",
+    "fSwatch": "Swatch color (hex)",
+    "fSpecsheet": "Specsheet URL",
+    "fNote": "Manufacturer note",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "errInvalid": "Invalid input — check and try again",
+    "errFailed": "Save failed, please try again"
   }
 }

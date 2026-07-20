@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
-import { Badge, Card, buttonClasses } from "@/components/ui";
 import { getSellerContext } from "@/lib/seller/context";
 import { listSellerInbox } from "@/lib/quote/service";
+import { InboxList, type InboxRow } from "./_components/inbox-list";
 
 export default async function SellerRfqInboxPage() {
   const session = await auth();
@@ -16,10 +15,22 @@ export default async function SellerRfqInboxPage() {
     getLocale(),
     listSellerInbox(ctx.orgId),
   ]);
-  const now = Date.now();
   const dateFmt = new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
     dateStyle: "medium",
   });
+
+  const rows: InboxRow[] = rfqs.map((r) => ({
+    id: r.id,
+    projectName: r.projectName,
+    materials: r.materials.map((m) => m.name).join(", "),
+    qtyLabel: r.qty ? `${r.qty} ${r.qtyUnit ?? ""}` : "",
+    slaDueAt: r.slaDueAt,
+    slaDateLabel: r.slaDueAt ? dateFmt.format(new Date(r.slaDueAt)) : "",
+    status: r.status,
+    responded: r.responded,
+    quoteStatus: r.quoteStatus,
+    wantSample: r.wantSample,
+  }));
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -29,47 +40,12 @@ export default async function SellerRfqInboxPage() {
         <p className="mt-1 text-xs text-mut">🔒 {t("privacy")}</p>
       </header>
 
-      {rfqs.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="rounded-card border border-dashed border-line-2 bg-surface p-10 text-center text-sub">
           {t("empty")}
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {rfqs.map((r) => {
-            const overdue = r.slaDueAt ? new Date(r.slaDueAt).getTime() < now : false;
-            return (
-              <Card key={r.id} className="flex-row items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-ink">{r.projectName}</span>
-                    {r.quoteStatus === "selected" ? (
-                      <Badge variant="ok">{t("won")}</Badge>
-                    ) : r.quoteStatus === "rejected" ? (
-                      <Badge variant="neutral">{t("lost")}</Badge>
-                    ) : r.responded ? (
-                      <Badge variant="ok">✓ {t("responded")}</Badge>
-                    ) : overdue ? (
-                      <Badge variant="warn">{t("overdue")}</Badge>
-                    ) : null}
-                    {r.wantSample && <Badge variant="brand">{t("wantSample")}</Badge>}
-                  </div>
-                  <div className="mt-1 truncate text-sm text-sub">
-                    {r.materials.map((m) => m.name).join(", ")}
-                    {r.qty ? ` · ${r.qty} ${r.qtyUnit ?? ""}` : ""}
-                  </div>
-                  {r.slaDueAt && (
-                    <div className="mt-0.5 text-xs text-mut">
-                      {t("sla")}: {dateFmt.format(new Date(r.slaDueAt))}
-                    </div>
-                  )}
-                </div>
-                <Link href={`/seller/rfq/${r.id}`} className={buttonClasses({ size: "sm" })}>
-                  {r.responded ? t("open") : t("respond")}
-                </Link>
-              </Card>
-            );
-          })}
-        </div>
+        <InboxList rows={rows} />
       )}
     </div>
   );
