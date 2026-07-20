@@ -22,8 +22,8 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  md: "px-[18px] py-[9px] text-[13.5px]",
-  sm: "px-[13px] py-[6px] text-[12.5px]",
+  md: "px-[19px] py-[10px] text-[14.5px]",
+  sm: "px-[14px] py-[7px] text-[13.5px]",
 };
 
 /** Shared class string, so links styled as buttons stay in sync (e.g. next/link CTAs). */

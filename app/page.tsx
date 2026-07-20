@@ -1,18 +1,21 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { LangToggle } from "./_components/lang-toggle";
+import { GlobalSearch } from "./_components/global-search";
 import { Badge, buttonClasses } from "@/components/ui";
+import { CATEGORY_META, categoryIcon, categoryLabel } from "@/lib/materials/categories";
 
 export default async function Home() {
-  const t = await getTranslations();
+  const [t, locale] = await Promise.all([getTranslations(), getLocale()]);
 
   return (
     <main className="flex min-h-screen flex-col">
-      <header className="flex items-center justify-between px-6 py-4">
-        <span className="text-[21px] font-bold tracking-tight text-brand">
+      <header className="flex flex-wrap items-center gap-x-6 gap-y-2 px-6 py-4">
+        <span className="text-[22px] font-bold tracking-tight text-brand">
           {t("common.appName")}
         </span>
-        <div className="flex items-center gap-3">
+        <GlobalSearch target="/catalog" className="min-w-[220px] max-w-md flex-1" />
+        <div className="ml-auto flex items-center gap-3">
           <LangToggle />
           <Link
             href="/login"
@@ -36,8 +39,30 @@ export default async function Home() {
         </p>
         <p className="max-w-md text-sub">{t("home.heroSub")}</p>
 
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/designer" className={buttonClasses()}>
+        {/* The open front door: browse products with no account (ความ public
+            ของแพลตฟอร์ม) — one big button + a chip per material family. */}
+        <div className="mt-2">
+          <Link href="/catalog" className={buttonClasses({ size: "md" })}>
+            🧱 {t("home.browseAll")}
+          </Link>
+        </div>
+        <div className="max-w-2xl">
+          <p className="mb-2 text-xs text-mut">{t("home.browseByCat")}</p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {CATEGORY_META.map((c) => (
+              <Link
+                key={c.key}
+                href={`/catalog?category=${encodeURIComponent(c.key)}`}
+                className="rounded-pill border border-line-2 bg-surface px-3 py-1.5 text-[13px] text-sub transition hover:-translate-y-0.5 hover:border-brand hover:text-brand"
+              >
+                {categoryIcon(c.key)} {categoryLabel(c.key, locale)}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 border-t border-line pt-5">
+          <Link href="/designer" className={buttonClasses({ variant: "ghost" })}>
             {t("home.goDesigner")}
           </Link>
           <Link href="/seller" className={buttonClasses({ variant: "ghost" })}>

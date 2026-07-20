@@ -13,13 +13,17 @@
     "name": "Name",
     "loading": "Working…",
     "backHome": "Back to home",
-    "close": "Close"
+    "close": "Close",
+    "searchMaterials": "Search materials, brands, models…",
+    "myWorkspace": "My workspace"
   },
   "home": {
     "badge": "Every material. One list.",
     "heroSub": "A material spec-schedule tool for Thai architects, with a built-in pipe that sends RFQs straight to sellers",
     "goDesigner": "Enter Designer Workspace",
-    "goSeller": "Enter Seller Center"
+    "goSeller": "Enter Seller Center",
+    "browseAll": "Browse all products",
+    "browseByCat": "Or browse by material family — no account needed"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -197,7 +201,10 @@
     "added": "Added ✓",
     "addFailed": "Could not add",
     "close": "Close",
-    "goCreateProject": "Create a project →"
+    "goCreateProject": "Create a project →",
+    "loginToAdd": "Log in to add to a project",
+    "loginToAddHint": "Free to sign up — save this material to your spec schedule and request quotes",
+    "openInWorkspace": "Open in my workspace"
   },
   "projects": {
     "title": "My projects",

@@ -45,6 +45,11 @@
 }
 
 html,
+/* ขยายทั้งระบบเล็กน้อย (16px → 17px): utility ที่อิง rem โตตามอัตโนมัติ */
+html {
+  font-size: 106.25%;
+}
+
 body {
   background: var(--color-canvas);
   color: var(--color-ink);

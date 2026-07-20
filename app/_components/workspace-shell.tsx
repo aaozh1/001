@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Workspace } from "@/lib/permissions";
+import { GlobalSearch } from "./global-search";
 import { LangToggle } from "./lang-toggle";
 import { LogoutButton } from "./logout-button";
 
@@ -42,7 +43,7 @@ export async function WorkspaceShell({
     <div className="flex min-h-screen flex-col bg-canvas">
       <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-line bg-surface px-6 py-3">
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="text-[21px] font-bold tracking-tight text-brand">
+          <Link href="/" className="text-[22px] font-bold tracking-tight text-brand">
             {t("common.appName")}
           </Link>
           <span className="text-sm text-sub">{label}</span>
@@ -53,6 +54,10 @@ export async function WorkspaceShell({
               {item.label}
             </Link>
           ))}
+          <GlobalSearch
+            target={workspace === "designer" ? "/designer/catalog" : "/catalog"}
+            className="w-48"
+          />
           <LangToggle />
           <LogoutButton />
         </nav>
