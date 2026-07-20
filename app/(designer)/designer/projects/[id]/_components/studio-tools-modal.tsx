@@ -5,35 +5,45 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button, Input, Modal } from "@/components/ui";
+import { cn } from "@/lib/ui/cn";
 
-interface SetOption {
+export interface SetOption {
   id: string;
   name: string;
 }
 
-// Studio tools on a project: save the structure as a template, save/apply a
-// material set. Locked (with an upgrade pointer) below the Studio plan — the
-// server enforces the same gate, this is just the honest UI for it.
-export function StudioTools({
+type Screen = "menu" | "template" | "set" | "apply";
+
+// Studio tools — an icon button above the Material List; the modal offers
+// save-template / save-set / apply-set. Locked (with an upgrade pointer)
+// below the Studio plan — the server enforces the same gate.
+export function StudioToolsModal({
+  open,
+  onClose,
   projectId,
   canStudio,
-  canManage,
   sets,
 }: {
+  open: boolean;
+  onClose: () => void;
   projectId: string;
   canStudio: boolean;
-  canManage: boolean;
   sets: SetOption[];
 }) {
   const t = useTranslations("library");
   const router = useRouter();
-  const [modal, setModal] = useState<"template" | "set" | "apply" | null>(null);
+  const [screen, setScreen] = useState<Screen>("menu");
   const [name, setName] = useState("");
   const [setId, setSetId] = useState(sets[0]?.id ?? "");
   const [pending, setPending] = useState(false);
   const [toast, setToast] = useState<{ text: string; kind: "ok" | "error" } | null>(null);
 
-  if (!canManage) return null;
+  function close() {
+    setScreen("menu");
+    setToast(null);
+    setName("");
+    onClose();
+  }
 
   async function post(url: string, body: unknown): Promise<Response> {
     return fetch(url, {
@@ -66,7 +76,7 @@ export function StudioTools({
         // Refresh so a just-saved set immediately appears in "apply" choices
         // and applied options show up in the schedule.
         router.refresh();
-        setModal(null);
+        setScreen("menu");
         setName("");
       } else {
         const data = (await res.json().catch(() => null)) as
@@ -84,80 +94,79 @@ export function StudioTools({
     }
   }
 
+  const menuBtn =
+    "flex w-full items-center justify-between gap-3 rounded-card border border-line-2 bg-surface px-4 py-3 text-left text-sm font-medium text-ink transition hover:border-brand disabled:cursor-not-allowed disabled:opacity-50";
+
   return (
-    <div className="mt-4 rounded-card border border-line bg-surface p-5 shadow-soft">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="font-semibold text-ink">{t("studioTools")}</h2>
-          <p className="text-xs text-mut">{t("studioToolsHint")}</p>
+    <Modal open={open} onClose={close} title={`🧰 ${t("studioTools")}`}>
+      {screen === "menu" && (
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-mut">{t("studioToolsHint")}</p>
+            {!canStudio && (
+              <Link href="/designer/billing" className="text-xs text-brand hover:underline">
+                🔒 {t("upgradeCta")}
+              </Link>
+            )}
+          </div>
+          <button type="button" disabled={!canStudio} onClick={() => setScreen("template")} className={menuBtn}>
+            <span>🧩 {t("saveTemplate")}</span>
+            <span className="text-mut">→</span>
+          </button>
+          <button type="button" disabled={!canStudio} onClick={() => setScreen("set")} className={menuBtn}>
+            <span>🎨 {t("saveSet")}</span>
+            <span className="text-mut">→</span>
+          </button>
+          <button
+            type="button"
+            disabled={!canStudio || sets.length === 0}
+            onClick={() => setScreen("apply")}
+            className={menuBtn}
+          >
+            <span>✨ {t("applySet")}</span>
+            <span className="text-mut">→</span>
+          </button>
+          {toast && (
+            <p
+              role={toast.kind === "error" ? "alert" : undefined}
+              className={cn(
+                "text-sm font-medium",
+                toast.kind === "ok" ? "text-ok" : "text-warn",
+              )}
+            >
+              {toast.text}
+            </p>
+          )}
         </div>
-        {!canStudio && (
-          <Link href="/designer/billing" className="text-xs text-brand hover:underline">
-            🔒 {t("upgradeCta")}
-          </Link>
-        )}
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={!canStudio}
-          onClick={() => setModal("template")}
-        >
-          {t("saveTemplate")}
-        </Button>
-        <Button variant="ghost" size="sm" disabled={!canStudio} onClick={() => setModal("set")}>
-          {t("saveSet")}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={!canStudio || sets.length === 0}
-          onClick={() => setModal("apply")}
-        >
-          {t("applySet")}
-        </Button>
-      </div>
-
-      {toast && (
-        <p
-          role={toast.kind === "error" ? "alert" : undefined}
-          className={`mt-3 text-sm font-medium ${toast.kind === "ok" ? "text-ok" : "text-warn"}`}
-        >
-          {toast.text}
-        </p>
       )}
 
-      <Modal
-        open={modal === "template" || modal === "set"}
-        onClose={() => setModal(null)}
-        title={modal === "template" ? t("saveTemplate") : t("saveSet")}
-      >
+      {(screen === "template" || screen === "set") && (
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm font-medium text-ink">
             {t("nameLabel")}
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={modal === "template" ? t("templateNamePh") : t("setNamePh")}
+              placeholder={screen === "template" ? t("templateNamePh") : t("setNamePh")}
             />
           </label>
+          {toast?.kind === "error" && (
+            <p className="text-sm text-warn" role="alert">
+              {toast.text}
+            </p>
+          )}
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setModal(null)}>
+            <Button variant="ghost" onClick={() => setScreen("menu")}>
               {t("cancel")}
             </Button>
-            <Button
-              disabled={pending || !name.trim()}
-              onClick={() => run(modal === "template" ? "template" : "set")}
-            >
+            <Button disabled={pending || !name.trim()} onClick={() => run(screen)}>
               {pending ? t("saving") : t("save")}
             </Button>
           </div>
         </div>
-      </Modal>
+      )}
 
-      <Modal open={modal === "apply"} onClose={() => setModal(null)} title={t("applySet")}>
+      {screen === "apply" && (
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm font-medium text-ink">
             {t("chooseSet")}
@@ -174,8 +183,13 @@ export function StudioTools({
             </select>
           </label>
           <p className="text-xs text-mut">{t("applyHint")}</p>
+          {toast?.kind === "error" && (
+            <p className="text-sm text-warn" role="alert">
+              {toast.text}
+            </p>
+          )}
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setModal(null)}>
+            <Button variant="ghost" onClick={() => setScreen("menu")}>
               {t("cancel")}
             </Button>
             <Button disabled={pending || !setId} onClick={() => run("apply")}>
@@ -183,7 +197,7 @@ export function StudioTools({
             </Button>
           </div>
         </div>
-      </Modal>
-    </div>
+      )}
+    </Modal>
   );
 }

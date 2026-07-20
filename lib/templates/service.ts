@@ -39,6 +39,7 @@ export interface TemplateSummary {
   buildingType: string | null;
   lineCount: number;
   isSystem: boolean;
+  lines: TemplateLine[];
 }
 
 /** Org templates + system templates (orgId null). List is visible on any plan
@@ -49,13 +50,57 @@ export async function listTemplates(orgId: string): Promise<TemplateSummary[]> {
     orderBy: [{ orgId: "desc" }, { name: "asc" }],
     select: { id: true, orgId: true, name: true, buildingType: true, structure: true },
   });
-  return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    buildingType: r.buildingType,
-    lineCount: parseStructure(r.structure).length,
-    isSystem: r.orgId === null,
-  }));
+  return rows.map((r) => {
+    const lines = parseStructure(r.structure);
+    return {
+      id: r.id,
+      name: r.name,
+      buildingType: r.buildingType,
+      lineCount: lines.length,
+      isSystem: r.orgId === null,
+      lines,
+    };
+  });
+}
+
+export type UpdateTemplateResult =
+  | { ok: true; templateId: string; copied: boolean }
+  | { ok: false; error: "gated" | "not_found" | "empty" };
+
+/** Edit a template's name + line structure. Own templates update in place;
+ *  a SYSTEM template is read-only, so an edit saves an org-owned copy. */
+export async function updateTemplate(
+  ctx: DesignerContext,
+  templateId: string,
+  input: { name: string; lines: TemplateLine[] },
+): Promise<UpdateTemplateResult> {
+  if (!(await studioGate(ctx.orgId, "templates"))) return { ok: false, error: "gated" };
+  if (input.lines.length === 0) return { ok: false, error: "empty" };
+
+  const template = await prisma.template.findFirst({
+    where: { id: templateId, OR: [{ orgId: ctx.orgId }, { orgId: null }] },
+    select: { id: true, orgId: true, buildingType: true },
+  });
+  if (!template) return { ok: false, error: "not_found" };
+
+  const structure = input.lines as unknown as Prisma.InputJsonValue;
+  if (template.orgId === ctx.orgId) {
+    await prisma.template.update({
+      where: { id: template.id },
+      data: { name: input.name, structure },
+    });
+    return { ok: true, templateId: template.id, copied: false };
+  }
+  const copy = await prisma.template.create({
+    data: {
+      orgId: ctx.orgId,
+      name: input.name,
+      buildingType: template.buildingType,
+      structure,
+    },
+    select: { id: true },
+  });
+  return { ok: true, templateId: copy.id, copied: true };
 }
 
 export type SaveTemplateResult =

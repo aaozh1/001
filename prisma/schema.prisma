@@ -190,6 +190,8 @@ model Project {
   name         String
   buildingType String?
   status       ProjectStatus @default(active)
+  // ผัง Material Board (ตำแหน่ง/ขนาด/ลำดับชั้นของ swatch) — เก็บต่อโปรเจกต์
+  boardLayout  Json?
   createdById  String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt

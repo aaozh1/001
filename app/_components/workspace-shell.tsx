@@ -48,16 +48,19 @@ export async function WorkspaceShell({
           </Link>
           <span className="text-sm text-sub">{label}</span>
         </div>
-        <nav className="flex flex-wrap items-center gap-4">
+        {/* Center slot — the always-available product search (ค้นหาได้ทุกหน้า). */}
+        <div className="order-last w-full flex-none lg:order-none lg:flex lg:w-auto lg:flex-1 lg:justify-center">
+          <GlobalSearch
+            target={workspace === "designer" ? "/designer/catalog" : "/catalog"}
+            className="w-full lg:max-w-sm"
+          />
+        </div>
+        <nav className="ml-auto flex flex-wrap items-center gap-4 lg:ml-0">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className="text-sm text-sub hover:text-ink">
               {item.label}
             </Link>
           ))}
-          <GlobalSearch
-            target={workspace === "designer" ? "/designer/catalog" : "/catalog"}
-            className="w-48"
-          />
           <LangToggle />
           <LogoutButton />
         </nav>

@@ -1,13 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui";
 
-// Search box that drives the catalog via the URL (?q=), preserving the category.
+// Search box that drives the catalog via the URL (?q=), preserving every other
+// active param (category preset, filters, sort) and resetting the page.
 export function CatalogSearch({
-  category,
   initial,
   basePath = "/designer/catalog",
 }: {
@@ -17,13 +17,15 @@ export function CatalogSearch({
 }) {
   const t = useTranslations("catalog");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [value, setValue] = useState(initial);
 
   useEffect(() => {
     const handle = setTimeout(() => {
-      const params = new URLSearchParams();
-      if (category) params.set("category", category);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
       if (value.trim()) params.set("q", value.trim());
+      else params.delete("q");
       const qs = params.toString();
       router.replace(`${basePath}${qs ? `?${qs}` : ""}`);
     }, 250);
