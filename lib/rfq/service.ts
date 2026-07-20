@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
 import { EVENTS } from "@/lib/analytics/events";
 import { track } from "@/lib/analytics/track";
+import { notifyOrg } from "@/lib/notifications/service";
 import type { DesignerContext } from "@/lib/projects/service";
 import {
   computeSlaDueAt,
@@ -56,6 +57,7 @@ export async function sendRfqs(
   let created = 0;
   let skipped = 0;
   let recipientCount = 0;
+  const notifiedSellerOrgs = new Set<string>();
 
   await prisma.$transaction(async (tx) => {
     for (const item of items) {
@@ -104,6 +106,7 @@ export async function sendRfqs(
       });
       created++;
       recipientCount += recipients.length;
+      for (const r of recipients) notifiedSellerOrgs.add(r.sellerOrgId);
 
       await writeAudit(tx, {
         orgId: ctx.orgId,
@@ -122,6 +125,14 @@ export async function sendRfqs(
       userId: ctx.userId,
       props: { created, recipients: recipientCount },
     });
+    // แจ้งเตือนผู้ขายทุกเจ้าที่ได้รับ (ไม่มีข้อมูลติดต่อผู้ออกแบบ — rule #4)
+    for (const orgId of notifiedSellerOrgs) {
+      await notifyOrg(orgId, {
+        type: "rfq_new",
+        payload: { count: created },
+        href: "/seller/rfq",
+      });
+    }
   }
   return { created, skipped, recipients: recipientCount };
 }

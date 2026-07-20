@@ -34,6 +34,7 @@ export interface SellerMaterialRow {
   specsheetUrl: string | null;
   status: string;
   completeness: number;
+  images: string[];
 }
 
 const ROW_SELECT = {
@@ -57,6 +58,7 @@ const ROW_SELECT = {
   specsheetUrl: true,
   status: true,
   completeness: true,
+  images: true,
 } as const;
 
 type Row = Prisma.MaterialGetPayload<{ select: typeof ROW_SELECT }>;
@@ -163,6 +165,79 @@ export async function saveMaterial(
     return material;
   });
   return { ok: true, materialId: saved.id, completeness: score };
+}
+
+const MAX_IMAGES = 6;
+
+export type ImageResult =
+  | { ok: true; images: string[] }
+  | { ok: false; error: "not_found" | "limit" | "unsupported_type" };
+
+async function recomputeAndSaveImages(
+  materialId: string,
+  images: string[],
+): Promise<void> {
+  const m = await prisma.material.findUniqueOrThrow({
+    where: { id: materialId },
+    select: {
+      nameTh: true, nameEn: true, model: true, sku: true, category: true,
+      color: true, size: true, price: true, unit: true, spec: true, cert: true,
+      leadTime: true, moq: true, warranty: true, noteTh: true, swatchHex: true,
+      specsheetUrl: true,
+    },
+  });
+  const { score } = computeCompleteness({
+    ...m,
+    price: m.price != null ? m.price.toString() : null,
+    images,
+  });
+  await prisma.material.update({
+    where: { id: materialId },
+    data: { images, completeness: score },
+  });
+}
+
+/** Store a photo and attach it to one of the org's materials. */
+export async function addMaterialImage(
+  ctx: SellerContext,
+  materialId: string,
+  buf: Buffer,
+): Promise<ImageResult> {
+  const found = await prisma.material.findFirst({
+    where: { id: materialId, sellerOrgId: ctx.orgId },
+    select: { images: true },
+  });
+  if (!found) return { ok: false, error: "not_found" };
+  if (found.images.length >= MAX_IMAGES) return { ok: false, error: "limit" };
+
+  const { saveImage } = await import("@/lib/files/storage");
+  let url: string;
+  try {
+    url = await saveImage(buf);
+  } catch {
+    return { ok: false, error: "unsupported_type" };
+  }
+  const images = [...found.images, url];
+  await recomputeAndSaveImages(materialId, images);
+  return { ok: true, images };
+}
+
+export async function removeMaterialImage(
+  ctx: SellerContext,
+  materialId: string,
+  url: string,
+): Promise<ImageResult> {
+  const found = await prisma.material.findFirst({
+    where: { id: materialId, sellerOrgId: ctx.orgId },
+    select: { images: true },
+  });
+  if (!found || !found.images.includes(url)) return { ok: false, error: "not_found" };
+
+  const images = found.images.filter((u) => u !== url);
+  await recomputeAndSaveImages(materialId, images);
+  const { deleteStoredUrl } = await import("@/lib/files/storage");
+  await deleteStoredUrl(url);
+  return { ok: true, images };
 }
 
 export type SetStatusResult = { ok: true } | { ok: false; error: "not_found" };

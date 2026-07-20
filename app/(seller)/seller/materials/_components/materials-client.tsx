@@ -6,8 +6,10 @@ import { useTranslations } from "next-intl";
 import { Badge, Button, Input, Modal } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import {
+  removeMaterialImageAction,
   saveMaterialAction,
   setMaterialStatusAction,
+  uploadMaterialImageAction,
 } from "@/lib/materials/seller-actions";
 import type { SellerMaterialRow } from "@/lib/materials/seller-service";
 
@@ -95,9 +97,11 @@ export function MaterialsClient({
 }) {
   const t = useTranslations("sellerMat");
   const router = useRouter();
-  const [editing, setEditing] = useState<{ id: string | null; form: FormState } | null>(
-    null,
-  );
+  const [editing, setEditing] = useState<
+    { id: string | null; form: FormState; images: string[] } | null
+  >(null);
+  const [imgBusy, setImgBusy] = useState(false);
+  const [imgError, setImgError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -140,6 +144,47 @@ export function MaterialsClient({
     }
   }
 
+  async function uploadImage(file: File) {
+    if (!editing?.id || imgBusy) return;
+    setImgBusy(true);
+    setImgError(null);
+    try {
+      const form = new FormData();
+      form.set("file", file);
+      const r = await uploadMaterialImageAction(editing.id, form);
+      if (r.ok) {
+        setEditing((prev) => (prev ? { ...prev, images: r.images } : prev));
+        router.refresh();
+      } else {
+        setImgError(
+          r.error === "too_large"
+            ? t("imgTooLarge")
+            : r.error === "limit"
+              ? t("imgLimit")
+              : t("imgFailed"),
+        );
+      }
+    } catch {
+      setImgError(t("imgFailed"));
+    } finally {
+      setImgBusy(false);
+    }
+  }
+
+  async function removeImage(url: string) {
+    if (!editing?.id || imgBusy) return;
+    setImgBusy(true);
+    try {
+      const r = await removeMaterialImageAction(editing.id, url);
+      if (r.ok) {
+        setEditing((prev) => (prev ? { ...prev, images: r.images } : prev));
+        router.refresh();
+      }
+    } finally {
+      setImgBusy(false);
+    }
+  }
+
   const field = (key: keyof FormState, label: string, props?: { type?: string; placeholder?: string }) => (
     <label className="flex flex-col gap-1 text-sm font-medium text-ink">
       {label}
@@ -156,7 +201,7 @@ export function MaterialsClient({
     <>
       {canEdit && (
         <div className="mb-4">
-          <Button size="sm" onClick={() => setEditing({ id: null, form: EMPTY })}>
+          <Button size="sm" onClick={() => setEditing({ id: null, form: EMPTY, images: [] })}>
             {t("new")}
           </Button>
         </div>
@@ -225,7 +270,7 @@ export function MaterialsClient({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setEditing({ id: m.id, form: fromRow(m) })}
+                    onClick={() => setEditing({ id: m.id, form: fromRow(m), images: m.images })}
                   >
                     {t("edit")}
                   </Button>
@@ -307,6 +352,59 @@ export function MaterialsClient({
               {field("size", t("fSize"))}
               {field("swatchHex", t("fSwatch"), { placeholder: "#A9743F" })}
               {field("specsheetUrl", t("fSpecsheet"), { placeholder: "https://…" })}
+            </div>
+            {/* รูปสินค้า — อัปโหลดได้เมื่อบันทึกสินค้าแล้ว (ต้องมี id) */}
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-ink">
+                📷 {t("fImages")}
+                <span className="ml-1 text-xs font-normal text-mut">{t("fImagesHint")}</span>
+              </span>
+              {editing.id ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  {editing.images.map((img) => (
+                    <span key={img} className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={img}
+                        alt=""
+                        className="h-16 w-16 rounded-sm border border-line object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => void removeImage(img)}
+                        disabled={imgBusy}
+                        aria-label={t("imgRemove")}
+                        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ink/80 text-[10px] text-white hover:bg-brand"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                  {editing.images.length < 6 && (
+                    <label className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-sm border border-dashed border-line-2 text-xl text-mut hover:border-brand hover:text-brand">
+                      {imgBusy ? "…" : "＋"}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        disabled={imgBusy}
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) void uploadImage(f);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
+              ) : (
+                <p className="text-xs text-mut">{t("imgSaveFirst")}</p>
+              )}
+              {imgError && (
+                <p className="text-sm text-warn" role="alert">
+                  {imgError}
+                </p>
+              )}
             </div>
             <label className="flex flex-col gap-1 text-sm font-medium text-ink">
               {t("fNote")}

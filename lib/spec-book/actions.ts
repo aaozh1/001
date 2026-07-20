@@ -22,3 +22,19 @@ export async function createSpecBookAction(
   revalidatePath(`/designer/projects/${projectId}`);
   return { ok: true, version: result.version };
 }
+
+export type ShareSpecBookResult = { ok: boolean; token?: string | null };
+
+/** Toggle the public share link for a Spec Book version. */
+export async function shareSpecBookAction(
+  projectId: string,
+  version: number,
+  enable: boolean,
+): Promise<ShareSpecBookResult> {
+  const ctx = await managerContextOrThrow();
+  const { setSpecBookShare } = await import("./service");
+  const result = await setSpecBookShare(ctx.orgId, projectId, version, enable);
+  if (!result.ok) return { ok: false };
+  revalidatePath(`/designer/projects/${projectId}`);
+  return { ok: true, token: result.token };
+}

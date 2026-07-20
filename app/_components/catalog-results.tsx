@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Swatch } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
-import { categoryLabel, categoryTexture } from "@/lib/materials/categories";
+import { categoryLabel } from "@/lib/materials/categories";
+import { MaterialVisual } from "@/app/_components/material-visual";
 import type { MaterialSummary } from "@/lib/materials/service";
 import { MaterialCard } from "@/app/(designer)/designer/catalog/_components/material-card";
 import { AddToProjectButton } from "@/app/(designer)/designer/catalog/_components/add-to-project-button";
@@ -179,9 +179,11 @@ export function CatalogResults({
               href={`${basePath}/${m.id}`}
               className="group overflow-hidden rounded-card border border-line bg-surface shadow-soft transition hover:-translate-y-0.5 hover:border-brand"
             >
-              <Swatch
-                color={m.swatchHex ?? "#c9c2b4"}
-                texture={categoryTexture(m.category)}
+              <MaterialVisual
+                image={m.image}
+                swatchHex={m.swatchHex}
+                category={m.category}
+                alt={name(m)}
                 className="h-20 rounded-none"
               />
               <div className="p-2">
@@ -209,9 +211,11 @@ export function CatalogResults({
               )}
             >
               <Link href={`${basePath}/${m.id}`} className="shrink-0">
-                <Swatch
-                  color={m.swatchHex ?? "#c9c2b4"}
-                  texture={categoryTexture(m.category)}
+                <MaterialVisual
+                  image={m.image}
+                  swatchHex={m.swatchHex}
+                  category={m.category}
+                  alt={name(m)}
                   className={cn("rounded-sm", view === "list" ? "h-14 w-14" : "h-8 w-8")}
                 />
               </Link>
@@ -272,9 +276,11 @@ export function CatalogResults({
                       href={`${basePath}/${m.id}`}
                       className="flex items-center gap-2 font-medium text-ink hover:text-brand"
                     >
-                      <Swatch
-                        color={m.swatchHex ?? "#c9c2b4"}
-                        texture={categoryTexture(m.category)}
+                      <MaterialVisual
+                        image={m.image}
+                        swatchHex={m.swatchHex}
+                        category={m.category}
+                        alt={name(m)}
                         className="h-6 w-6 shrink-0 rounded-[4px]"
                       />
                       <span className="truncate">{name(m)}</span>

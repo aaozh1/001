@@ -77,6 +77,7 @@ export async function createSpecBook(
         noteTh: m.noteTh,
         noteEn: m.noteEn,
         swatchHex: m.swatchHex,
+        image: m.images[0] ?? null,
       },
     ]),
   );
@@ -133,8 +134,41 @@ export async function listSpecBooks(orgId: string, projectId: string) {
   return prisma.specBook.findMany({
     where: { projectId },
     orderBy: { version: "desc" },
-    select: { version: true, createdAt: true },
+    select: { version: true, createdAt: true, shareToken: true },
   });
+}
+
+/** Enable/disable the public share link for a version (เพิกถอนได้ตลอด). */
+export async function setSpecBookShare(
+  orgId: string,
+  projectId: string,
+  version: number,
+  enable: boolean,
+): Promise<{ ok: true; token: string | null } | { ok: false }> {
+  const book = await prisma.specBook.findFirst({
+    where: { projectId, version, project: { orgId } },
+    select: { id: true, shareToken: true },
+  });
+  if (!book) return { ok: false };
+  if (!enable) {
+    await prisma.specBook.update({ where: { id: book.id }, data: { shareToken: null } });
+    return { ok: true, token: null };
+  }
+  if (book.shareToken) return { ok: true, token: book.shareToken };
+  const { randomBytes } = await import("crypto");
+  const token = randomBytes(9).toString("base64url");
+  await prisma.specBook.update({ where: { id: book.id }, data: { shareToken: token } });
+  return { ok: true, token };
+}
+
+/** Public read for /s/[token] — the frozen snapshot only, no org internals. */
+export async function getSharedSpecBook(token: string) {
+  if (!/^[A-Za-z0-9_-]{8,24}$/.test(token)) return null;
+  const book = await prisma.specBook.findUnique({
+    where: { shareToken: token },
+    select: { version: true, snapshot: true, createdAt: true },
+  });
+  return book;
 }
 
 /** The frozen snapshot for one version (org-scoped). */

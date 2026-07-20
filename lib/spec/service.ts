@@ -124,6 +124,90 @@ export async function deleteItem(
   return true;
 }
 
+// Snapshot for undo-after-delete (ลบแล้วเลิกทำได้): enough to rebuild the row
+// with its options. RFQ links on the row are gone either way — same as before.
+export interface ItemSnapshot {
+  code: string;
+  zone: string | null;
+  category: string | null;
+  qty: string | null;
+  qtyUnit: string | null;
+  sortOrder: number;
+  confirmedMaterialId: string | null;
+  options: { materialId: string; isConfirmed: boolean }[];
+}
+
+export async function deleteItemReturningSnapshot(
+  ctx: DesignerContext,
+  itemId: string,
+): Promise<{ projectId: string; snapshot: ItemSnapshot } | null> {
+  const owned = await loadOwnedItem(ctx.orgId, itemId);
+  if (!owned) return null;
+  const full = await prisma.specItem.findUnique({
+    where: { id: itemId },
+    select: {
+      code: true, zone: true, category: true, qty: true, qtyUnit: true,
+      sortOrder: true, confirmedMaterialId: true, projectId: true,
+      options: { select: { materialId: true, isConfirmed: true } },
+    },
+  });
+  if (!full) return null;
+  const ok = await deleteItem(ctx, itemId);
+  if (!ok) return null;
+  return {
+    projectId: full.projectId,
+    snapshot: {
+      code: full.code,
+      zone: full.zone,
+      category: full.category,
+      qty: full.qty ? full.qty.toString() : null,
+      qtyUnit: full.qtyUnit,
+      sortOrder: full.sortOrder,
+      confirmedMaterialId: full.confirmedMaterialId,
+      options: full.options,
+    },
+  };
+}
+
+/** Rebuild a just-deleted row (the "เลิกทำ" of a delete). */
+export async function restoreItem(
+  ctx: DesignerContext,
+  projectId: string,
+  snap: ItemSnapshot,
+): Promise<boolean> {
+  if (!(await projectOwned(ctx.orgId, projectId))) return false;
+  await prisma.$transaction(async (tx) => {
+    const created = await tx.specItem.create({
+      data: {
+        projectId,
+        code: snap.code,
+        zone: snap.zone,
+        category: snap.category,
+        qty: snap.qty != null ? new Prisma.Decimal(snap.qty) : null,
+        qtyUnit: snap.qtyUnit,
+        sortOrder: snap.sortOrder,
+        confirmedMaterialId: snap.confirmedMaterialId,
+        options: {
+          create: snap.options.map((o) => ({
+            materialId: o.materialId,
+            isConfirmed: o.isConfirmed,
+          })),
+        },
+      },
+      select: { id: true },
+    });
+    await writeAudit(tx, {
+      orgId: ctx.orgId,
+      userId: ctx.userId,
+      entityType: AUDIT_ENTITY,
+      entityId: created.id,
+      action: "restore",
+      diff: { projectId, code: snap.code },
+    });
+  });
+  return true;
+}
+
 export type ReorderResult = "ok" | "not_found" | "invalid";
 
 export async function reorderItems(

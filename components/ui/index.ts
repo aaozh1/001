@@ -9,3 +9,4 @@ export { Chip, type ChipProps } from "./chip";
 export { StatusChip, type StatusChipProps } from "./status-chip";
 export { Swatch, type SwatchProps } from "./swatch";
 export { Modal, type ModalProps } from "./modal";
+export { UndoToast } from "./undo-toast";

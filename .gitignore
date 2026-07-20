@@ -34,3 +34,6 @@ yarn-error.log*
 # ide / os
 .idea/
 .vscode/
+
+# Uploaded product photos (dev) — production mounts UPLOAD_DIR as a volume
+uploads/

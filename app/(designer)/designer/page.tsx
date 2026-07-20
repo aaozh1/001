@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { Badge, Card, buttonClasses } from "@/components/ui";
 import { getDesignerContext } from "@/lib/projects/service";
-import { getDesignerDashboard } from "@/lib/dashboard/service";
+import { getDesignerDashboard, getOnboardingChecklist } from "@/lib/dashboard/service";
 import { getSubscription } from "@/lib/billing/service";
 import { DESIGNER_PLANS } from "@/lib/billing/plans";
 
@@ -13,10 +13,11 @@ export default async function DesignerDashboard() {
   const ctx = session?.user?.id ? await getDesignerContext(session.user.id) : null;
   if (!ctx) redirect("/login?callbackUrl=/designer");
 
-  const [t, summary, sub] = await Promise.all([
+  const [t, summary, sub, checklist] = await Promise.all([
     getTranslations("dashboard"),
     getDesignerDashboard(ctx.orgId),
     getSubscription(ctx.orgId),
+    getOnboardingChecklist(ctx.orgId),
   ]);
   const name = session?.user?.name ?? session?.user?.email ?? "";
   const plan = DESIGNER_PLANS[sub.plan];
@@ -36,6 +37,21 @@ export default async function DesignerDashboard() {
       <div key={label}>{inner}</div>
     );
   };
+
+  const step = (done: boolean, label: string, href: string) => (
+    <Link
+      key={label}
+      href={href}
+      className={`flex items-center gap-2 rounded-pill border px-3 py-1.5 text-sm transition ${
+        done
+          ? "border-ok bg-ok-soft text-ok"
+          : "border-line-2 bg-surface text-ink hover:border-brand"
+      }`}
+    >
+      <span>{done ? "✅" : "⬜"}</span>
+      {label}
+    </Link>
+  );
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -67,6 +83,19 @@ export default async function DesignerDashboard() {
               {t("startBrowse")}
             </Link>
           </div>
+        </Card>
+      )}
+
+      {/* Onboarding checklist — สามก้าวแรก; หายเองเมื่อครบ */}
+      {!checklist.done && summary.activeProjects > 0 && (
+        <Card className="mt-5 gap-3 p-5">
+          <h2 className="font-semibold text-ink">🚀 {t("onboardTitle")}</h2>
+          <div className="flex flex-wrap gap-2">
+            {step(checklist.hasOption, t("onboardOption"), "/designer/projects")}
+            {step(checklist.hasRfq, t("onboardRfq"), "/designer/projects")}
+            {step(checklist.hasSpecBook, t("onboardBook"), "/designer/projects")}
+          </div>
+          <p className="text-xs text-mut">{t("onboardHint")}</p>
         </Card>
       )}
 

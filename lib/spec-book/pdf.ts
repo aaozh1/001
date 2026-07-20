@@ -1,6 +1,7 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
+import { bufferForStoredUrl } from "@/lib/files/storage";
 import PDFDocument from "pdfkit";
 import type { SpecBookSnapshot, SnapshotOption } from "./snapshot";
 
@@ -85,7 +86,7 @@ const LABELS: Record<"th" | "en", Labels> = {
 };
 
 /** Render a Spec Book snapshot to a PDF Buffer. */
-export function renderSpecBookPdf(
+export async function renderSpecBookPdf(
   snapshot: SpecBookSnapshot,
   opts: { version: number; locale: "th" | "en" },
 ): Promise<Buffer> {
@@ -157,8 +158,19 @@ export function renderSpecBookPdf(
     for (const o of item.options) {
       ensure(74);
       const top = doc.y;
-      // swatch
-      if (o.swatchHex) {
+      // product photo (jpeg/png) — swatch fallback
+      const photo = o.image ? await bufferForStoredUrl(o.image) : null;
+      if (photo) {
+        try {
+          doc.image(photo, left, top + 1, { width: 22, height: 22, fit: [22, 22] });
+          doc.strokeColor(C.line).lineWidth(0.5).rect(left, top + 1, 22, 22).stroke();
+        } catch {
+          if (o.swatchHex) {
+            doc.save().rect(left, top + 1, 22, 22).fill(o.swatchHex);
+            doc.restore().strokeColor(C.line).lineWidth(0.5).rect(left, top + 1, 22, 22).stroke();
+          }
+        }
+      } else if (o.swatchHex) {
         doc.save().rect(left, top + 1, 22, 22).fill(o.swatchHex);
         doc.restore().strokeColor(C.line).lineWidth(0.5).rect(left, top + 1, 22, 22).stroke();
       }

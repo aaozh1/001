@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Swatch } from "@/components/ui";
+import { Button, UndoToast } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
-import { categoryTexture } from "@/lib/materials/categories";
+import { MaterialVisual } from "@/app/_components/material-visual";
 import { MAX_SPEC_OPTIONS } from "@/lib/spec/options";
 import {
   addOptionAction,
@@ -13,6 +13,7 @@ import {
   removeOptionAction,
 } from "@/lib/spec/option-actions";
 import { MaterialPickerModal } from "./material-picker-modal";
+import { VeFinderButton } from "./ve-finder";
 import type { OptionView } from "./types";
 
 // Option compare panel — options side by side with their facts lined up, so
@@ -32,6 +33,7 @@ export function SpecOptionsPanel({
   const [pending, startTransition] = useTransition();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [undo, setUndo] = useState<{ materialId: string; name: string; wasConfirmed: boolean } | null>(null);
 
   const run = (fn: () => Promise<unknown>) =>
     startTransition(async () => {
@@ -79,9 +81,11 @@ export function SpecOptionsPanel({
                         o.isConfirmed ? "border-ok ring-2 ring-ok" : "border-line-2",
                       )}
                     >
-                      <Swatch
-                        color={o.swatchHex ?? "#c9c2b4"}
-                        texture={categoryTexture(o.category)}
+                      <MaterialVisual
+                        image={o.image}
+                        swatchHex={o.swatchHex}
+                        category={o.category}
+                        alt={o.name}
                         className="h-16 rounded-none"
                       />
                       {o.isConfirmed && (
@@ -142,7 +146,14 @@ export function SpecOptionsPanel({
                           aria-label={t("removeOption")}
                           title={t("removeOption")}
                           onClick={() =>
-                            run(() => removeOptionAction(projectId, itemId, o.materialId))
+                            run(async () => {
+                              await removeOptionAction(projectId, itemId, o.materialId);
+                              setUndo({
+                                materialId: o.materialId,
+                                name: o.name,
+                                wasConfirmed: o.isConfirmed,
+                              });
+                            })
                           }
                           className="rounded px-1.5 py-0.5 text-mut hover:text-brand disabled:opacity-50"
                         >
@@ -165,7 +176,17 @@ export function SpecOptionsPanel({
       )}
 
       {canManage && (
-        <div>
+        <div className="flex flex-wrap items-center gap-2">
+          {(() => {
+            const confirmed = options.find((o) => o.isConfirmed);
+            return confirmed ? (
+              <VeFinderButton
+                projectId={projectId}
+                itemId={itemId}
+                confirmedName={confirmed.name}
+              />
+            ) : null;
+          })()}
           {atLimit ? (
             <span className="text-xs text-mut">{t("optionLimit")}</span>
           ) : (
@@ -179,6 +200,22 @@ export function SpecOptionsPanel({
             </Button>
           )}
         </div>
+      )}
+
+      {undo && (
+        <UndoToast
+          message={t("optionRemoved", { name: undo.name })}
+          undoLabel={t("undo")}
+          onUndo={() => {
+            const u = undo;
+            setUndo(null);
+            run(async () => {
+              await addOptionAction(projectId, itemId, u.materialId);
+              if (u.wasConfirmed) await confirmMaterialAction(projectId, itemId, u.materialId);
+            });
+          }}
+          onExpire={() => setUndo(null)}
+        />
       )}
 
       <MaterialPickerModal

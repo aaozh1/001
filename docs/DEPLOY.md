@@ -191,3 +191,20 @@ sudo systemctl restart matlist
 - [ ] Uptime monitor เขียว
 - [ ] Smoke test กติกาเหล็ก: สมัคร 2 ฝั่ง → สร้างโปรเจกต์ → ส่ง RFQ → ฝั่งผู้ขายต้องไม่เห็นอีเมล/เบอร์ผู้ออกแบบ → เสนอราคา → เทียบ+เลือก
 - [ ] ยังไม่เปิด 2.2 (LINE outreach) จนกว่า checklist ข้อ A1 ผ่านทนาย
+
+## รูปภาพสินค้า (UPLOAD_DIR)
+
+ระบบเก็บรูปสินค้าที่ผู้ขายอัปโหลดไว้ในโฟลเดอร์ `UPLOAD_DIR` (ค่าเริ่มต้น `./uploads`).
+บน production ให้ mount เป็น volume ถาวร เช่นใน `docker-compose.prod.yml`:
+
+```yaml
+  app:
+    environment:
+      - UPLOAD_DIR=/data/uploads
+    volumes:
+      - uploads:/data/uploads
+volumes:
+  uploads:
+```
+
+และให้ `scripts/backup.sh` สำรองโฟลเดอร์นี้พร้อมกับฐานข้อมูลด้วย

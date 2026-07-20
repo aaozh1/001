@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { notifyOrg } from "@/lib/notifications/service";
 import { EVENTS } from "@/lib/analytics/events";
 import { track } from "@/lib/analytics/track";
 import {
@@ -201,6 +202,18 @@ export async function postMessage(
     data: { threadId, senderUserId: userId, senderSide: side, body },
     select: { id: true, body: true, createdAt: true },
   });
+  // แจ้งอีกฝั่งของเธรด (ผู้ส่งไม่ต้องเห็นแจ้งเตือนของตัวเอง)
+  const otherOrg = side === "designer" ? thread.sellerOrgId : thread.designerOrgId;
+  const otherSide = side === "designer" ? "seller" : "designer";
+  await notifyOrg(
+    otherOrg,
+    {
+      type: "chat_new",
+      payload: { project: thread.project?.name ?? "" },
+      href: `/${otherSide}/chat/${threadId}`,
+    },
+    userId,
+  );
   return toMessageViews(
     [{ id: created.id, body: created.body, createdAt: created.createdAt, senderSide: side }],
     side,

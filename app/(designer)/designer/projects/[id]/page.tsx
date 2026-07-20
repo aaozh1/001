@@ -72,6 +72,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           model: m?.model ?? null,
           category: m?.category ?? item.category ?? "",
           swatchHex: m?.swatchHex ?? null,
+          image: m?.image ?? null,
           isConfirmed: o.isConfirmed,
           price: m?.price ?? null,
           unit: m?.unit ?? null,
@@ -112,6 +113,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const bookVersions = (bookRows ?? []).map((b) => ({
     version: b.version,
     dateLabel: dateFmt.format(b.createdAt),
+    shareToken: b.shareToken,
   }));
 
   // Stored board layout (tolerant parse — junk becomes "no layout").

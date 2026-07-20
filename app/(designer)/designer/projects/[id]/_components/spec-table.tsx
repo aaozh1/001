@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Button, StatusChip } from "@/components/ui";
+import { Button, StatusChip, UndoToast } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import { moveItem } from "@/lib/spec/reorder";
 import {
   createItemAction,
-  deleteItemAction,
+  deleteItemUndoableAction,
   reorderItemsAction,
+  restoreItemAction,
   updateItemAction,
 } from "@/lib/spec/actions";
+import type { ItemSnapshot } from "@/lib/spec/service";
 import { SpecOptionsPanel } from "./spec-options-panel";
 import { QuoteCompareButton } from "./quote-compare";
 import { ChatWithSellerButton } from "./chat-with-seller";
@@ -43,6 +45,7 @@ export function SpecTable({
   const t = useTranslations("projects");
   const [pending, startTransition] = useTransition();
   const [widths, setWidths] = useState<Record<string, number>>({});
+  const [undo, setUndo] = useState<{ snapshot: ItemSnapshot; code: string } | null>(null);
   const dragRef = useRef<{ key: string; startX: number; startW: number } | null>(null);
 
   useEffect(() => {
@@ -98,8 +101,13 @@ export function SpecTable({
     run(() => createItemAction(projectId, code));
   }
 
+  // Delete is instant with a 6-second "เลิกทำ" — no blunt confirm dialog.
   function remove(id: string) {
-    if (window.confirm(t("deleteRowConfirm"))) run(() => deleteItemAction(projectId, id));
+    const code = items.find((i) => i.id === id)?.code ?? "";
+    run(async () => {
+      const r = await deleteItemUndoableAction(projectId, id);
+      if (r.ok) setUndo({ snapshot: r.snapshot, code });
+    });
   }
 
   const Th = ({
@@ -126,7 +134,26 @@ export function SpecTable({
 
   return (
     <div className={cn(pending && "opacity-70 transition-opacity")}>
-      <div className="overflow-x-auto">
+      {/* Mobile: stacked cards (ตารางกว้างเกินจอเล็ก) */}
+      <div className="flex flex-col gap-2 p-3 sm:hidden">
+        {items.length === 0 ? (
+          <p className="py-6 text-center text-sm text-sub">{t("noItems")}</p>
+        ) : (
+          items.map((item) => (
+            <MobileRow
+              key={item.id}
+              projectId={projectId}
+              item={item}
+              canManage={canManage}
+              checked={selected.has(item.id)}
+              checkable={sendable.has(item.id)}
+              onToggleSelect={() => onToggleSelect(item.id)}
+            />
+          ))
+        )}
+      </div>
+
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full min-w-[680px] text-left text-sm">
           <thead>
             <tr className="border-b border-line text-xs text-mut">
@@ -180,6 +207,94 @@ export function SpecTable({
           <Button variant="ghost" size="sm" onClick={addRow} disabled={pending}>
             {t("addRow")}
           </Button>
+        </div>
+      )}
+
+      {undo && (
+        <UndoToast
+          message={t("rowDeleted", { code: undo.code })}
+          undoLabel={t("undo")}
+          onUndo={() => {
+            const snap = undo.snapshot;
+            setUndo(null);
+            run(() => restoreItemAction(projectId, snap));
+          }}
+          onExpire={() => setUndo(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// Read-first mobile card: the facts + RFQ checkbox + expandable options.
+function MobileRow({
+  projectId,
+  item,
+  canManage,
+  checked,
+  checkable,
+  onToggleSelect,
+}: {
+  projectId: string;
+  item: SpecRow;
+  canManage: boolean;
+  checked: boolean;
+  checkable: boolean;
+  onToggleSelect: () => void;
+}) {
+  const t = useTranslations("projects");
+  const [expanded, setExpanded] = useState(false);
+  const mat = rowMaterial(item);
+
+  return (
+    <div className="rounded-card border border-line bg-surface p-3 shadow-soft">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <input
+              type="checkbox"
+              checked={checked && checkable}
+              disabled={!checkable}
+              onChange={onToggleSelect}
+              aria-label={t("selectForRfq", { code: item.code })}
+              className="h-4 w-4 accent-brand disabled:opacity-30"
+            />
+          )}
+          <span className="font-semibold text-ink">{item.code}</span>
+        </div>
+        <StatusChip status={item.status} count={item.options.length || undefined} />
+      </div>
+      <div className="mt-1 text-xs text-sub">
+        {[item.zone, item.category, item.qty ? `${item.qty} ${item.qtyUnit}` : ""]
+          .filter(Boolean)
+          .join(" · ") || "—"}
+      </div>
+      {mat && (
+        <div className="mt-1 text-sm text-ink">
+          {mat.name}
+          {mat.price ? (
+            <span className="text-brand"> · ฿{mat.price}{mat.unit ? `/${mat.unit}` : ""}</span>
+          ) : null}
+        </div>
+      )}
+      {item.options.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          className="mt-2 text-xs font-medium text-brand"
+        >
+          {expanded ? "▾" : "▸"} {t("viewOptions")} ({item.options.length})
+        </button>
+      )}
+      {expanded && (
+        <div className="mt-1 rounded-card border border-line bg-canvas/50">
+          <SpecOptionsPanel
+            projectId={projectId}
+            itemId={item.id}
+            options={item.options}
+            canManage={canManage}
+          />
         </div>
       )}
     </div>

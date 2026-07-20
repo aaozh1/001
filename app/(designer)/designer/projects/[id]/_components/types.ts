@@ -7,6 +7,7 @@ export interface OptionView {
   model: string | null;
   category: string;
   swatchHex: string | null;
+  image: string | null;
   isConfirmed: boolean;
   // Compare facts (เทียบตัวเลือกแบบเห็นรายละเอียด)
   price: string | null;
