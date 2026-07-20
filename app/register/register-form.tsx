@@ -88,6 +88,21 @@ export function RegisterForm() {
         />
       </label>
 
+      {/* PDPA consent (4.1) — required; acceptance time is stored server-side. */}
+      <label className="flex items-start gap-2 text-xs text-sub">
+        <input type="checkbox" name="consent" required className="mt-0.5 h-4 w-4 accent-brand" />
+        <span>
+          {t("auth.consentPrefix")}{" "}
+          <Link href="/legal/terms" target="_blank" className="text-brand hover:underline">
+            {t("auth.consentTerms")}
+          </Link>{" "}
+          {t("auth.consentAnd")}{" "}
+          <Link href="/legal/privacy" target="_blank" className="text-brand hover:underline">
+            {t("auth.consentPrivacy")}
+          </Link>
+        </span>
+      </label>
+
       {state.error && (
         <p role="alert" className="text-sm text-brand">
           {t(`auth.${state.error}`)}

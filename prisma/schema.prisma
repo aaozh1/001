@@ -111,6 +111,8 @@ model User {
   passwordHash        String?
   // เลขใบประกอบวิชาชีพ (ภ.สถ.) — ใช้ verify ผู้ออกแบบจริง
   professionalLicense String?
+  // เวลาที่ผู้ใช้ติ๊กยอมรับข้อกำหนด+นโยบายความเป็นส่วนตัวตอนสมัคร (PDPA 4.1)
+  termsAcceptedAt     DateTime?
   createdAt           DateTime @default(now())
 
   memberships     Membership[]

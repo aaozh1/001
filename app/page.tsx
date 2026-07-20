@@ -45,6 +45,16 @@ export default async function Home() {
           </Link>
         </div>
       </div>
+
+      <footer className="flex items-center justify-center gap-4 border-t border-line bg-surface px-6 py-3 text-xs text-mut">
+        <Link href="/legal/terms" className="hover:text-ink">
+          {t("legal.termsLink")}
+        </Link>
+        <span>·</span>
+        <Link href="/legal/privacy" className="hover:text-ink">
+          {t("legal.privacyLink")}
+        </Link>
+      </footer>
     </main>
   );
 }

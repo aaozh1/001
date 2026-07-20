@@ -74,7 +74,12 @@
     "passwordTooShort": "Password must be at least 8 characters",
     "invalidEmail": "Invalid email format",
     "fieldRequired": "Please fill in all fields",
-    "tooManyAttempts": "Too many login attempts — wait a moment and try again"
+    "tooManyAttempts": "Too many login attempts — wait a moment and try again",
+    "consentPrefix": "I have read and accept the",
+    "consentTerms": "Terms of Service",
+    "consentAnd": "and the",
+    "consentPrivacy": "Privacy Policy",
+    "consentRequired": "Please accept the terms and privacy policy before signing up"
   },
   "designer": {
     "workspace": "Designer Workspace",
@@ -586,5 +591,11 @@
     "title": "Something went wrong",
     "body": "This page hit an error — try again, your data is safe",
     "retry": "Retry"
+  },
+  "legal": {
+    "draftBanner": "DRAFT — under legal review, not yet in force",
+    "backHome": "Back to home",
+    "termsLink": "Terms of Service",
+    "privacyLink": "Privacy Policy"
   }
 }

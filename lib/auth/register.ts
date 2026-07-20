@@ -23,6 +23,7 @@ export async function createAccount(
         email: input.email,
         name: input.name,
         passwordHash,
+        termsAcceptedAt: new Date(),
         memberships: {
           create: {
             role: "owner",
