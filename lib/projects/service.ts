@@ -1,6 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import { buildDuplicateData } from "./duplicate";
 import type { CreateProjectInput, UpdateProjectInput } from "./schemas";
 
@@ -60,7 +62,7 @@ export async function createProject(
   ctx: DesignerContext,
   input: CreateProjectInput,
 ) {
-  return prisma.$transaction(async (tx) => {
+  const created = await prisma.$transaction(async (tx) => {
     const project = await tx.project.create({
       data: {
         orgId: ctx.orgId,
@@ -79,6 +81,8 @@ export async function createProject(
     });
     return project;
   });
+  await track(EVENTS.projectCreated, { orgId: ctx.orgId, userId: ctx.userId });
+  return created;
 }
 
 /** Update mutable fields; returns null if the project isn't in the org. */

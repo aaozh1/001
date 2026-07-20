@@ -1,5 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import {
   type ChatSide,
   type DesignerThreadRecord,
@@ -54,6 +56,7 @@ export async function getOrCreateThread(
     },
     select: { id: true },
   });
+  await track(EVENTS.chatOpened, { orgId: ctx.orgId });
   return created.id;
 }
 

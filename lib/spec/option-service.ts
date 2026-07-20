@@ -1,6 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import type { DesignerContext } from "@/lib/projects/service";
 import { canAddOption, isConfirmable } from "./options";
 
@@ -50,6 +52,7 @@ export async function addOption(
       diff: { materialId },
     });
   });
+  await track(EVENTS.optionAdded, { orgId: ctx.orgId, userId: ctx.userId });
   return { ok: true };
 }
 

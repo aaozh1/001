@@ -1,6 +1,8 @@
 import "server-only";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import { writeAudit } from "@/lib/audit";
 import type { DesignerContext } from "@/lib/projects/service";
 import {
@@ -99,7 +101,7 @@ export async function createSpecBook(
   });
   const version = nextVersion(existing.map((e) => e.version));
 
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     await tx.specBook.create({
       data: {
         projectId,
@@ -118,6 +120,8 @@ export async function createSpecBook(
     });
     return { version };
   });
+  await track(EVENTS.specbookCreated, { orgId: ctx.orgId, userId: ctx.userId });
+  return result;
 }
 
 export async function listSpecBooks(orgId: string, projectId: string) {

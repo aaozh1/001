@@ -1,6 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import type { DesignerContext } from "@/lib/projects/service";
 import {
   computeSlaDueAt,
@@ -114,6 +116,13 @@ export async function sendRfqs(
     }
   });
 
+  if (created > 0) {
+    await track(EVENTS.rfqSent, {
+      orgId: ctx.orgId,
+      userId: ctx.userId,
+      props: { created, recipients: recipientCount },
+    });
+  }
   return { created, skipped, recipients: recipientCount };
 }
 

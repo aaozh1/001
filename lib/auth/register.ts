@@ -1,5 +1,7 @@
 import "server-only";
 import bcrypt from "bcryptjs";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import type { RegisterInput } from "./schemas";
@@ -28,9 +30,18 @@ export async function createAccount(
           },
         },
       },
-      select: { id: true, email: true, name: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        memberships: { select: { orgId: true } },
+      },
     });
-    return { ok: true, user };
+    await track(input.role === "designer" ? EVENTS.signupDesigner : EVENTS.signupSeller, {
+      userId: user.id,
+      orgId: user.memberships[0]?.orgId ?? null,
+    });
+    return { ok: true, user: { id: user.id, email: user.email, name: user.name } };
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&

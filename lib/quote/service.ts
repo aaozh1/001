@@ -2,6 +2,8 @@ import "server-only";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import type { SellerContext } from "@/lib/seller/context";
 import type { DesignerContext } from "@/lib/projects/service";
 import {
@@ -206,6 +208,7 @@ export async function submitQuote(
       diff: { pricePerUnit: input.pricePerUnit },
     });
   });
+  await track(EVENTS.quoteSubmitted, { orgId: ctx.orgId, userId: ctx.userId });
   return { ok: true };
 }
 
@@ -365,5 +368,7 @@ export async function selectQuote(
       diff: { quoteId, rejected: outcome.rejected.length },
     });
   });
+  await track(EVENTS.winnerSelected, { orgId: ctx.orgId, userId: ctx.userId });
+  await track(EVENTS.rfqWon, { orgId: winner.sellerOrgId });
   return { ok: true };
 }
