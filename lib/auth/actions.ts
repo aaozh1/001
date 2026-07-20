@@ -80,6 +80,10 @@ export async function register(
     return { error: "fieldRequired" };
   }
 
+  // PDPA (4.1): signup requires explicit acceptance of the terms + privacy
+  // policy; the acceptance time is stored on the account.
+  if (formData.get("consent") !== "on") return { error: "consentRequired" };
+
   const result = await createAccount(parsed.data);
   if (!result.ok) return { error: "emailTaken" };
 

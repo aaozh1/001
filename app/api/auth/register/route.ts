@@ -30,6 +30,15 @@ export async function POST(request: Request) {
     );
   }
 
+  // PDPA (4.1): every signup surface requires explicit terms acceptance —
+  // the API mirrors the form's consent checkbox.
+  if ((body as Record<string, unknown>).consent !== true) {
+    return NextResponse.json(
+      { error: { code: "consent_required", message: "Terms acceptance required" } },
+      { status: 422 },
+    );
+  }
+
   const result = await createAccount(parsed.data);
   if (!result.ok) {
     return NextResponse.json(
