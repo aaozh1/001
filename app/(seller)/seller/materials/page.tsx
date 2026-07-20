@@ -33,9 +33,19 @@ export default async function SellerMaterialsPage() {
           <h1 className="text-2xl font-bold tracking-tight text-ink">{t("title")}</h1>
           <p className="mt-1 text-sub">{t("subtitle")}</p>
         </div>
-        <Link href="/seller/brands" className="text-sm text-brand hover:underline">
-          {t("manageBrands")} →
-        </Link>
+        <div className="flex items-center gap-4">
+          {canManageMaterials(ctx.role) && (
+            <Link
+              href="/seller/materials/import"
+              className="rounded-pill border border-brand px-3 py-1.5 text-sm font-medium text-brand transition hover:bg-brand hover:text-white"
+            >
+              ⬆ {t("importCta")}
+            </Link>
+          )}
+          <Link href="/seller/brands" className="text-sm text-brand hover:underline">
+            {t("manageBrands")} →
+          </Link>
+        </div>
       </header>
 
       <MaterialsClient
