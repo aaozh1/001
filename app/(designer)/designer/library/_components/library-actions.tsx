@@ -21,10 +21,12 @@ export function UseTemplateButton({
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function create() {
     if (pending || !name.trim()) return;
     setPending(true);
+    setError(null);
     try {
       const res = await fetch(`/api/templates/${templateId}`, {
         method: "POST",
@@ -36,6 +38,12 @@ export function UseTemplateButton({
         router.push(`/designer/projects/${data.projectId}`);
         return;
       }
+      const data = (await res.json().catch(() => null)) as
+        | { error?: { code?: string } }
+        | null;
+      setError(data?.error?.code === "studio_required" ? t("lockedShort") : t("failed"));
+    } catch {
+      setError(t("failed"));
     } finally {
       setPending(false);
     }
@@ -56,6 +64,11 @@ export function UseTemplateButton({
               placeholder={t("projectNamePh")}
             />
           </label>
+          {error && (
+            <p className="text-sm text-warn" role="alert">
+              {error}
+            </p>
+          )}
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setOpen(false)}>
               {t("cancel")}

@@ -44,6 +44,32 @@ export default async function DesignerDashboard() {
       </h1>
       <p className="mt-1 text-sub">{t("subtitle")}</p>
 
+      {/* First-run: no projects yet → point at the three ways to start, instead
+          of showing a wall of zeros. */}
+      {summary.activeProjects === 0 && (
+        <Card className="mt-5 gap-3 border-brand/30 bg-brand-soft p-6">
+          <h2 className="font-semibold text-ink">{t("startTitle")}</h2>
+          <p className="text-sm text-sub">{t("startHint")}</p>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/designer/projects" className={buttonClasses({ size: "sm" })}>
+              {t("startCreate")}
+            </Link>
+            <Link
+              href="/designer/projects/import"
+              className={buttonClasses({ size: "sm", variant: "ghost" })}
+            >
+              {t("startImport")}
+            </Link>
+            <Link
+              href="/designer/catalog"
+              className={buttonClasses({ size: "sm", variant: "ghost" })}
+            >
+              {t("startBrowse")}
+            </Link>
+          </div>
+        </Card>
+      )}
+
       {/* Pending-work buckets — "what needs me right now". */}
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {metric(t("activeProjects"), summary.activeProjects, "/designer/projects")}

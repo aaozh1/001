@@ -46,3 +46,20 @@ export function deriveSpecStatus(item: {
   if ((item.optionCount ?? 0) > 0) return "options";
   return "empty";
 }
+
+/**
+ * Map a line's RFQ pipeline state to the flags deriveSpecStatus expects.
+ * A "closed" RFQ (winner chosen) is deliberately NOT "sent": the deal is
+ * done, so the line's status must come from its confirmed material — without
+ * this rule a won line showed "awaiting quotes" forever. Kept pure + tested
+ * so every caller applies the same rule.
+ */
+export function rfqFlags(state: "sent" | "quoted" | "closed" | undefined): {
+  hasSentRfq: boolean;
+  hasQuote: boolean;
+} {
+  return {
+    hasSentRfq: state === "sent" || state === "quoted",
+    hasQuote: state === "quoted",
+  };
+}

@@ -16,10 +16,12 @@ export function ChatWithSellerButton({
   const t = useTranslations("chat");
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   async function open() {
     if (pending) return;
     setPending(true);
+    setFailed(false);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -29,10 +31,12 @@ export function ChatWithSellerButton({
       if (res.ok) {
         const { threadId } = (await res.json()) as { threadId: string };
         router.push(`/designer/chat/${threadId}`);
-      } else {
-        setPending(false);
+        return;
       }
+      setFailed(true);
     } catch {
+      setFailed(true);
+    } finally {
       setPending(false);
     }
   }
@@ -42,9 +46,10 @@ export function ChatWithSellerButton({
       type="button"
       onClick={open}
       disabled={pending}
-      className="text-xs text-brand hover:underline disabled:opacity-50"
+      className={`text-xs hover:underline disabled:opacity-50 ${failed ? "text-warn" : "text-brand"}`}
+      title={failed ? t("sendFailed") : undefined}
     >
-      💬 {t("withSellerShort")}
+      💬 {failed ? t("sendFailed") : t("withSellerShort")}
     </button>
   );
 }

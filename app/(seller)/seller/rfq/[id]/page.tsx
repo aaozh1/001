@@ -50,7 +50,7 @@ export default async function SellerRfqDetailPage({ params }: Props) {
         <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
           {fact(t("material"), rfq.materials.map((m) => m.name).join(", ") || "—")}
           {fact(t("qty"), rfq.qty ? `${rfq.qty} ${rfq.qtyUnit ?? ""}` : null)}
-          {fact("Zone", rfq.zone)}
+          {fact(t("zone"), rfq.zone)}
           {fact(t("note"), rfq.note)}
         </dl>
       </Card>

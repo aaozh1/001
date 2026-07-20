@@ -39,8 +39,12 @@ export async function getDesignerDashboard(orgId: string): Promise<DashboardSumm
           options: { some: {} },
         },
       }),
-      prisma.rFQ.count({ where: { project: { orgId }, status: "quoted" } }),
-      prisma.rFQ.count({ where: { project: { orgId }, status: "open" } }),
+      prisma.rFQ.count({
+        where: { project: { orgId, status: "active" }, status: "quoted" },
+      }),
+      prisma.rFQ.count({
+        where: { project: { orgId, status: "active" }, status: "open" },
+      }),
       prisma.project.findMany({
         where: { orgId, status: "active" },
         select: {

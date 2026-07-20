@@ -41,15 +41,20 @@ export function ImportWizard() {
 
   async function runParse(body: BodyInit, headers?: HeadersInit, fileName?: string) {
     setError(null);
-    const res = await fetch("/api/import/parse", { method: "POST", body, headers });
-    if (!res.ok) {
-      setError("errEmpty");
-      return;
+    try {
+      const res = await fetch("/api/import/parse", { method: "POST", body, headers });
+      if (!res.ok) {
+        // 422 = readable but nothing importable; anything else = unreadable file.
+        setError(res.status === 422 ? "errEmpty" : "errParse");
+        return;
+      }
+      const data: ParseResponse = await res.json();
+      setParsed(data);
+      setMapping(data.mapping);
+      if (!name) setName(fileName?.replace(/\.[^.]+$/, "") ?? "");
+    } catch {
+      setError("errParse");
     }
-    const data: ParseResponse = await res.json();
-    setParsed(data);
-    setMapping(data.mapping);
-    if (!name) setName(fileName?.replace(/\.[^.]+$/, "") ?? "");
   }
 
   function preview() {

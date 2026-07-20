@@ -109,7 +109,16 @@ export async function searchCatalog(opts: {
     ];
   }
 
-  const rows = await prisma.material.findMany({ where, select: SELECT, take: RANK_CAP });
+  // Deterministic order for the rank pool: without it, WHICH rows fall inside
+  // the cap is arbitrary DB order — silently non-neutral once a query matches
+  // more than RANK_CAP rows (rule #1). Stable id order at least makes the
+  // pool reproducible; the real fix at scale is DB-side relevance (Phase 4).
+  const rows = await prisma.material.findMany({
+    where,
+    select: SELECT,
+    orderBy: { id: "asc" },
+    take: RANK_CAP,
+  });
   const ranked = rankMaterials(rows.map(toSummary), query);
   const start = (page - 1) * pageSize;
   return {

@@ -18,10 +18,14 @@ export async function GET(_request: Request, { params }: Params) {
   return NextResponse.json({ messages });
 }
 
-// POST /api/chat/:id/messages — send one message (either side).
+// POST /api/chat/:id/messages — send one message (either side). Read-only
+// roles (designer viewer, seller content) may read but not engage.
 export async function POST(request: Request, { params }: Params) {
   const actor = await resolveChatActor();
   if (!actor.ok) return actor.response;
+  if (!actor.actor.canPost) {
+    return jsonError("forbidden", "Read-only role cannot send messages", 403);
+  }
 
   const parsed = postMessageSchema.safeParse(await readJson(request));
   if (!parsed.success) return jsonError("invalid_input", "Validation failed", 422);

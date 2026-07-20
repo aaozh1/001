@@ -153,15 +153,28 @@ export async function listMessages(
   const rows = await prisma.chatMessage.findMany({
     where: { threadId },
     orderBy: { createdAt: "asc" },
-    select: { id: true, body: true, createdAt: true, sender: { select: { memberships: { select: { orgId: true } } } } },
+    select: {
+      id: true,
+      body: true,
+      createdAt: true,
+      senderSide: true,
+      sender: { select: { memberships: { select: { orgId: true } } } },
+    },
   });
 
-  // Resolve each message's side from its sender's membership vs. the thread.
+  // Prefer the side recorded at post time — a user may belong to BOTH of the
+  // thread's orgs, so inferring from memberships after the fact is ambiguous.
+  // The membership fallback only covers rows from before senderSide existed.
   const raw = rows.map((m) => {
-    const senderOrgIds = m.sender?.memberships.map((x) => x.orgId) ?? [];
-    const senderSide = senderOrgIds.includes(thread.sellerOrgId)
-      ? senderSideFor(thread.sellerOrgId, thread)
-      : senderSideFor(thread.designerOrgId, thread);
+    let senderSide: ChatSide;
+    if (m.senderSide === "designer" || m.senderSide === "seller") {
+      senderSide = m.senderSide;
+    } else {
+      const senderOrgIds = m.sender?.memberships.map((x) => x.orgId) ?? [];
+      senderSide = senderOrgIds.includes(thread.sellerOrgId)
+        ? senderSideFor(thread.sellerOrgId, thread)
+        : senderSideFor(thread.designerOrgId, thread);
+    }
     return { id: m.id, body: m.body, createdAt: m.createdAt, senderSide };
   });
   return toMessageViews(raw, side);
@@ -182,7 +195,7 @@ export async function postMessage(
   if (!body) return null;
 
   const created = await prisma.chatMessage.create({
-    data: { threadId, senderUserId: userId, body },
+    data: { threadId, senderUserId: userId, senderSide: side, body },
     select: { id: true, body: true, createdAt: true },
   });
   return toMessageViews(

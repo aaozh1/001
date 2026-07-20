@@ -26,7 +26,7 @@ export interface RfqItem {
   code: string;
   zone: string;
   optionCount: number;
-  state: "none" | "sent" | "quoted";
+  state: "none" | "sent" | "quoted" | "closed";
   rfqId: string | null;
   rfqStatus: string | null;
   quotes: RfqItemQuote[];
@@ -48,6 +48,7 @@ export function RfqSendPanel({
   const [note, setNote] = useState("");
   const [wantSample, setWantSample] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [sendError, setSendError] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const withOptions = items.filter((i) => i.optionCount > 0);
@@ -64,21 +65,28 @@ export function RfqSendPanel({
   function send() {
     const itemIds = [...selected];
     if (itemIds.length === 0) return;
+    setSendError(false);
     startTransition(async () => {
-      const r = await sendRfqsAction({
-        projectId,
-        itemIds,
-        deadline: deadline ? new Date(`${deadline}T23:59:59`).toISOString() : null,
-        note: note || null,
-        wantSample,
-      });
-      if (r.ok) {
-        setToast(t("sentToast", { created: r.created, recipients: r.recipients }));
-        setSelected(new Set());
-        setOpen(false);
-        setNote("");
-        setDeadline("");
-        setWantSample(false);
+      try {
+        const r = await sendRfqsAction({
+          projectId,
+          itemIds,
+          deadline: deadline ? new Date(`${deadline}T23:59:59`).toISOString() : null,
+          note: note || null,
+          wantSample,
+        });
+        if (r.ok) {
+          setToast(t("sentToast", { created: r.created, recipients: r.recipients }));
+          setSelected(new Set());
+          setOpen(false);
+          setNote("");
+          setDeadline("");
+          setWantSample(false);
+        } else {
+          setSendError(true);
+        }
+      } catch {
+        setSendError(true);
       }
     });
   }
@@ -123,7 +131,15 @@ export function RfqSendPanel({
                       </span>
                     </label>
                     {sent && (
-                      <StatusChip status={it.state === "quoted" ? "quoted" : "sent"} />
+                      <StatusChip
+                        status={
+                          it.state === "closed"
+                            ? "chosen"
+                            : it.state === "quoted"
+                              ? "quoted"
+                              : "sent"
+                        }
+                      />
                     )}
                   </div>
                   {it.quotes.length > 0 && it.rfqId && (
@@ -220,6 +236,11 @@ export function RfqSendPanel({
             {t("wantSample")}
           </label>
           <p className="text-xs text-mut">🔒 {t("privacy")}</p>
+          {sendError && (
+            <p className="text-sm text-warn" role="alert">
+              {t("sendFailed")}
+            </p>
+          )}
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setOpen(false)}>
               {t("cancel")}

@@ -16,6 +16,11 @@ export async function POST(request: Request, { params }: Params) {
 
   const { id } = await params;
   const result = await submitQuote(guard.ctx, id, parsed.data, new Date());
-  if (!result.ok) return jsonError("not_found", "RFQ not found", 404);
+  if (!result.ok) {
+    if (result.error === "closed") {
+      return jsonError("rfq_closed", "RFQ is closed — quote can no longer change", 409);
+    }
+    return jsonError("not_found", "RFQ not found", 404);
+  }
   return NextResponse.json({ ok: true }, { status: 201 });
 }

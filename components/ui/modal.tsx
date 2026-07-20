@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/ui/cn";
 
 export interface ModalProps {
@@ -20,9 +21,14 @@ export function Modal({
   onClose,
   title,
   wide,
-  closeLabel = "Close",
+  closeLabel,
   children,
 }: ModalProps) {
+  // Default the ✕ label from i18n — a hardcoded "Close" reads wrong to Thai
+  // screen-reader users (i18n rule: no hardcoded UI strings).
+  const t = useTranslations("common");
+  const resolvedCloseLabel = closeLabel ?? t("close");
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -52,7 +58,8 @@ export function Modal({
         <button
           type="button"
           onClick={onClose}
-          aria-label={closeLabel}
+          autoFocus
+          aria-label={resolvedCloseLabel}
           className="absolute right-[14px] top-3 flex h-[30px] w-[30px] items-center justify-center rounded-pill bg-canvas text-[13px] text-sub hover:bg-line"
         >
           ✕

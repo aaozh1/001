@@ -5,9 +5,10 @@ import { openThreadSchema } from "@/lib/chat/schemas";
 import { getOrCreateThread, listDesignerThreads } from "@/lib/chat/service";
 
 // POST /api/chat — designer opens (or reuses) a thread with a seller for a
-// project. Designer-initiated: chat is an engagement channel the designer starts.
+// project. Designer-initiated: chat is an engagement channel the designer
+// starts, so it needs a managing role (viewers are read-only).
 export async function POST(request: Request) {
-  const guard = await requireDesigner();
+  const guard = await requireDesigner({ manage: true });
   if (!guard.ok) return guard.response;
 
   const parsed = openThreadSchema.safeParse(await readJson(request));

@@ -17,29 +17,42 @@ export async function WorkspaceShell({
   const t = await getTranslations();
   const label =
     workspace === "designer" ? t("designer.workspace") : t("seller.center");
-  const chatHref = workspace === "designer" ? "/designer/chat" : "/seller/chat";
+
+  // Persistent workspace navigation — every core area is one click away from
+  // anywhere, so no feature is reachable only by typing a URL.
+  const navItems =
+    workspace === "designer"
+      ? [
+          { href: "/designer", label: t("nav.dashboard") },
+          { href: "/designer/projects", label: t("nav.projects") },
+          { href: "/designer/catalog", label: t("nav.catalog") },
+          { href: "/designer/library", label: t("library.navLabel") },
+          { href: "/designer/chat", label: `💬 ${t("chat.title")}` },
+        ]
+      : [
+          { href: "/seller", label: t("nav.dashboard") },
+          { href: "/seller/rfq", label: t("nav.rfqInbox") },
+          { href: "/seller/chat", label: `💬 ${t("chat.title")}` },
+        ];
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
-      <header className="flex items-center justify-between border-b border-line bg-surface px-6 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-line bg-surface px-6 py-3">
         <div className="flex items-baseline gap-3">
           <Link href="/" className="text-[21px] font-bold tracking-tight text-brand">
             {t("common.appName")}
           </Link>
           <span className="text-sm text-sub">{label}</span>
         </div>
-        <div className="flex items-center gap-4">
-          {workspace === "designer" && (
-            <Link href="/designer/library" className="text-sm text-sub hover:text-ink">
-              {t("library.navLabel")}
+        <nav className="flex flex-wrap items-center gap-4">
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href} className="text-sm text-sub hover:text-ink">
+              {item.label}
             </Link>
-          )}
-          <Link href={chatHref} className="text-sm text-sub hover:text-ink">
-            💬 {t("chat.title")}
-          </Link>
+          ))}
           <LangToggle />
           <LogoutButton />
-        </div>
+        </nav>
       </header>
       <main className="flex-1 p-6">{children}</main>
     </div>

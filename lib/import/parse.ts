@@ -61,7 +61,10 @@ export function parseDelimited(text: string, delimiter?: string): string[][] {
       } else {
         cell += c;
       }
-    } else if (c === '"') {
+    } else if (c === '"' && cell === "") {
+      // Standard CSV: a quote only OPENS a quoted field at the start of a
+      // cell. Mid-cell quotes (inch marks — `กระเบื้อง 12"`) are literal;
+      // treating them as openers swallowed every following tab/newline.
       quoted = true;
     } else if (c === delim) {
       row.push(cell);
@@ -112,12 +115,14 @@ export function rowsToItems(
   for (const row of dataRows) {
     const code = at(row, mapping.code);
     if (!code) continue;
+    // Clamp to the same field caps createSpecItemSchema enforces — imported
+    // rows must not create items that hand-entered ones could never have.
     items.push({
-      code,
-      zone: at(row, mapping.zone),
-      category: at(row, mapping.category),
-      qty: at(row, mapping.qty),
-      qtyUnit: at(row, mapping.qtyUnit),
+      code: code.slice(0, 40),
+      zone: at(row, mapping.zone).slice(0, 120),
+      category: at(row, mapping.category).slice(0, 120),
+      qty: at(row, mapping.qty).slice(0, 40),
+      qtyUnit: at(row, mapping.qtyUnit).slice(0, 40),
     });
   }
   return items;
