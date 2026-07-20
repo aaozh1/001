@@ -24,6 +24,14 @@ async function destinationForEmail(email: string): Promise<string> {
   return ws ? workspacePath(ws) : "/";
 }
 
+// Only follow same-app relative paths — an absolute/protocol-relative value
+// would turn login into an open redirect.
+function safeCallbackUrl(value: FormDataEntryValue | null): string | null {
+  if (typeof value !== "string") return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  return value;
+}
+
 export async function login(
   _prev: AuthFormState,
   formData: FormData,
@@ -41,8 +49,11 @@ export async function login(
     throw err;
   }
 
+  // Prefer the deep link the user was heading to (middleware put it in
+  // callbackUrl) — landing on the dashboard instead loses the shared URL.
+  const callback = safeCallbackUrl(formData.get("callbackUrl"));
   // Outside the try/catch: redirect() throws a control-flow signal by design.
-  redirect(await destinationForEmail(parsed.data.email));
+  redirect(callback ?? (await destinationForEmail(parsed.data.email)));
 }
 
 export async function register(

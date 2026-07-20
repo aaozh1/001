@@ -19,7 +19,9 @@ export async function POST(request: Request, { params }: Params) {
   const { id } = await params;
   const result = await selectQuote(guard.ctx, id, parsed.data.quoteId);
   if (!result.ok) {
-    return jsonError(result.error, "Cannot select quote", result.error === "not_found" ? 404 : 422);
+    const status =
+      result.error === "not_found" ? 404 : result.error === "closed" ? 409 : 422;
+    return jsonError(result.error, "Cannot select quote", status);
   }
   return NextResponse.json({ ok: true });
 }

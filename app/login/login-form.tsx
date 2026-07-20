@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { login, type AuthFormState } from "@/lib/auth/actions";
 import { Button, Input } from "@/components/ui";
@@ -11,9 +12,13 @@ const initialState: AuthFormState = {};
 export function LoginForm() {
   const t = useTranslations();
   const [state, formAction, pending] = useActionState(login, initialState);
+  // Carry the deep link the user was heading to through the form so login
+  // lands them there, not on the generic dashboard.
+  const callbackUrl = useSearchParams().get("callbackUrl") ?? "";
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      <input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-ink">
           {t("auth.loginTitle")}

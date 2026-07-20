@@ -27,6 +27,29 @@ export function rfqStatusAfterQuote(current: string): string {
   return current === "open" ? "quoted" : current;
 }
 
+/**
+ * May a seller submit/update their quote? Only while the RFQ is live and their
+ * own quote (if any) is still undecided. A `selected` quote is the agreed price
+ * record of a settled deal — it must never be silently repriced; a `rejected`
+ * one is final too.
+ */
+export function canSubmitQuote(
+  rfqStatus: string,
+  existingQuoteStatus: string | null,
+): boolean {
+  const rfqLive = rfqStatus === "open" || rfqStatus === "quoted";
+  const quoteUndecided = existingQuoteStatus === null || existingQuoteStatus === "submitted";
+  return rfqLive && quoteUndecided;
+}
+
+/**
+ * May a designer (still) pick a winner on this RFQ? Once closed, a replayed or
+ * stale request must not flip the winner and rewrite the confirmed material.
+ */
+export function canSelectWinner(rfqStatus: string): boolean {
+  return rfqStatus === "open" || rfqStatus === "quoted";
+}
+
 // ── Selection (Phase 2.4) ──────────────────────────────────────────────
 // Choosing a winner sets that quote `selected` and every other `rejected`; the
 // rejected sellers are thereby notified in-app (courtesy). Pure + tested.

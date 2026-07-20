@@ -23,6 +23,7 @@ export function ChatPanel({ threadId }: { threadId: string }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
@@ -38,6 +39,9 @@ export function ChatPanel({ threadId }: { threadId: string }) {
           ? prev
           : data.messages,
       );
+    } catch {
+      // Polling tick hit a network blip — the next tick retries; without this
+      // catch every blip surfaces as an unhandled promise rejection.
     } finally {
       setLoaded(true);
     }
@@ -57,6 +61,7 @@ export function ChatPanel({ threadId }: { threadId: string }) {
     const body = input.trim();
     if (!body || sending) return;
     setSending(true);
+    setSendError(false);
     try {
       const res = await fetch(`/api/chat/${threadId}/messages`, {
         method: "POST",
@@ -67,7 +72,11 @@ export function ChatPanel({ threadId }: { threadId: string }) {
         const data = (await res.json()) as { message: Message };
         setMessages((prev) => [...prev, data.message]);
         setInput("");
+      } else {
+        setSendError(true);
       }
+    } catch {
+      setSendError(true);
     } finally {
       setSending(false);
     }
@@ -130,6 +139,7 @@ export function ChatPanel({ threadId }: { threadId: string }) {
           {sending ? t("sending") : t("send")}
         </Button>
       </div>
+      {sendError && <p className="mt-1 text-xs text-warn">{t("sendFailed")}</p>}
     </div>
   );
 }

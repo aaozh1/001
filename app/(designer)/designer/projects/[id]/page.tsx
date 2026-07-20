@@ -6,7 +6,7 @@ import { Card } from "@/components/ui";
 import { canManageProjects } from "@/lib/permissions";
 import { getDesignerContext, getProject } from "@/lib/projects/service";
 import { isProjectStatus } from "@/lib/projects/status";
-import { deriveSpecStatus } from "@/lib/spec/status";
+import { deriveSpecStatus, rfqFlags } from "@/lib/spec/status";
 import { getMaterialsByIds } from "@/lib/materials/service";
 import { listSpecBooks } from "@/lib/spec-book/service";
 import { getRfqStatusMap } from "@/lib/rfq/service";
@@ -46,7 +46,9 @@ export default async function ProjectDetailPage({ params }: Props) {
   const materials = await getMaterialsByIds(optionMaterialIds);
   const rfqMap = await getRfqStatusMap(project.id);
 
-  const rows: SpecRow[] = project.specItems.map((item) => ({
+  const rows: SpecRow[] = project.specItems.map((item) => {
+    const rfqState = rfqMap.get(item.id);
+    return {
     id: item.id,
     code: item.code,
     zone: item.zone ?? "",
@@ -57,8 +59,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     status: deriveSpecStatus({
       confirmedMaterialId: item.confirmedMaterialId,
       optionCount: item._count.options,
-      hasSentRfq: rfqMap.has(item.id),
-      hasQuote: rfqMap.get(item.id) === "quoted",
+      ...rfqFlags(rfqState),
     }),
     options: item.options.map((o) => {
       const m = materials.get(o.materialId);
@@ -72,7 +73,8 @@ export default async function ProjectDetailPage({ params }: Props) {
         isConfirmed: o.isConfirmed,
       };
     }),
-  }));
+    };
+  });
 
   const locale = await getLocale();
   const dateFmt = new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
@@ -143,6 +145,8 @@ export default async function ProjectDetailPage({ params }: Props) {
           />
         )}
       </header>
+
+      {!canManage && <p className="mt-3 text-xs text-mut">👁 {t("viewerHint")}</p>}
 
       <Card className="mt-4" padded={false}>
         <SpecViews projectId={project.id} canManage={canManage} items={rows} />

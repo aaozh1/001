@@ -12,13 +12,20 @@
     "password": "Password",
     "name": "Name",
     "loading": "Working…",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "close": "Close"
   },
   "home": {
-    "badge": "Phase 0 · scaffold",
+    "badge": "Every material. One list.",
     "heroSub": "A material spec-schedule tool for Thai architects, with a built-in pipe that sends RFQs straight to sellers",
     "goDesigner": "Enter Designer Workspace",
     "goSeller": "Enter Seller Center"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "catalog": "Catalog",
+    "rfqInbox": "RFQ inbox"
   },
   "roles": {
     "designer": "Designer",
@@ -110,7 +117,8 @@
     "won": "✓ Selected",
     "closedWon": "Closed — winner chosen",
     "selecting": "Selecting…",
-    "yes": "Yes"
+    "yes": "Yes",
+    "sendFailed": "Sending failed, please try again"
   },
   "import": {
     "title": "Import from Excel / CSV",
@@ -179,7 +187,8 @@
     "itemFull": "4 options max",
     "added": "Added ✓",
     "addFailed": "Could not add",
-    "close": "Close"
+    "close": "Close",
+    "goCreateProject": "Create a project →"
   },
   "projects": {
     "title": "My projects",
@@ -259,14 +268,21 @@
       "waiting_client": "Waiting client",
       "delivered": "Delivered",
       "archived": "Archived"
-    }
+    },
+    "sbFailed": "Could not create the Spec Book, please try again",
+    "sbReady": "Ready to download"
   },
   "seller": {
     "center": "Seller Center",
     "welcome": "Hi {name}",
-    "dashboardIntro": "This is the seller workspace — RFQ inbox, materials and performance arrive in the next phases",
+    "dashboardIntro": "Leads waiting on you right now — answer inside the window to win the order",
     "inbox": "RFQ inbox",
-    "goInbox": "Open RFQ inbox"
+    "goInbox": "Open RFQ inbox",
+    "statAwaiting": "Awaiting your quote",
+    "statOverdue": "Past the deadline",
+    "statWon": "Won",
+    "inboxPending": "{n} to answer",
+    "inboxHint": "Sellers who reply fast win more — quotes flow straight back into the client's spec schedule"
   },
   "sellerRfq": {
     "title": "RFQ inbox",
@@ -278,6 +294,7 @@
     "material": "Material asked",
     "qty": "Quantity",
     "sla": "Respond by",
+    "zone": "Zone",
     "overdue": "Overdue",
     "wantSample": "Client also requested a sample",
     "note": "Client note",
@@ -300,7 +317,10 @@
     "yourQuote": "Your quote",
     "perUnit": "/unit",
     "won": "Won 🎉",
-    "lost": "Not selected"
+    "lost": "Not selected",
+    "errClosed": "This RFQ is closed — the quote can no longer change",
+    "errInvalid": "Invalid input — check the price and try again",
+    "errFailed": "Sending failed, please try again"
   },
   "chat": {
     "title": "Chat",
@@ -317,7 +337,9 @@
     "empty": "No messages yet — say hello 👋",
     "placeholder": "Type a message… e.g. quote for a 500 m² project",
     "send": "Send",
-    "sending": "Sending…"
+    "sending": "Sending…",
+    "sendFailed": "Sending failed, please try again",
+    "noThreadsHintDesigner": "Start a chat from the 💬 button next to a quote on a project page"
   },
   "dashboard": {
     "welcome": "Hi {name}",
@@ -333,12 +355,21 @@
     "veTitle": "VE savings",
     "veCaption": "{swaps} equivalent swaps so far",
     "planTitle": "Your plan",
-    "plan": { "free": "Free", "pro": "Pro", "studio": "Studio" },
+    "plan": {
+      "free": "Free",
+      "pro": "Pro",
+      "studio": "Studio"
+    },
     "planFree": "Free forever — the backbone is always free",
     "planPrice": "฿{price} / seat / month",
     "managePlan": "Manage plan",
     "goProjects": "My projects",
-    "goCatalog": "Catalog"
+    "goCatalog": "Catalog",
+    "startTitle": "Start your first project",
+    "startHint": "Create a spec schedule from scratch, import your existing Excel, or browse materials first — everything here is free",
+    "startCreate": "＋ Create a project",
+    "startImport": "Import from Excel",
+    "startBrowse": "Browse the catalog"
   },
   "billing": {
     "back": "← Back to dashboard",
@@ -348,7 +379,11 @@
     "current": "Current",
     "free": "Free",
     "perSeatMonth": " / seat / month",
-    "plan": { "free": "Free", "pro": "Pro", "studio": "Studio" },
+    "plan": {
+      "free": "Free",
+      "pro": "Pro",
+      "studio": "Studio"
+    },
     "feat": {
       "unlimitedProjects": "Unlimited projects",
       "specSchedule": "Full spec schedule",

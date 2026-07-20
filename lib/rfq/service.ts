@@ -40,7 +40,13 @@ export async function sendRfqs(
       id: true,
       projectId: true,
       options: { select: { materialId: true, material: { select: { sellerOrgId: true } } } },
-      rfqs: { where: { status: { in: ["open", "quoted"] } }, select: { id: true } },
+      // Live or already-won RFQs block a re-send. closed_lost/expired lines may
+      // legitimately go out again, but a won line is settled — re-sending it
+      // would spam sellers with a lead that no longer exists.
+      rfqs: {
+        where: { status: { in: ["open", "quoted", "closed_won"] } },
+        select: { id: true },
+      },
     },
   });
 
@@ -52,6 +58,19 @@ export async function sendRfqs(
   await prisma.$transaction(async (tx) => {
     for (const item of items) {
       if (item.options.length === 0 || item.rfqs.length > 0) {
+        skipped++;
+        continue;
+      }
+      // Re-check inside the transaction: two concurrent sends both pass the
+      // pre-fetch above; without this, each would create its own RFQ and
+      // sellers would receive duplicate leads for the same line.
+      const live = await tx.rFQ.count({
+        where: {
+          specItemId: item.id,
+          status: { in: ["open", "quoted", "closed_won"] },
+        },
+      });
+      if (live > 0) {
         skipped++;
         continue;
       }
@@ -99,17 +118,24 @@ export async function sendRfqs(
 }
 
 /** specItemId → derived RFQ state, for reflecting sent/quoted in the schedule. */
+export type RfqItemState = "sent" | "quoted" | "closed";
+
 export async function getRfqStatusMap(
   projectId: string,
-): Promise<Map<string, "sent" | "quoted">> {
+): Promise<Map<string, RfqItemState>> {
   const rfqs = await prisma.rFQ.findMany({
-    where: { projectId, status: { in: ["open", "quoted"] } },
+    where: { projectId, status: { in: ["open", "quoted", "closed_won"] } },
     select: { specItemId: true, status: true },
   });
-  const map = new Map<string, "sent" | "quoted">();
+  // Precedence per line: closed (deal done) > quoted > sent. Without the
+  // closed entry a won line looked "never sent" and could be re-sent.
+  const map = new Map<string, RfqItemState>();
   for (const r of rfqs) {
-    if (r.status === "quoted") map.set(r.specItemId, "quoted");
-    else if (!map.has(r.specItemId)) map.set(r.specItemId, "sent");
+    const current = map.get(r.specItemId);
+    if (r.status === "closed_won") map.set(r.specItemId, "closed");
+    else if (r.status === "quoted" && current !== "closed") {
+      map.set(r.specItemId, "quoted");
+    } else if (!current) map.set(r.specItemId, "sent");
   }
   return map;
 }
@@ -173,7 +199,15 @@ export async function listSellerRfqs(sellerOrgId: string): Promise<SellerRfqView
   const rows = await prisma.rFQ.findMany({
     where: { recipients: { some: { sellerOrgId } } },
     orderBy: { slaDueAt: "asc" },
-    include: RFQ_INCLUDE,
+    include: {
+      ...RFQ_INCLUDE,
+      // ONLY this seller's recipient rows — the unfiltered include would leak
+      // whichever competitor's materialId happens to sort first.
+      recipients: {
+        where: { sellerOrgId },
+        select: { materialId: true },
+      },
+    },
   });
   // Route through the designer record then strip to the seller view, so the
   // privacy projection is the single choke point.

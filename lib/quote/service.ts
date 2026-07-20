@@ -4,7 +4,12 @@ import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
 import type { SellerContext } from "@/lib/seller/context";
 import type { DesignerContext } from "@/lib/projects/service";
-import { rfqStatusAfterQuote, selectionOutcome } from "./logic";
+import {
+  canSelectWinner,
+  canSubmitQuote,
+  rfqStatusAfterQuote,
+  selectionOutcome,
+} from "./logic";
 import type { QuoteInput } from "./schemas";
 
 // ── Seller: RFQ inbox + detail ─────────────────────────────────────────
@@ -136,7 +141,9 @@ export async function getSellerRfqDetail(
   };
 }
 
-export type SubmitQuoteResult = { ok: true } | { ok: false; error: "not_recipient" };
+export type SubmitQuoteResult =
+  | { ok: true }
+  | { ok: false; error: "not_recipient" | "closed" };
 
 /**
  * Seller answers an RFQ: upsert their Quote, flip the RFQ to `quoted`, and stamp
@@ -151,9 +158,17 @@ export async function submitQuote(
 ): Promise<SubmitQuoteResult> {
   const rfq = await prisma.rFQ.findFirst({
     where: { id: rfqId, recipients: { some: { sellerOrgId: ctx.orgId } } },
-    select: { id: true, status: true, quotes: { where: { sellerOrgId: ctx.orgId }, select: { id: true } } },
+    select: {
+      id: true,
+      status: true,
+      quotes: { where: { sellerOrgId: ctx.orgId }, select: { id: true, status: true } },
+    },
   });
   if (!rfq) return { ok: false, error: "not_recipient" };
+
+  if (!canSubmitQuote(rfq.status, rfq.quotes[0]?.status ?? null)) {
+    return { ok: false, error: "closed" };
+  }
 
   const data = {
     pricePerUnit: new Prisma.Decimal(input.pricePerUnit),
@@ -167,11 +182,13 @@ export async function submitQuote(
 
   await prisma.$transaction(async (tx) => {
     const existing = rfq.quotes[0];
-    if (existing) {
-      await tx.quote.update({ where: { id: existing.id }, data });
-    } else {
-      await tx.quote.create({ data: { rfqId, sellerOrgId: ctx.orgId, ...data } });
-    }
+    // Upsert on the (rfqId, sellerOrgId) unique key — concurrent submits can't
+    // create duplicate quotes.
+    await tx.quote.upsert({
+      where: { rfqId_sellerOrgId: { rfqId, sellerOrgId: ctx.orgId } },
+      create: { rfqId, sellerOrgId: ctx.orgId, ...data },
+      update: data,
+    });
     await tx.rFQ.update({
       where: { id: rfqId },
       data: { status: rfqStatusAfterQuote(rfq.status) as Prisma.RFQUpdateInput["status"] },
@@ -264,7 +281,9 @@ export async function getProjectQuotes(
   return map;
 }
 
-export type SelectQuoteResult = { ok: true } | { ok: false; error: "not_found" | "bad_quote" };
+export type SelectQuoteResult =
+  | { ok: true }
+  | { ok: false; error: "not_found" | "bad_quote" | "closed" };
 
 /**
  * Designer picks a winning quote: mark it `selected`, the rest `rejected`
@@ -281,11 +300,15 @@ export async function selectQuote(
     where: { id: rfqId, project: { orgId: ctx.orgId } },
     select: {
       id: true,
+      status: true,
       specItemId: true,
       quotes: { select: { id: true, sellerOrgId: true } },
     },
   });
   if (!rfq) return { ok: false, error: "not_found" };
+  // Once closed, a replayed/stale request must not flip the winner and
+  // rewrite the confirmed material behind everyone's back.
+  if (!canSelectWinner(rfq.status)) return { ok: false, error: "closed" };
 
   const outcome = selectionOutcome(
     rfq.quotes.map((q) => q.id),
@@ -294,11 +317,19 @@ export async function selectQuote(
   if (!outcome) return { ok: false, error: "bad_quote" };
 
   const winner = rfq.quotes.find((q) => q.id === quoteId)!;
-  // The material to confirm = the winning seller's recipient option (first).
-  const recipient = await prisma.rFQRecipient.findFirst({
+  // The material to confirm. A quote isn't tied to a material, so only
+  // auto-confirm when the winning seller has exactly ONE material in the
+  // running on this line — with two, guessing could permanently record the
+  // wrong product; leave the confirm to the designer instead.
+  const recipients = await prisma.rFQRecipient.findMany({
     where: { rfqId, sellerOrgId: winner.sellerOrgId, materialId: { not: null } },
     select: { materialId: true },
   });
+  const winnerMaterialIds = [
+    ...new Set(recipients.map((r) => r.materialId).filter((m): m is string => m !== null)),
+  ];
+  const recipient =
+    winnerMaterialIds.length === 1 ? { materialId: winnerMaterialIds[0] } : null;
 
   await prisma.$transaction(async (tx) => {
     await tx.quote.update({ where: { id: quoteId }, data: { status: "selected" } });

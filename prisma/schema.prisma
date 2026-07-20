@@ -382,6 +382,9 @@ model Quote {
   rfq    RFQ          @relation(fields: [rfqId], references: [id], onDelete: Cascade)
   seller Organization @relation(fields: [sellerOrgId], references: [id], onDelete: Cascade)
 
+  // One quote per seller per RFQ — enforces the documented idempotency at the
+  // DB level so concurrent submits can't create duplicates.
+  @@unique([rfqId, sellerOrgId])
   @@index([rfqId])
   @@index([sellerOrgId])
 }
@@ -523,6 +526,9 @@ model ChatMessage {
   id           String   @id @default(cuid())
   threadId     String
   senderUserId String?
+  // ฝั่งที่ส่ง ณ ตอนโพสต์ (designer|seller) — เก็บไว้ตรง ๆ เพราะผู้ใช้คนเดียว
+  // อาจอยู่ทั้งสอง org ของ thread ทำให้เดาย้อนหลังจาก membership ไม่ได้
+  senderSide   String?
   body         String
   attachments  String[] @default([])
   createdAt    DateTime @default(now())

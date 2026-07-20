@@ -31,7 +31,7 @@ export function StudioTools({
   const [name, setName] = useState("");
   const [setId, setSetId] = useState(sets[0]?.id ?? "");
   const [pending, setPending] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ text: string; kind: "ok" | "error" } | null>(null);
 
   if (!canManage) return null;
 
@@ -56,21 +56,29 @@ export function StudioTools({
       if (res.ok) {
         if (kind === "apply") {
           const data = (await res.json()) as { added: number };
-          setToast(t("appliedToast", { added: data.added }));
-          router.refresh();
+          setToast({ text: t("appliedToast", { added: data.added }), kind: "ok" });
         } else {
-          setToast(t(kind === "template" ? "templateSaved" : "setSaved"));
+          setToast({
+            text: t(kind === "template" ? "templateSaved" : "setSaved"),
+            kind: "ok",
+          });
         }
+        // Refresh so a just-saved set immediately appears in "apply" choices
+        // and applied options show up in the schedule.
+        router.refresh();
         setModal(null);
         setName("");
       } else {
         const data = (await res.json().catch(() => null)) as
           | { error?: { code?: string } }
           | null;
-        setToast(
-          data?.error?.code === "studio_required" ? t("lockedShort") : t("failed"),
-        );
+        setToast({
+          text: data?.error?.code === "studio_required" ? t("lockedShort") : t("failed"),
+          kind: "error",
+        });
       }
+    } catch {
+      setToast({ text: t("failed"), kind: "error" });
     } finally {
       setPending(false);
     }
@@ -112,7 +120,14 @@ export function StudioTools({
         </Button>
       </div>
 
-      {toast && <p className="mt-3 text-sm font-medium text-ok">{toast}</p>}
+      {toast && (
+        <p
+          role={toast.kind === "error" ? "alert" : undefined}
+          className={`mt-3 text-sm font-medium ${toast.kind === "ok" ? "text-ok" : "text-warn"}`}
+        >
+          {toast.text}
+        </p>
+      )}
 
       <Modal
         open={modal === "template" || modal === "set"}

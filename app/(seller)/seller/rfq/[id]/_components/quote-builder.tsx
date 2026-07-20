@@ -99,7 +99,15 @@ export function QuoteBuilder({
       </label>
 
       {done && <p className="text-sm font-medium text-ok">{t("submitted")}</p>}
-      {error && <p className="text-sm text-brand">{t("pricePerUnit")}?</p>}
+      {error && (
+        <p className="text-sm text-warn" role="alert">
+          {error === "closed"
+            ? t("errClosed")
+            : error === "invalid"
+              ? t("errInvalid")
+              : t("errFailed")}
+        </p>
+      )}
 
       <div>
         <Button onClick={submit} disabled={pending || !pricePerUnit}>

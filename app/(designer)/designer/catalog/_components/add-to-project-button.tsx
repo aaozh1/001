@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Modal } from "@/components/ui";
@@ -50,7 +51,12 @@ export function AddToProjectButton({
         {targets === null ? (
           <p className="py-6 text-center text-sm text-mut">…</p>
         ) : targets.length === 0 ? (
-          <p className="py-6 text-center text-sm text-sub">{t("noProjects")}</p>
+          <p className="py-6 text-center text-sm text-sub">
+            {t("noProjects")}{" "}
+            <Link href="/designer/projects" className="font-medium text-brand hover:underline">
+              {t("goCreateProject")}
+            </Link>
+          </p>
         ) : (
           <div className="mt-3 flex flex-col gap-4">
             {targets.map((p) => (

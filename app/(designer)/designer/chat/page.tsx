@@ -24,9 +24,10 @@ export default async function DesignerChatInboxPage() {
       </header>
 
       {threads.length === 0 ? (
-        <p className="rounded-card border border-dashed border-line-2 bg-surface p-10 text-center text-sub">
-          {t("noThreads")}
-        </p>
+        <div className="rounded-card border border-dashed border-line-2 bg-surface p-10 text-center">
+          <p className="text-sub">{t("noThreads")}</p>
+          <p className="mt-1 text-sm text-mut">{t("noThreadsHintDesigner")}</p>
+        </div>
       ) : (
         <div className="flex flex-col gap-3">
           {threads.map((th) => (

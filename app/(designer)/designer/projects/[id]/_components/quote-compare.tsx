@@ -43,13 +43,14 @@ export function QuoteCompareButton({
           <p className="mb-2 text-sm font-medium text-ok">✓ {t("closedWon")}</p>
         )}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-left text-sm">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
               <tr className="border-b border-line text-xs text-mut">
                 <th className="px-3 py-2 font-semibold">{t("colSeller")}</th>
                 <th className="px-3 py-2 font-semibold">{t("colPrice")}</th>
                 <th className="px-3 py-2 font-semibold">{t("colEffective")}</th>
                 <th className="px-3 py-2 font-semibold">{t("colLead")}</th>
+                <th className="px-3 py-2 font-semibold">{t("colTerms")}</th>
                 <th className="px-3 py-2 font-semibold">{t("colValid")}</th>
                 <th className="px-3 py-2 font-semibold">{t("colSample")}</th>
                 <th className="px-3 py-2" />
@@ -76,6 +77,9 @@ export function QuoteCompareButton({
                       {money(String(eff))}
                     </td>
                     <td className="px-3 py-2 text-sub">{q.leadTime ?? "—"}</td>
+                    <td className="max-w-[160px] truncate px-3 py-2 text-sub" title={q.paymentTerms ?? undefined}>
+                      {q.paymentTerms ?? "—"}
+                    </td>
                     <td className="px-3 py-2 text-sub">
                       {q.validUntil ? q.validUntil.slice(0, 10) : "—"}
                     </td>
