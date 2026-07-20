@@ -96,7 +96,21 @@
     "quotesReceived": "Quotes received",
     "perUnit": "/unit",
     "lead": "lead",
-    "withSample": "+ sample"
+    "withSample": "+ sample",
+    "compareOpen": "Compare + choose",
+    "compareTitle": "Compare quotes",
+    "colSeller": "Seller",
+    "colPrice": "Price/unit",
+    "colEffective": "After discount",
+    "colLead": "Lead",
+    "colTerms": "Terms",
+    "colValid": "Valid until",
+    "colSample": "Sample",
+    "choose": "Choose",
+    "won": "✓ Selected",
+    "closedWon": "Closed — winner chosen",
+    "selecting": "Selecting…",
+    "yes": "Yes"
   },
   "import": {
     "title": "Import from Excel / CSV",
@@ -284,6 +298,8 @@
     "updateQuote": "Update quote",
     "submitted": "Quote sent ✓ the price flows back to the client",
     "yourQuote": "Your quote",
-    "perUnit": "/unit"
+    "perUnit": "/unit",
+    "won": "Won 🎉",
+    "lost": "Not selected"
   }
 }

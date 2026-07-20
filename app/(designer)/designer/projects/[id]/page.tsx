@@ -80,19 +80,29 @@ export default async function ProjectDetailPage({ params }: Props) {
   }));
 
   const quotesMap = await getProjectQuotes(ctx.orgId, project.id);
-  const rfqItems: RfqItem[] = project.specItems.map((item) => ({
-    id: item.id,
-    code: item.code,
-    zone: item.zone ?? "",
-    optionCount: item._count.options,
-    state: rfqMap.get(item.id) ?? "none",
-    quotes: (quotesMap.get(item.id) ?? []).map((q) => ({
-      sellerName: q.sellerName,
-      pricePerUnit: q.pricePerUnit,
-      leadTime: q.leadTime,
-      includeSample: q.includeSample,
-    })),
-  }));
+  const rfqItems: RfqItem[] = project.specItems.map((item) => {
+    const group = quotesMap.get(item.id);
+    return {
+      id: item.id,
+      code: item.code,
+      zone: item.zone ?? "",
+      optionCount: item._count.options,
+      state: rfqMap.get(item.id) ?? "none",
+      rfqId: group?.rfqId ?? null,
+      rfqStatus: group?.rfqStatus ?? null,
+      quotes: (group?.quotes ?? []).map((q) => ({
+        quoteId: q.quoteId,
+        sellerName: q.sellerName,
+        pricePerUnit: q.pricePerUnit,
+        projectDiscount: q.projectDiscount,
+        leadTime: q.leadTime,
+        paymentTerms: q.paymentTerms,
+        validUntil: q.validUntil,
+        includeSample: q.includeSample,
+        status: q.status,
+      })),
+    };
+  });
 
   return (
     <div className="mx-auto max-w-4xl">

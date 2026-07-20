@@ -42,7 +42,11 @@ export default async function SellerRfqInboxPage() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-ink">{r.projectName}</span>
-                    {r.responded ? (
+                    {r.quoteStatus === "selected" ? (
+                      <Badge variant="ok">{t("won")}</Badge>
+                    ) : r.quoteStatus === "rejected" ? (
+                      <Badge variant="neutral">{t("lost")}</Badge>
+                    ) : r.responded ? (
                       <Badge variant="ok">✓ {t("responded")}</Badge>
                     ) : overdue ? (
                       <Badge variant="warn">{t("overdue")}</Badge>

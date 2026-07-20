@@ -35,7 +35,13 @@ export default async function SellerRfqDetailPage({ params }: Props) {
 
       <header className="mt-2 flex flex-wrap items-center gap-2">
         <h1 className="text-2xl font-bold tracking-tight text-ink">{rfq.projectName}</h1>
-        {rfq.responded && <Badge variant="ok">✓ {t("responded")}</Badge>}
+        {rfq.quoteStatus === "selected" ? (
+          <Badge variant="ok">{t("won")}</Badge>
+        ) : rfq.quoteStatus === "rejected" ? (
+          <Badge variant="neutral">{t("lost")}</Badge>
+        ) : rfq.responded ? (
+          <Badge variant="ok">✓ {t("responded")}</Badge>
+        ) : null}
         {rfq.wantSample && <Badge variant="brand">{t("wantSample")}</Badge>}
       </header>
       <p className="mt-1 text-xs text-mut">🔒 {t("privacy")}</p>
@@ -51,7 +57,21 @@ export default async function SellerRfqDetailPage({ params }: Props) {
 
       <Card className="mt-4 gap-4">
         <h2 className="font-semibold text-ink">{t("quoteTitle")}</h2>
-        <QuoteBuilder rfqId={rfq.id} existing={rfq.existingQuote} />
+        {rfq.quoteStatus === "selected" || rfq.quoteStatus === "rejected" ? (
+          <div className="text-sm">
+            <p className={rfq.quoteStatus === "selected" ? "text-ok" : "text-sub"}>
+              {rfq.quoteStatus === "selected" ? t("won") : t("lost")}
+            </p>
+            {rfq.existingQuote && (
+              <p className="mt-1 text-mut">
+                {t("yourQuote")}: ฿{rfq.existingQuote.pricePerUnit}
+                {t("perUnit")}
+              </p>
+            )}
+          </div>
+        ) : (
+          <QuoteBuilder rfqId={rfq.id} existing={rfq.existingQuote} />
+        )}
       </Card>
     </div>
   );
