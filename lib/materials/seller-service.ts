@@ -13,6 +13,7 @@ import type { EditableMaterialStatus, MaterialFormInput } from "./seller-schemas
 
 export interface SellerMaterialRow {
   id: string;
+  brandId: string | null;
   nameTh: string;
   nameEn: string | null;
   model: string | null;
@@ -35,6 +36,7 @@ export interface SellerMaterialRow {
 
 const ROW_SELECT = {
   id: true,
+  brandId: true,
   nameTh: true,
   nameEn: true,
   model: true,
@@ -107,6 +109,16 @@ export async function saveMaterial(
 ): Promise<SaveMaterialResult> {
   const data = formToData(input);
 
+  // Brand must belong to this org — a foreign id silently becomes "no brand".
+  let brandId: string | null = null;
+  if (input.brandId && input.brandId !== "") {
+    const brand = await prisma.brand.findFirst({
+      where: { id: input.brandId, sellerOrgId: ctx.orgId },
+      select: { id: true },
+    });
+    brandId = brand?.id ?? null;
+  }
+
   // Score from the saved shape (spec/images unchanged by this form → load
   // current values for them on update, empty on create).
   let existingSpec: unknown = null;
@@ -131,11 +143,11 @@ export async function saveMaterial(
     const material = materialId
       ? await tx.material.update({
           where: { id: materialId },
-          data: { ...data, completeness: score },
+          data: { ...data, brandId, completeness: score },
           select: { id: true },
         })
       : await tx.material.create({
-          data: { ...data, sellerOrgId: ctx.orgId, completeness: score },
+          data: { ...data, brandId, sellerOrgId: ctx.orgId, completeness: score },
           select: { id: true },
         });
     await writeAudit(tx, {
