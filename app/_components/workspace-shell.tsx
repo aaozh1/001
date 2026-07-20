@@ -32,6 +32,7 @@ export async function WorkspaceShell({
       : [
           { href: "/seller", label: t("nav.dashboard") },
           { href: "/seller/rfq", label: t("nav.rfqInbox") },
+          { href: "/seller/materials", label: t("nav.materials") },
           { href: "/seller/chat", label: `💬 ${t("chat.title")}` },
         ];
 

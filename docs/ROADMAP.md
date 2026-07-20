@@ -53,7 +53,7 @@
 - [x] **3.1 Designer: Dashboard + Billing + แผน** — งานค้าง, VE savings, แผน Free/Pro/Studio, ใบกำกับภาษี (payment จริงเลื่อนไป 3.5)
 - [x] **3.2 Designer: Template & Material Sets (Studio gate)** — บันทึก/ใช้ซ้ำ, ล็อกหลังแผน Studio
   - AC: gate ทำงาน · apply set ลงโปรเจกต์ได้
-- [ ] **3.3 Seller: Dashboard (SLA card) + RFQ tabs + Materials + ฟอร์มสินค้า**
+- [x] **3.3 Seller: Dashboard (SLA card) + RFQ tabs + Materials + ฟอร์มสินค้า**
   - AC: SLA countdown จริง · completeness score · สินค้าที่ publish โผล่ในคลัง
 - [ ] **3.4 Seller: Performance + Brands + Admin Console(routing/roles)**
 - [ ] **3.5 Payment จริง** (Omise/2C2P) + ออกใบกำกับภาษี + webhook

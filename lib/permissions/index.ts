@@ -77,3 +77,20 @@ export function canManageProjects(role: string): boolean {
 export function canManageBilling(role: string): boolean {
   return role === "owner";
 }
+
+// ── Seller-side role rules (pure; re-exported via lib/seller/context) ─────
+
+// Seller roles that may answer RFQs / manage quotes (owner|manager|sales).
+export const QUOTE_ROLES = ["owner", "manager", "sales"] as const;
+
+export function canQuote(role: string): boolean {
+  return (QUOTE_ROLES as readonly string[]).includes(role);
+}
+
+// Seller roles that may manage the product catalog (owner|manager|content).
+// `sales` answers RFQs but doesn't edit product data.
+export const MATERIAL_ROLES = ["owner", "manager", "content"] as const;
+
+export function canManageMaterials(role: string): boolean {
+  return (MATERIAL_ROLES as readonly string[]).includes(role);
+}
