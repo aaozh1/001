@@ -17,6 +17,7 @@ export interface CategoryOption {
 }
 
 type FormState = {
+  brandId: string;
   nameTh: string;
   nameEn: string;
   model: string;
@@ -36,6 +37,7 @@ type FormState = {
 };
 
 const EMPTY: FormState = {
+  brandId: "",
   nameTh: "",
   nameEn: "",
   model: "",
@@ -56,6 +58,7 @@ const EMPTY: FormState = {
 
 function fromRow(row: SellerMaterialRow): FormState {
   return {
+    brandId: row.brandId ?? "",
     nameTh: row.nameTh,
     nameEn: row.nameEn ?? "",
     model: row.model ?? "",
@@ -82,10 +85,12 @@ function fromRow(row: SellerMaterialRow): FormState {
 export function MaterialsClient({
   rows,
   categories,
+  brands,
   canEdit,
 }: {
   rows: SellerMaterialRow[];
   categories: CategoryOption[];
+  brands: { id: string; name: string }[];
   canEdit: boolean;
 }) {
   const t = useTranslations("sellerMat");
@@ -271,6 +276,21 @@ export function MaterialsClient({
                   {categories.map((c) => (
                     <option key={c.key} value={c.key}>
                       {c.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-sm font-medium text-ink">
+                {t("fBrand")}
+                <select
+                  value={editing.form.brandId}
+                  onChange={(e) => set("brandId", e.target.value)}
+                  className="rounded-sm border border-line-2 bg-surface px-3 py-2 text-sm outline-none focus:border-brand"
+                >
+                  <option value="">—</option>
+                  {brands.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
                     </option>
                   ))}
                 </select>

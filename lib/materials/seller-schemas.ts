@@ -4,6 +4,7 @@ import { z } from "zod";
 // is optional — completeness scoring nudges sellers to fill the rest.
 export const materialFormSchema = z.object({
   nameTh: z.string().trim().min(1).max(160),
+  brandId: z.string().trim().max(60).optional().or(z.literal("")),
   nameEn: z.string().trim().max(160).optional(),
   model: z.string().trim().max(120).optional(),
   sku: z.string().trim().max(80).optional(),

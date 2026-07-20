@@ -26,7 +26,9 @@
     "projects": "Projects",
     "catalog": "Catalog",
     "rfqInbox": "RFQ inbox",
-    "materials": "My products"
+    "materials": "My products",
+    "performance": "Performance",
+    "team": "Team"
   },
   "roles": {
     "designer": "Designer",
@@ -505,6 +507,66 @@
     "saving": "Saving…",
     "cancel": "Cancel",
     "errInvalid": "Invalid input — check and try again",
+    "errFailed": "Save failed, please try again",
+    "fBrand": "Brand",
+    "manageBrands": "Manage brands"
+  },
+  "sellerPerf": {
+    "title": "Your performance",
+    "subtitle": "Real numbers from your past RFQs — answer faster, build trust",
+    "aggregateNote": "Compared against the platform-wide average only — no individual seller's numbers are ever shown",
+    "responseRate": "Response rate",
+    "avgReply": "Avg reply time",
+    "winRate": "Win rate",
+    "received": "RFQs received",
+    "platformAvg": "Platform avg",
+    "hoursShort": "{h}h",
+    "slaReminder": "Answer within 48h — missing the window lowers your response rate and designers can tell"
+  },
+  "sellerBrand": {
+    "title": "Brands you carry",
+    "subtitle": "One seller can carry several brands — link products to show \"made / distributed by\"",
+    "back": "← Back to products",
+    "new": "＋ Add brand",
+    "newTitle": "Add a brand",
+    "editTitle": "Edit brand",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this brand? Its products stay but lose the brand link.",
+    "empty": "No brands yet",
+    "materialCount": "{n} products",
+    "fName": "Brand name",
+    "fLogo": "Logo (URL)",
+    "fStory": "Brand story",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
     "errFailed": "Save failed, please try again"
+  },
+  "sellerTeam": {
+    "title": "Team & roles",
+    "subtitle": "Manage members and roles — only the owner can make changes",
+    "colMember": "Member",
+    "colRole": "Role",
+    "you": "you",
+    "role": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "sales": "Sales",
+      "content": "Content"
+    },
+    "remove": "Remove",
+    "removeConfirm": "Remove this member from the team?",
+    "addTitle": "Add a member",
+    "addHint": "Add an existing MatList user by email (email invites come later)",
+    "fEmail": "Email",
+    "add": "Add",
+    "adding": "Adding…",
+    "done": "Saved ✓",
+    "errLastOwner": "The org must always keep at least one owner",
+    "errUserNotFound": "No MatList user with that email",
+    "errAlreadyMember": "Already a member",
+    "errFailed": "Something went wrong, please try again",
+    "rolesLegend": "Owner = everything + billing · Manager = quote + edit products · Sales = quote only · Content = edit products only"
   }
 }

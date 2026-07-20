@@ -55,7 +55,7 @@
   - AC: gate ทำงาน · apply set ลงโปรเจกต์ได้
 - [x] **3.3 Seller: Dashboard (SLA card) + RFQ tabs + Materials + ฟอร์มสินค้า**
   - AC: SLA countdown จริง · completeness score · สินค้าที่ publish โผล่ในคลัง
-- [ ] **3.4 Seller: Performance + Brands + Admin Console(routing/roles)**
+- [x] **3.4 Seller: Performance + Brands + Admin Console (roles)** — RFQ routing รอ integrations เฟส 2.2
 - [ ] **3.5 Payment จริง** (Omise/2C2P) + ออกใบกำกับภาษี + webhook
   - AC: จ่ายได้ · ออกใบกำกับภาษีเต็มรูป · อัปเกรด/ดาวน์เกรดแผน
 
