@@ -62,7 +62,7 @@
 ## PHASE 4 — ก่อน launch
 - [ ] **4.1 ตรวจ PDPA + terms/privacy** (ต้องมีมนุษย์/ทนายร่วม — Claude Code เตรียมร่าง+จุดที่ต้องตรวจ)
 - [x] **4.2 Analytics ถาวร** (แทนแผงวัดผล in-session ของ prototype) — track funnel ทั้ง 2 ฝั่ง
-- [ ] **4.3 Monitoring/error tracking/backup** + rate limit + security review
+- [x] **4.3 Monitoring/error tracking/backup** + rate limit + security review (ดู docs/OPERATIONS.md · security review เต็มอยู่ใน PR #17)
 - [ ] **4.4 Seed ข้อมูลวัสดุจริงจากผู้ขาย 20-30 ราย** (งานคน + AI ช่วยแปลง spec sheet)
 
 ---

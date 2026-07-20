@@ -73,7 +73,8 @@
     "registerFailed": "Sign up failed, please try again",
     "passwordTooShort": "Password must be at least 8 characters",
     "invalidEmail": "Invalid email format",
-    "fieldRequired": "Please fill in all fields"
+    "fieldRequired": "Please fill in all fields",
+    "tooManyAttempts": "Too many login attempts — wait a moment and try again"
   },
   "designer": {
     "workspace": "Designer Workspace",
@@ -580,5 +581,10 @@
     "colOfPrev": "% of previous",
     "topEvents": "All events",
     "noEvents": "No events in this window yet"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "body": "This page hit an error — try again, your data is safe",
+    "retry": "Retry"
   }
 }

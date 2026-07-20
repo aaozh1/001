@@ -14,3 +14,17 @@ export async function readJson(request: Request): Promise<unknown | undefined> {
     return undefined;
   }
 }
+
+/** 429 with a Retry-After header (rate limiting, Phase 4.3). */
+export function tooManyRequests(retryAfterSec: number) {
+  return NextResponse.json(
+    { error: { code: "rate_limited", message: "Too many requests" } },
+    { status: 429, headers: { "Retry-After": String(retryAfterSec) } },
+  );
+}
+
+/** Best-effort client key for rate limiting (self-host behind own proxy). */
+export function clientIp(request: Request): string {
+  const fwd = request.headers.get("x-forwarded-for");
+  return fwd?.split(",")[0]?.trim() || "local";
+}

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { jsonError, readJson } from "@/lib/http";
+import { jsonError, readJson, tooManyRequests } from "@/lib/http";
+import { RULES, consume } from "@/lib/rate-limit";
 import { requireSeller } from "@/lib/seller/context";
 import { quoteSchema } from "@/lib/quote/schemas";
 import { submitQuote } from "@/lib/quote/service";
@@ -10,6 +11,9 @@ type Params = { params: Promise<{ id: string }> };
 export async function POST(request: Request, { params }: Params) {
   const guard = await requireSeller({ quote: true });
   if (!guard.ok) return guard.response;
+
+  const rl = consume(`quote:${guard.ctx.orgId}`, RULES.quote);
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterSec);
 
   const parsed = quoteSchema.safeParse(await readJson(request));
   if (!parsed.success) return jsonError("invalid_input", "Validation failed", 422);
