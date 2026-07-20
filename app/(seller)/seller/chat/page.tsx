@@ -32,7 +32,7 @@ export default async function SellerChatInboxPage() {
         <div className="flex flex-col gap-3">
           {threads.map((th) => (
             <Link key={th.threadId} href={`/seller/chat/${th.threadId}`}>
-              <Card className="flex-row items-center justify-between gap-4 transition hover:shadow-card-lg">
+              <Card className="flex-row items-center justify-between gap-4 transition hover:shadow-lifted">
                 <div className="min-w-0">
                   <div className="font-semibold text-ink">{th.projectName ?? "—"}</div>
                   <div className="mt-0.5 truncate text-sm text-sub">

@@ -11,11 +11,15 @@ import { getMaterialsByIds } from "@/lib/materials/service";
 import { listSpecBooks } from "@/lib/spec-book/service";
 import { getRfqStatusMap } from "@/lib/rfq/service";
 import { getProjectQuotes } from "@/lib/quote/service";
+import { getSubscription } from "@/lib/billing/service";
+import { canUseMaterialSets } from "@/lib/templates/logic";
+import { listMaterialSets } from "@/lib/templates/service";
 import { ProjectStatusBadge } from "../_components/project-status-badge";
 import { EditProjectButton } from "../_components/edit-project-button";
 import { SpecViews } from "./_components/spec-views";
 import { SpecBookPanel } from "./_components/spec-book-panel";
 import { RfqSendPanel, type RfqItem } from "./_components/rfq-send-panel";
+import { StudioTools } from "./_components/studio-tools";
 import type { SpecRow } from "./_components/types";
 
 type Props = { params: Promise<{ id: string }> };
@@ -80,6 +84,10 @@ export default async function ProjectDetailPage({ params }: Props) {
   }));
 
   const quotesMap = await getProjectQuotes(ctx.orgId, project.id);
+  const [sub, materialSets] = await Promise.all([
+    getSubscription(ctx.orgId),
+    listMaterialSets(ctx.orgId),
+  ]);
   const rfqItems: RfqItem[] = project.specItems.map((item) => {
     const group = quotesMap.get(item.id);
     return {
@@ -141,6 +149,13 @@ export default async function ProjectDetailPage({ params }: Props) {
       </Card>
 
       <RfqSendPanel projectId={project.id} canManage={canManage} items={rfqItems} />
+
+      <StudioTools
+        projectId={project.id}
+        canStudio={canUseMaterialSets(sub.plan)}
+        canManage={canManage}
+        sets={materialSets.map((s) => ({ id: s.id, name: s.name }))}
+      />
 
       <SpecBookPanel projectId={project.id} canManage={canManage} books={bookVersions} />
     </div>

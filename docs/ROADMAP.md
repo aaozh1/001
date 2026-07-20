@@ -51,7 +51,7 @@
 
 ## PHASE 3 — Workspace 2 ฝั่ง (จัดการ + monetize)
 - [x] **3.1 Designer: Dashboard + Billing + แผน** — งานค้าง, VE savings, แผน Free/Pro/Studio, ใบกำกับภาษี (payment จริงเลื่อนไป 3.5)
-- [ ] **3.2 Designer: Template & Material Sets (Studio gate)** — บันทึก/ใช้ซ้ำ, ล็อกหลังแผน Studio
+- [x] **3.2 Designer: Template & Material Sets (Studio gate)** — บันทึก/ใช้ซ้ำ, ล็อกหลังแผน Studio
   - AC: gate ทำงาน · apply set ลงโปรเจกต์ได้
 - [ ] **3.3 Seller: Dashboard (SLA card) + RFQ tabs + Materials + ฟอร์มสินค้า**
   - AC: SLA countdown จริง · completeness score · สินค้าที่ publish โผล่ในคลัง
