@@ -31,7 +31,7 @@ type GuardResult =
   | { ok: false; response: ReturnType<typeof jsonError> };
 
 export async function requireSeller(
-  opts: { quote?: boolean } = {},
+  opts: { quote?: boolean; materials?: boolean } = {},
 ): Promise<GuardResult> {
   const session = await auth();
   if (!session?.user?.id) {
@@ -42,6 +42,9 @@ export async function requireSeller(
     return { ok: false, response: jsonError("forbidden", "No seller workspace", 403) };
   }
   if (opts.quote && !canQuote(ctx.role)) {
+    return { ok: false, response: jsonError("forbidden", "Insufficient role", 403) };
+  }
+  if (opts.materials && !canManageMaterials(ctx.role)) {
     return { ok: false, response: jsonError("forbidden", "Insufficient role", 403) };
   }
   return { ok: true, ctx };
