@@ -23,7 +23,7 @@ export default async function DesignerDashboard() {
 
   const metric = (label: string, value: number | string, href?: string, accent?: boolean) => {
     const inner = (
-      <Card className={`gap-1 ${href ? "transition hover:shadow-card-lg" : ""}`} padded>
+      <Card className={`gap-1 ${href ? "transition hover:shadow-lifted" : ""}`} padded>
         <span className="text-2xl font-bold tracking-tight text-ink">{value}</span>
         <span className={`text-xs ${accent ? "text-brand" : "text-mut"}`}>{label}</span>
       </Card>

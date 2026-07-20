@@ -29,6 +29,11 @@ export async function WorkspaceShell({
           <span className="text-sm text-sub">{label}</span>
         </div>
         <div className="flex items-center gap-4">
+          {workspace === "designer" && (
+            <Link href="/designer/library" className="text-sm text-sub hover:text-ink">
+              {t("library.navLabel")}
+            </Link>
+          )}
           <Link href={chatHref} className="text-sm text-sub hover:text-ink">
             💬 {t("chat.title")}
           </Link>
