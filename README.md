@@ -56,8 +56,12 @@ npm run dev
 
 | บทบาท | อีเมล | รหัสผ่าน | เข้า workspace |
 |---|---|---|---|
-| ผู้ออกแบบ (designer) | `designer@matlist.dev` | `matlist1234` | `/designer` |
-| ผู้ขาย (seller) | `seller@matlist.dev` | `matlist1234` | `/seller` |
+| ผู้ออกแบบ — สตูดิโอ อาศรม (แผน Studio) | `designer@matlist.dev` | `matlist1234` | `/designer` |
+| ผู้ขายหลัก — MatList Demo Supply (เจ้าของ) | `seller@matlist.dev` | `matlist1234` | `/seller` |
+| ผู้ขายคู่แข่ง — สยามวัสดุภัณฑ์ | `seller2@matlist.dev` | `matlist1234` | `/seller` |
+| ทีมข้อมูลสินค้าของผู้ขายหลัก (role: content) | `content@matlist.dev` | `matlist1234` | `/seller` |
+
+ชุดข้อมูลเดโม่จัดฉากไว้ครบทุก journey: โปรเจกต์ 3 สถานะ · RFQ ครบวงจร (รอตอบ/เลยกำหนด/ได้ราคา 2 เจ้าให้กดเทียบ/ปิดดีลแล้ว) · แชทมีบทสนทนา · เทมเพลต+ชุดวัสดุ (Studio) · ใบแจ้งหนี้ · funnel ใน `/ops/metrics`
 
 หรือกด **สมัครสมาชิก** เพื่อสร้างบัญชีใหม่ (เลือกบทบาท designer/seller ตอนสมัคร)
 แต่ละบทบาทเข้าได้เฉพาะ workspace ของตัวเอง — เข้าผิดฝั่งจะถูกพากลับ workspace ที่มีสิทธิ์
