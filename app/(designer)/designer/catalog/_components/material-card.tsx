@@ -9,16 +9,19 @@ export function MaterialCard({
   m,
   locale,
   canManage,
+  basePath = "/designer/catalog",
 }: {
   m: MaterialSummary;
   locale: string;
   canManage: boolean;
+  /** Route prefix — the same card serves the designer and PUBLIC catalogs. */
+  basePath?: string;
 }) {
   const name = locale === "en" && m.nameEn ? m.nameEn : m.nameTh;
   const spec = locale === "en" && m.specEn ? m.specEn : m.specTh;
   return (
     <Card padded={false} interactive className="overflow-hidden">
-      <Link href={`/designer/catalog/${m.id}`}>
+      <Link href={`${basePath}/${m.id}`}>
         <Swatch
           color={m.swatchHex ?? "#c9c2b4"}
           texture={categoryTexture(m.category)}
@@ -27,7 +30,7 @@ export function MaterialCard({
       </Link>
       <div className="flex flex-1 flex-col gap-1.5 p-[14px]">
         <Link
-          href={`/designer/catalog/${m.id}`}
+          href={`${basePath}/${m.id}`}
           className="text-sm font-semibold text-ink hover:text-brand"
         >
           {name}

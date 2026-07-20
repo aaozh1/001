@@ -9,9 +9,11 @@ import { Input } from "@/components/ui";
 export function CatalogSearch({
   category,
   initial,
+  basePath = "/designer/catalog",
 }: {
   category?: string;
   initial: string;
+  basePath?: string;
 }) {
   const t = useTranslations("catalog");
   const router = useRouter();
@@ -23,7 +25,7 @@ export function CatalogSearch({
       if (category) params.set("category", category);
       if (value.trim()) params.set("q", value.trim());
       const qs = params.toString();
-      router.replace(`/designer/catalog${qs ? `?${qs}` : ""}`);
+      router.replace(`${basePath}${qs ? `?${qs}` : ""}`);
     }, 250);
     return () => clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
