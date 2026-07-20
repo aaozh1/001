@@ -29,6 +29,8 @@
 - `docs/ROADMAP.md` — task ทั้งหมดแยก phase พร้อม acceptance criteria
 - `docs/API_SPEC.md` — endpoint หลักที่ต้องมี
 - `docs/DECISIONS.md` — เหตุผลเบื้องหลังการตัดสินใจ (อ่านเพื่อไม่ทำผิดซ้ำ)
+- `docs/DEPLOY.md` / `docs/OPERATIONS.md` — ขึ้น production + ดูแลระบบ
+- `docs/legal/` — ร่าง Privacy/Terms + PDPA checklist (รอทนายตรวจ)
 - `reference/matlist-prototype.jsx` — prototype อ้างอิง
 
 ## หลักการทำงาน

@@ -1,0 +1,25 @@
+# systemd unit สำหรับติดตั้งแบบไม่ใช้ Docker (docs/DEPLOY.md — ทางเลือก B)
+# ติดตั้ง:  sudo cp deploy/matlist.service /etc/systemd/system/matlist.service
+#          sudo systemctl daemon-reload && sudo systemctl enable --now matlist
+[Unit]
+Description=MatList (Next.js)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=matlist
+WorkingDirectory=/srv/matlist
+# .env ต้องมี DATABASE_URL, AUTH_SECRET, AUTH_TRUST_HOST=true, OPS_EMAILS
+EnvironmentFile=/srv/matlist/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+
+# Hardening พื้นฐาน
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

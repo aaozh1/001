@@ -1,0 +1,11 @@
+# Keep the Docker build context clean (deploy/Dockerfile does COPY . . —
+# without this, a host-built node_modules/.next would clobber the image's).
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+backups
+*.log
+deploy/.env.prod

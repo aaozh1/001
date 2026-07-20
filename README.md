@@ -9,6 +9,8 @@
 รายละเอียดทั้งหมดอยู่ใน `docs/` — เริ่มที่ [`CLAUDE.md`](./CLAUDE.md) และ
 [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
+ขึ้น production: [`docs/DEPLOY.md`](./docs/DEPLOY.md) · ดูแลระบบหลังขึ้น: [`docs/OPERATIONS.md`](./docs/OPERATIONS.md)
+
 ## Tech stack
 
 | ชั้น | เทคโนโลยี |
