@@ -17,6 +17,7 @@ export async function WorkspaceShell({
   const t = await getTranslations();
   const label =
     workspace === "designer" ? t("designer.workspace") : t("seller.center");
+  const chatHref = workspace === "designer" ? "/designer/chat" : "/seller/chat";
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
@@ -27,7 +28,10 @@ export async function WorkspaceShell({
           </Link>
           <span className="text-sm text-sub">{label}</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <Link href={chatHref} className="text-sm text-sub hover:text-ink">
+            💬 {t("chat.title")}
+          </Link>
           <LangToggle />
           <LogoutButton />
         </div>

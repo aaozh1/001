@@ -92,6 +92,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       rfqStatus: group?.rfqStatus ?? null,
       quotes: (group?.quotes ?? []).map((q) => ({
         quoteId: q.quoteId,
+        sellerOrgId: q.sellerOrgId,
         sellerName: q.sellerName,
         pricePerUnit: q.pricePerUnit,
         projectDiscount: q.projectDiscount,
