@@ -32,6 +32,7 @@ const mat = (o: Partial<MaterialFull>): MaterialFull => ({
   noteTh: null,
   noteEn: null,
   swatchHex: null,
+  image: null,
   ...o,
 });
 

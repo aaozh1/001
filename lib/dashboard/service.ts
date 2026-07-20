@@ -79,3 +79,23 @@ export async function getDesignerDashboard(orgId: string): Promise<DashboardSumm
     attention,
   };
 }
+
+// ── Onboarding checklist (3 ก้าวแรกสู่ "aha moment") ───────────────────
+export interface OnboardingChecklist {
+  hasOption: boolean;
+  hasRfq: boolean;
+  hasSpecBook: boolean;
+  done: boolean;
+}
+
+export async function getOnboardingChecklist(orgId: string): Promise<OnboardingChecklist> {
+  const [optionCount, rfqCount, bookCount] = await Promise.all([
+    prisma.specOption.count({ where: { specItem: { project: { orgId } } }, take: 1 }),
+    prisma.rFQ.count({ where: { project: { orgId } }, take: 1 }),
+    prisma.specBook.count({ where: { project: { orgId } }, take: 1 }),
+  ]);
+  const hasOption = optionCount > 0;
+  const hasRfq = rfqCount > 0;
+  const hasSpecBook = bookCount > 0;
+  return { hasOption, hasRfq, hasSpecBook, done: hasOption && hasRfq && hasSpecBook };
+}

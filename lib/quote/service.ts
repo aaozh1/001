@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { writeAudit } from "@/lib/audit";
 import { EVENTS } from "@/lib/analytics/events";
 import { track } from "@/lib/analytics/track";
+import { notifyOrg } from "@/lib/notifications/service";
 import type { SellerContext } from "@/lib/seller/context";
 import type { DesignerContext } from "@/lib/projects/service";
 import {
@@ -209,6 +210,28 @@ export async function submitQuote(
     });
   });
   await track(EVENTS.quoteSubmitted, { orgId: ctx.orgId, userId: ctx.userId });
+  // แจ้งฝั่งผู้ออกแบบว่าราคาเข้าแล้ว
+  const meta = await prisma.rFQ.findUnique({
+    where: { id: rfqId },
+    select: {
+      specItem: { select: { code: true, project: { select: { id: true, name: true, orgId: true } } } },
+    },
+  });
+  if (meta) {
+    const seller = await prisma.organization.findUnique({
+      where: { id: ctx.orgId },
+      select: { name: true },
+    });
+    await notifyOrg(meta.specItem.project.orgId, {
+      type: "quote_in",
+      payload: {
+        project: meta.specItem.project.name,
+        code: meta.specItem.code,
+        seller: seller?.name ?? "",
+      },
+      href: `/designer/projects/${meta.specItem.project.id}`,
+    });
+  }
   return { ok: true };
 }
 
@@ -370,5 +393,17 @@ export async function selectQuote(
   });
   await track(EVENTS.winnerSelected, { orgId: ctx.orgId, userId: ctx.userId });
   await track(EVENTS.rfqWon, { orgId: winner.sellerOrgId });
+  const wonMeta = await prisma.rFQ.findUnique({
+    where: { id: rfqId },
+    select: { specItem: { select: { code: true, project: { select: { name: true } } } } },
+  });
+  await notifyOrg(winner.sellerOrgId, {
+    type: "quote_won",
+    payload: {
+      project: wonMeta?.specItem.project.name ?? "",
+      code: wonMeta?.specItem.code ?? "",
+    },
+    href: "/seller/rfq",
+  });
   return { ok: true };
 }

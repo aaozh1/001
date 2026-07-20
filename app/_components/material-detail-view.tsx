@@ -44,13 +44,38 @@ export async function MaterialDetailView({
       </Link>
 
       <div className="mt-3 grid gap-6 sm:grid-cols-[260px_1fr]">
-        <Card padded={false} className="h-fit">
-          <Swatch
-            color={m.swatchHex ?? "#c9c2b4"}
-            texture={categoryTexture(m.category)}
-            className="h-52 rounded-none"
-          />
-        </Card>
+        <div className="flex h-fit flex-col gap-2">
+          <Card padded={false}>
+            {m.images[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={m.images[0]}
+                alt={name}
+                className="block h-52 w-full rounded-card object-cover"
+              />
+            ) : (
+              <Swatch
+                color={m.swatchHex ?? "#c9c2b4"}
+                texture={categoryTexture(m.category)}
+                className="h-52 rounded-none"
+              />
+            )}
+          </Card>
+          {m.images.length > 1 && (
+            <div className="grid grid-cols-4 gap-2">
+              {m.images.slice(1).map((img) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={img}
+                  src={img}
+                  alt={name}
+                  loading="lazy"
+                  className="h-14 w-full rounded-sm border border-line object-cover"
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
         <div>
           <div className="text-xs text-mut">{categoryLabel(m.category, locale)}</div>

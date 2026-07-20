@@ -20,6 +20,7 @@ export interface SnapshotOption {
   noteTh: string | null;
   noteEn: string | null;
   swatchHex: string | null;
+  image: string | null;
   isConfirmed: boolean;
 }
 
@@ -58,6 +59,7 @@ export interface MaterialFull {
   noteTh: string | null;
   noteEn: string | null;
   swatchHex: string | null;
+  image: string | null;
 }
 
 export interface SnapshotSourceItem {
@@ -113,6 +115,7 @@ export function buildSpecBookSnapshot(
             noteTh: m?.noteTh ?? null,
             noteEn: m?.noteEn ?? null,
             swatchHex: m?.swatchHex ?? null,
+            image: m?.image ?? null,
             isConfirmed: o.isConfirmed,
           };
         }),

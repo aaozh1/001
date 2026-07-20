@@ -348,7 +348,13 @@
     "boardToBack": "Send to back",
     "boardResize": "Resize",
     "studioTools": "Studio tools",
-    "rfqToolbarHint": "Sellers see the spec context of requested lines, but never your contact details until you reply"
+    "rfqToolbarHint": "Sellers see the spec context of requested lines, but never your contact details until you reply",
+    "rowDeleted": "Deleted row {code}",
+    "undo": "Undo",
+    "optionRemoved": "Removed option {name}",
+    "boardPresent": "Present",
+    "boardExport": "Export PNG",
+    "boardPresentClose": "Close"
   },
   "seller": {
     "center": "Seller Center",
@@ -459,7 +465,12 @@
     "startHint": "Create a spec schedule from scratch, import your existing Excel, or browse materials first — everything here is free",
     "startCreate": "＋ Create a project",
     "startImport": "Import from Excel",
-    "startBrowse": "Browse the catalog"
+    "startBrowse": "Browse the catalog",
+    "onboardTitle": "Three steps to see the whole system",
+    "onboardOption": "Add a material option to a project",
+    "onboardRfq": "Send your first price/sample request",
+    "onboardBook": "Create your first Spec Book",
+    "onboardHint": "We created a 🎓 sample project for you — try all three there, no real work affected"
   },
   "billing": {
     "back": "← Back to dashboard",
@@ -598,7 +609,14 @@
     "errFailed": "Save failed, please try again",
     "fBrand": "Brand",
     "manageBrands": "Manage brands",
-    "importCta": "Import from file"
+    "importCta": "Import from file",
+    "fImages": "Product photos",
+    "fImagesHint": "(up to 6 · JPG/PNG/WebP ≤ 5MB — first photo is the cover)",
+    "imgTooLarge": "File exceeds 5 MB",
+    "imgLimit": "Already at 6 photos",
+    "imgFailed": "Upload failed — JPG/PNG/WebP supported",
+    "imgRemove": "Remove photo",
+    "imgSaveFirst": "Save the product first, then come back to add photos"
   },
   "sellerPerf": {
     "title": "Your performance",
@@ -732,5 +750,68 @@
     "errTooLarge": "File exceeds 15 MB",
     "errRate": "Too many requests — wait a moment and retry",
     "errCreate": "Saving failed — make sure every row has a name and category, then retry"
+  },
+  "notif": {
+    "title": "Notifications",
+    "markAll": "Mark all read",
+    "empty": "No notifications yet",
+    "rfqNew": "📨 {count} new RFQ(s) — open your inbox to respond",
+    "quoteIn": "💰 {seller} quoted {code} in {project}",
+    "quoteWon": "🏆 You won! {code} · {project}",
+    "chatNew": "💬 New chat message ({project})",
+    "justNow": "just now",
+    "minsAgo": "{n} min ago",
+    "hoursAgo": "{n} h ago",
+    "daysAgo": "{n} d ago"
+  },
+  "ve": {
+    "cta": "Find cheaper (VE)",
+    "title": "VE Finder — cheaper close-spec alternatives",
+    "searching": "Searching for close matches…",
+    "gated": "VE Finder is a Pro feature — upgrade to auto-find cheaper materials across the project",
+    "upgrade": "Upgrade plan",
+    "baseLine": "Current: {name} · {price}",
+    "neutralNote": "Ranked by spec similarity only — no paid placement",
+    "noResults": "No cheaper options found in this category yet",
+    "cheaper": "cheaper",
+    "similarity": "spec match",
+    "useInstead": "Use instead",
+    "applying": "Swapping…",
+    "swapped": "Swapped — VE history recorded",
+    "errNoPrice": "The confirmed material has no price to compare against",
+    "errLimit": "This row already has 4 options — remove one first",
+    "errFailed": "Search failed — try again"
+  },
+  "share": {
+    "version": "Version",
+    "confirmed": "Confirmed",
+    "madeWith": "Specified with",
+    "cta": "the material spec-schedule tool for Thai designers",
+    "createLink": "Create share link",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "revoke": "Revoke link"
+  },
+  "palette": {
+    "title": "Search & jump anywhere",
+    "placeholder": "Type to search… (projects, materials, pages)",
+    "noResults": "No results",
+    "kbNav": "navigate",
+    "kbOpen": "open",
+    "navDashboard": "Dashboard",
+    "navProjects": "Projects",
+    "navCatalog": "Catalog",
+    "navLibrary": "Library",
+    "navChat": "Chat",
+    "navBilling": "Plan/Billing",
+    "navRfq": "RFQ Inbox",
+    "navMaterials": "Products",
+    "navPerformance": "Performance",
+    "navTeam": "Team",
+    "actNewProject": "New project",
+    "actImport": "Import from Excel",
+    "actImportProducts": "Import products from file",
+    "hintProject": "project",
+    "hintMaterial": "material"
   }
 }

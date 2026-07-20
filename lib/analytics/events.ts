@@ -24,6 +24,8 @@ export const EVENTS = {
   templateSaved: "template_saved",
   templateUsed: "template_used",
   setApplied: "set_applied",
+  veSearched: "ve_searched",
+  veSwapped: "ve_swapped",
 } as const;
 
 export type EventName = (typeof EVENTS)[keyof typeof EVENTS];

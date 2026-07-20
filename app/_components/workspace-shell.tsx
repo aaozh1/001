@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Workspace } from "@/lib/permissions";
 import { GlobalSearch } from "./global-search";
+import { NotificationBell } from "./notification-bell";
+import { CommandPalette } from "./command-palette";
 import { LangToggle } from "./lang-toggle";
 import { LogoutButton } from "./logout-button";
 
@@ -61,11 +63,13 @@ export async function WorkspaceShell({
               {item.label}
             </Link>
           ))}
+          <NotificationBell />
           <LangToggle />
           <LogoutButton />
         </nav>
       </header>
       <main className="flex-1 p-6">{children}</main>
+      <CommandPalette workspace={workspace} />
     </div>
   );
 }

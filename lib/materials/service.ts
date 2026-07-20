@@ -28,6 +28,8 @@ export interface MaterialSummary {
   moq: string | null;
   size: string | null;
   color: string | null;
+  /** First product photo, if any — cards fall back to the swatch. */
+  image: string | null;
 }
 
 const SELECT = {
@@ -48,6 +50,7 @@ const SELECT = {
   moq: true,
   size: true,
   color: true,
+  images: true,
   brand: { select: { name: true } },
 } satisfies Prisma.MaterialSelect;
 
@@ -82,6 +85,7 @@ function toSummary(m: Row): MaterialSummary {
     moq: m.moq,
     size: m.size,
     color: m.color,
+    image: m.images[0] ?? null,
   };
 }
 
@@ -251,6 +255,7 @@ export interface MaterialDetail {
   catalogUrl: string | null;
   specTh: string | null;
   specEn: string | null;
+  images: string[];
   seller: { id: string; name: string; verified: boolean } | null;
   related: MaterialSummary[];
 }
@@ -295,6 +300,7 @@ export async function getMaterialDetail(id: string): Promise<MaterialDetail | nu
     catalogUrl: m.catalogUrl,
     specTh: specText(m.spec, "summary_th"),
     specEn: specText(m.spec, "summary_en"),
+    images: m.images,
     seller: m.seller
       ? { id: m.seller.id, name: m.seller.name, verified: m.seller.verified }
       : null,

@@ -26,6 +26,103 @@ interface TileInfo {
   option: OptionView;
 }
 
+// ── PNG export: draw the board onto a canvas (2x) with a MatList watermark ──
+async function exportBoardPng(
+  tiles: { tile: BoardTile; info: TileInfo }[],
+  fileName: string,
+): Promise<void> {
+  const pad = 24;
+  const maxX = Math.max(320, ...tiles.map((t) => t.tile.x + t.tile.w));
+  const maxY = Math.max(240, ...tiles.map((t) => t.tile.y + t.tile.h));
+  const scale = 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = (maxX + pad * 2) * scale;
+  canvas.height = (maxY + pad * 2 + 28) * scale;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.scale(scale, scale);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const loadImg = (src: string) =>
+    new Promise<HTMLImageElement | null>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+
+  const ordered = [...tiles].sort((a, b) => a.tile.z - b.tile.z);
+  for (const { tile, info } of ordered) {
+    const x = tile.x + pad;
+    const y = tile.y + pad;
+    const o = info.option;
+    ctx.save();
+    // rounded clip
+    const r = 10;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + tile.w, y, x + tile.w, y + tile.h, r);
+    ctx.arcTo(x + tile.w, y + tile.h, x, y + tile.h, r);
+    ctx.arcTo(x, y + tile.h, x, y, r);
+    ctx.arcTo(x, y, x + tile.w, y, r);
+    ctx.closePath();
+    ctx.clip();
+
+    const img = o.image ? await loadImg(o.image) : null;
+    if (img) {
+      // cover-crop
+      const ir = img.width / img.height;
+      const tr = tile.w / tile.h;
+      let sw = img.width;
+      let sh = img.height;
+      if (ir > tr) sw = img.height * tr;
+      else sh = img.width / tr;
+      ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, tile.w, tile.h);
+    } else {
+      ctx.fillStyle = o.swatchHex ?? "#c9c2b4";
+      ctx.fillRect(x, y, tile.w, tile.h);
+    }
+    // text gradient + labels inside the image
+    const gh = Math.min(52, tile.h * 0.45);
+    const grad = ctx.createLinearGradient(0, y + tile.h - gh, 0, y + tile.h);
+    grad.addColorStop(0, "rgba(0,0,0,0)");
+    grad.addColorStop(1, "rgba(0,0,0,0.68)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y + tile.h - gh, tile.w, gh);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "600 11px 'Noto Sans Thai', sans-serif";
+    ctx.fillText(o.name.slice(0, 40), x + 8, y + tile.h - 18, tile.w - 16);
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.font = "10px 'Noto Sans Thai', sans-serif";
+    const sub = [info.itemCode, o.brand, o.price ? `฿${o.price}` : null]
+      .filter(Boolean)
+      .join(" · ");
+    ctx.fillText(sub.slice(0, 48), x + 8, y + tile.h - 6, tile.w - 16);
+    ctx.restore();
+    if (o.isConfirmed) {
+      ctx.strokeStyle = "#12a150";
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(x + 1, y + 1, tile.w - 2, tile.h - 2);
+    }
+  }
+
+  // Watermark — ทุกภาพที่แชร์ออกไปคือแบรนด์ของเรา
+  ctx.fillStyle = "#f4632a";
+  ctx.font = "700 13px 'Noto Sans Thai', sans-serif";
+  ctx.fillText("MatList", maxX + pad * 2 - 72, maxY + pad + 20);
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, "image/png");
+}
+
 type DragState =
   | { kind: "move"; key: string; startX: number; startY: number; orig: BoardTile }
   | { kind: "resize"; key: string; startX: number; startY: number; orig: BoardTile };
@@ -64,6 +161,8 @@ export function MaterialBoard({
   );
   const [selected, setSelected] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [presenting, setPresenting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const dragRef = useRef<DragState | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef(layout);
@@ -156,20 +255,102 @@ export function MaterialBoard({
         <p className="text-xs text-mut">
           {canManage ? t("boardDragHint") : t("boardHint")}
         </p>
-        {canManage && (
-          <span
-            className={cn(
-              "text-xs",
-              saveState === "error" ? "font-medium text-warn" : "text-mut",
-            )}
-            role={saveState === "error" ? "alert" : undefined}
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <span
+              className={cn(
+                "text-xs",
+                saveState === "error" ? "font-medium text-warn" : "text-mut",
+              )}
+              role={saveState === "error" ? "alert" : undefined}
+            >
+              {saveState === "saving" && `⏳ ${t("boardSaving")}`}
+              {saveState === "saved" && `✓ ${t("boardSaved")}`}
+              {saveState === "error" && t("boardSaveFailed")}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setPresenting(true)}
+            className="rounded-pill border border-line-2 px-2.5 py-1 text-xs text-sub hover:border-brand hover:text-brand"
           >
-            {saveState === "saving" && `⏳ ${t("boardSaving")}`}
-            {saveState === "saved" && `✓ ${t("boardSaved")}`}
-            {saveState === "error" && t("boardSaveFailed")}
-          </span>
-        )}
+            🎬 {t("boardPresent")}
+          </button>
+          <button
+            type="button"
+            disabled={exporting}
+            onClick={() => {
+              setExporting(true);
+              void exportBoardPng(
+                layout.tiles
+                  .map((tl) => ({ tile: tl, info: infoByKey.get(tl.key) }))
+                  .filter((x): x is { tile: BoardTile; info: TileInfo } => Boolean(x.info)),
+                "matlist-board.png",
+              ).finally(() => setExporting(false));
+            }}
+            className="rounded-pill border border-line-2 px-2.5 py-1 text-xs text-sub hover:border-brand hover:text-brand disabled:opacity-50"
+          >
+            {exporting ? "⏳" : "🖼"} {t("boardExport")}
+          </button>
+        </div>
       </div>
+
+      {presenting && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-white p-8" role="dialog" aria-modal="true">
+          <button
+            type="button"
+            onClick={() => setPresenting(false)}
+            aria-label={t("boardPresentClose")}
+            className="fixed right-5 top-5 z-10 rounded-pill border border-line-2 bg-surface px-3 py-1.5 text-sm text-sub shadow-soft hover:text-ink"
+          >
+            ✕ {t("boardPresentClose")}
+          </button>
+          <div
+            className="relative mx-auto"
+            style={{ width: Math.max(640, ...layout.tiles.map((tl) => tl.x + tl.w + 32)), height: boardHeight(layout) }}
+          >
+            {[...layout.tiles]
+              .sort((a, b) => a.z - b.z)
+              .map((tl) => {
+                const info = infoByKey.get(tl.key);
+                if (!info) return null;
+                const o = info.option;
+                return (
+                  <div
+                    key={tl.key}
+                    className={cn(
+                      "absolute overflow-hidden rounded-card shadow-soft",
+                      o.isConfirmed && "ring-2 ring-ok",
+                    )}
+                    style={{
+                      left: tl.x,
+                      top: tl.y,
+                      width: tl.w,
+                      height: tl.h,
+                      zIndex: tl.z + 1,
+                      ...(o.image
+                        ? {
+                            backgroundImage: `url(${o.image})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }
+                        : texture(o.swatchHex ?? "#c9c2b4", categoryTexture(o.category))),
+                    }}
+                  >
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-2 pb-1.5 pt-6">
+                      <div className="truncate text-[11px] font-semibold leading-tight text-white">{o.name}</div>
+                      <div className="truncate text-[10px] text-white/80">
+                        {[info.itemCode, o.brand].filter(Boolean).join(" · ")}
+                        {o.price ? ` · ฿${o.price}` : ""}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+          <div className="mt-6 text-center text-sm font-bold text-brand">MatList</div>
+        </div>
+      )}
 
       <div
         className="relative overflow-hidden rounded-card border border-line bg-canvas"
@@ -197,7 +378,13 @@ export function MaterialBoard({
                 width: tl.w,
                 height: tl.h,
                 zIndex: tl.z + 1,
-                ...texture(o.swatchHex ?? "#c9c2b4", categoryTexture(o.category)),
+                ...(o.image
+                  ? {
+                      backgroundImage: `url(${o.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }
+                  : texture(o.swatchHex ?? "#c9c2b4", categoryTexture(o.category))),
               }}
             >
               {/* ข้อมูลวัสดุวางอยู่ภายในรูป — gradient ให้อ่านออกบนทุกสี */}

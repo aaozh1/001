@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Card, Swatch } from "@/components/ui";
-import { categoryTexture } from "@/lib/materials/categories";
+import { Card } from "@/components/ui";
+import { MaterialVisual } from "@/app/_components/material-visual";
 import type { MaterialSummary } from "@/lib/materials/service";
 import { AddToProjectButton } from "./add-to-project-button";
 
@@ -22,9 +22,11 @@ export function MaterialCard({
   return (
     <Card padded={false} interactive className="overflow-hidden">
       <Link href={`${basePath}/${m.id}`}>
-        <Swatch
-          color={m.swatchHex ?? "#c9c2b4"}
-          texture={categoryTexture(m.category)}
+        <MaterialVisual
+          image={m.image}
+          swatchHex={m.swatchHex}
+          category={m.category}
+          alt={m.nameTh}
           className="rounded-none"
         />
       </Link>

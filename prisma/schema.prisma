@@ -116,6 +116,7 @@ model User {
   createdAt           DateTime @default(now())
 
   memberships     Membership[]
+  notifications   Notification[]
   reviews         Review[]
   chatMessages    ChatMessage[]
   auditLogs       AuditLog[]
@@ -474,6 +475,8 @@ model SpecBook {
   projectId String
   version   Int
   pdfUrl    String?
+  // ลิงก์แชร์สาธารณะ (nullable = ยังไม่เปิดแชร์) — เพิกถอนได้โดยตั้งกลับเป็น null
+  shareToken String? @unique
   // Frozen render data for this version (project + items + options + material
   // details at export time). The PDF is regenerated from this so an old version
   // stays faithful even after the schedule changes. pdfUrl stays for future S3.
@@ -558,4 +561,23 @@ model AnalyticsEvent {
 
   @@index([event, createdAt])
   @@index([orgId])
+}
+
+// ── In-app notifications (กระดิ่งบน header) ────────────────────────────
+// แถวต่อผู้ใช้ (fan-out ตอนสร้าง) — อ่านแล้ว/ยังไม่อ่านเป็นของแต่ละคน
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  // ประเภทเหตุการณ์ เช่น rfq_new / quote_in / quote_won / chat_new
+  type      String
+  // ข้อความสั้น (ประกอบ i18n ฝั่ง UI ด้วย type + payload)
+  payload   Json?
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
 }
