@@ -39,7 +39,7 @@ export async function CatalogBrowser({
 }) {
   const [t, locale] = await Promise.all([getTranslations("catalog"), getLocale()]);
   const [result, categories, brands] = await Promise.all([
-    searchCatalog({ query: q, filters, sort, page }),
+    searchCatalog({ query: q, filters, sort, page, trackSearch: true }),
     listCategories(),
     listBrandFacets(filters.category),
   ]);

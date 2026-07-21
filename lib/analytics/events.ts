@@ -26,6 +26,10 @@ export const EVENTS = {
   setApplied: "set_applied",
   veSearched: "ve_searched",
   veSwapped: "ve_swapped",
+  // 5I demand insights — one row per catalog search. Props hold only the
+  // category + which filter kinds were active (never who searched what):
+  // the insights page shows AGGREGATE trends only (rule #3).
+  catalogSearched: "catalog_search",
 } as const;
 
 export type EventName = (typeof EVENTS)[keyof typeof EVENTS];

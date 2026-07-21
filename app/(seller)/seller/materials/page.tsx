@@ -27,7 +27,7 @@ export default async function SellerMaterialsPage() {
   }));
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-5xl">
       <header className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-ink">{t("title")}</h1>
