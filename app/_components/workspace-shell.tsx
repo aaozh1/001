@@ -70,6 +70,7 @@ export async function WorkspaceShell({
           { href: "/seller", icon: "▤", label: t("nav.dashboard") },
           { href: "/seller/rfq", icon: "▣", label: t("nav.rfqInbox"), badge: rfqBadge },
           { href: "/seller/materials", icon: "▦", label: t("nav.materials") },
+          { href: "/seller/insights", icon: "◉", label: t("nav.insights") },
           { href: "/seller/performance", icon: "◔", label: t("nav.performance") },
           { href: "/seller/team", icon: "◈", label: t("nav.team") },
           { href: "/seller/chat", icon: "◍", label: t("chat.title") },

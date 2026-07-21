@@ -2,6 +2,8 @@ import "server-only";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { rankMaterials } from "./relevance";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/track";
 import type { CatalogFilters, CatalogSort } from "./catalog-query";
 
 // Catalog reads. NEUTRALITY (CLAUDE.md rule #1): every ordering here goes through
@@ -164,12 +166,36 @@ export async function searchCatalog(opts: {
   sort?: CatalogSort;
   page?: number;
   pageSize?: number;
+  /**
+   * Log this call as a demand signal (5I). Only true for real user searches
+   * from the catalog UI — internal reuse (VE Finder, pickers) stays silent.
+   * Props hold the category + active filter KINDS only, never who searched.
+   */
+  trackSearch?: boolean;
 }): Promise<CatalogResult> {
   const query = opts.query?.trim() ?? "";
   const page = Math.max(1, opts.page ?? 1);
   const pageSize = Math.min(opts.pageSize ?? 24, 60);
   const sort = opts.sort ?? "relevance";
   const where = catalogWhere(opts);
+
+  if (opts.trackSearch && page === 1) {
+    const f = opts.filters;
+    const activeFilters = [
+      ...(query ? ["q"] : []),
+      ...(f?.brands.length ? ["brand"] : []),
+      ...(f?.priceMin !== undefined ? ["priceMin"] : []),
+      ...(f?.priceMax !== undefined ? ["priceMax"] : []),
+      ...(f?.certOnly ? ["cert"] : []),
+      ...(f?.verifiedOnly ? ["verified"] : []),
+    ];
+    await track(EVENTS.catalogSearched, {
+      props: {
+        category: opts.category ?? f?.category ?? null,
+        filters: activeFilters,
+      },
+    });
+  }
 
   if (sort !== "relevance") {
     // Deterministic user-chosen sort — paginate in the database.

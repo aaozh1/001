@@ -122,6 +122,7 @@ model User {
   auditLogs       AuditLog[]
   projectsCreated Project[]     @relation("ProjectCreatedBy")
   rfqsCreated     RFQ[]         @relation("RFQCreatedBy")
+  siteLogsCreated SiteLog[]     @relation("SiteLogCreatedBy")
 }
 
 // One model for both design offices and seller companies, split by `type`.
@@ -203,8 +204,30 @@ model Project {
   rfqs      RFQ[]
   specBooks SpecBook[]
   threads   ChatThread[]
+  siteLogs  SiteLog[]
 
   @@index([orgId])
+}
+
+// ── 5J: บันทึกหน้างาน (site-visit companion) ───────────────────────────
+// รูปถ่ายหน้างานที่ปักกับรายการวัสดุ + บันทึกปัญหา (สีผิด/ของเสียหาย/ของขาด)
+model SiteLog {
+  id          String   @id @default(cuid())
+  projectId   String
+  specItemId  String?
+  // "photo" | "issue"
+  kind        String
+  note        String?
+  // เสิร์ฟผ่าน /api/files เหมือนรูปสินค้า
+  photo       String?
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  specItem  SpecItem? @relation(fields: [specItemId], references: [id], onDelete: Cascade)
+  createdBy User?     @relation("SiteLogCreatedBy", fields: [createdById], references: [id])
+
+  @@index([projectId, createdAt])
 }
 
 // ★ ตารางที่สำคัญที่สุด — a line in the spec schedule.
@@ -221,6 +244,8 @@ model SpecItem {
   // วัสดุที่ confirm แล้ว (ตัวเลือกทั้งหมดอยู่ใน SpecOption)
   confirmedMaterialId String?
   sortOrder           Int      @default(0)
+  // 5J: เช็คหน้างานว่าติดตั้งแล้ว (site-visit companion)
+  installedAt         DateTime?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -229,6 +254,7 @@ model SpecItem {
   options           SpecOption[]
   veHistory         VEHistory[]
   rfqs              RFQ[]
+  siteLogs          SiteLog[]
 
   @@index([projectId, sortOrder])
 }

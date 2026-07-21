@@ -142,16 +142,24 @@ export default async function ProjectDetailPage({ params }: Props) {
             {t("items")}
           </p>
         </div>
-        {canManage && (
-          <EditProjectButton
-            project={{
-              id: project.id,
-              name: project.name,
-              buildingType: project.buildingType,
-              status,
-            }}
-          />
-        )}
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/designer/projects/${project.id}/site-visit`}
+            className="rounded-pill border border-line-3 px-3 py-1.5 text-sm font-medium text-sub transition hover:border-brand hover:text-brand"
+          >
+            🧭 {t("siteVisit")}
+          </Link>
+          {canManage && (
+            <EditProjectButton
+              project={{
+                id: project.id,
+                name: project.name,
+                buildingType: project.buildingType,
+                status,
+              }}
+            />
+          )}
+        </div>
       </header>
 
       {!canManage && <p className="mt-3 text-xs text-mut">👁 {t("viewerHint")}</p>}

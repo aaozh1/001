@@ -50,7 +50,8 @@
     "materials": "My products",
     "performance": "Performance",
     "team": "Team",
-    "billing": "Billing"
+    "billing": "Billing",
+    "insights": "Demand insights"
   },
   "roles": {
     "designer": "Designer",
@@ -377,7 +378,8 @@
     "specMeta": "{pending} options pending · {quoted} quoted",
     "bestValue": "Best value",
     "sbChanged": "{n} changed",
-    "sbConfirmed": "{n} newly confirmed"
+    "sbConfirmed": "{n} newly confirmed",
+    "siteVisit": "Site visit"
   },
   "seller": {
     "center": "Seller Center",
@@ -440,7 +442,16 @@
     "emptyTab": "Nothing in this tab",
     "slaLeft": "{hours}h {minutes}m left",
     "slaOverdueBy": "Overdue by {hours}h",
-    "privacyNote": "RFQ details are private to you — only aggregate demand data is ever shared"
+    "privacyNote": "RFQ details are private to you — only aggregate demand data is ever shared",
+    "tierHead": "Line",
+    "unitPriceHead": "Unit price",
+    "lineTotalHead": "Line total",
+    "listPriceRow": "Catalog list price",
+    "thisRfq": "Your price for this RFQ",
+    "thisRfqQty": "This RFQ · {qty}",
+    "attachAdd": "Attach spec sheet / install guide link",
+    "attachPlaceholder": "https://… (spec sheet or install guide)",
+    "neutrality": "Same lead fee for every seller — quotes compete on merit"
   },
   "chat": {
     "title": "Chat",
@@ -593,7 +604,7 @@
   },
   "sellerMat": {
     "title": "My products",
-    "subtitle": "Richer data ranks higher in the designers' catalog — placement is never for sale",
+    "subtitle": "Complete data ranks better in the designers' catalog — relevance is the only ranking",
     "new": "＋ Add product",
     "newTitle": "Add a product",
     "editTitle": "Edit product",
@@ -641,7 +652,12 @@
     "imgLimit": "Already at 6 photos",
     "imgFailed": "Upload failed — JPG/PNG/WebP supported",
     "imgRemove": "Remove photo",
-    "imgSaveFirst": "Save the product first, then come back to add photos"
+    "imgSaveFirst": "Save the product first, then come back to add photos",
+    "colMaterial": "Material",
+    "colSku": "SKU",
+    "colPrice": "List price",
+    "colCompleteness": "Data completeness",
+    "colStatus": "Status"
   },
   "sellerPerf": {
     "title": "Your performance",
@@ -906,5 +922,46 @@
     "sSent": "Sent",
     "sOpened": "Opened",
     "sQuoted": "Quoted"
+  },
+  "insights": {
+    "title": "Demand insights",
+    "subtitle": "Aggregate search & spec trends — never individual designer data",
+    "noCategories": "No products yet",
+    "statSearches": "Searches in your families vs last month",
+    "statSearchesNew": "No last-month baseline yet",
+    "statRfqs": "RFQs in your families this month (you quoted {quoted})",
+    "statTopFilter": "Most-filtered spec",
+    "barsTitle": "Top filters in your families",
+    "noData": "No search data this month yet — it accrues as designers browse the catalog",
+    "gapNudge": "Your “{name}” is missing {filter} data — {pct}% of searches filter by it",
+    "gapCta": "Complete it",
+    "aggregateNote": "Every number is a platform-wide aggregate — no per-office or per-project data (iron rule #3)",
+    "filter": {
+      "q": "Search terms",
+      "brand": "Brand",
+      "price": "Price range",
+      "cert": "Certification/standard",
+      "verified": "Verified sellers"
+    }
+  },
+  "siteVisit": {
+    "back": "Back to project",
+    "title": "Site visit — {project}",
+    "itemCount": "{n} line items",
+    "tabChecklist": "Checklist",
+    "tabBoard": "Board",
+    "tabChat": "Chat",
+    "installed": "Installed",
+    "markInstalled": "Mark installed",
+    "addPhoto": "Add site photo",
+    "photoPinned": "Site photo · pinned to this line item",
+    "logIssue": "Log an issue (wrong color, damage, shortfall)",
+    "issueWholeProject": "Whole project (no line item)",
+    "issuePlaceholder": "Describe what you found on site…",
+    "issueSave": "Save issue",
+    "cancel": "Cancel",
+    "empty": "No line items in this project yet",
+    "errFailed": "Could not save — try again",
+    "errTooLarge": "File is over 5MB"
   }
 }

@@ -70,7 +70,13 @@ export default async function SellerRfqDetailPage({ params }: Props) {
             )}
           </div>
         ) : (
-          <QuoteBuilder rfqId={rfq.id} existing={rfq.existingQuote} />
+          <QuoteBuilder
+            rfqId={rfq.id}
+            qty={rfq.qty}
+            qtyUnit={rfq.qtyUnit}
+            listPrice={rfq.listPrice}
+            existing={rfq.existingQuote}
+          />
         )}
       </Card>
     </div>

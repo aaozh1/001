@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Badge, Button, Input, Modal } from "@/components/ui";
+import { Button, Input, Modal } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import {
   removeMaterialImageAction,
@@ -212,90 +212,122 @@ export function MaterialsClient({
           {t("empty")}
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {rows.map((m) => (
-            <div
-              key={m.id}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-line bg-surface p-4 shadow-soft"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  {m.swatchHex && (
-                    <span
-                      className="h-4 w-4 shrink-0 rounded-full border border-line"
-                      style={{ backgroundColor: m.swatchHex }}
-                    />
-                  )}
-                  <span className="font-semibold text-ink">{m.nameTh}</span>
-                  {m.model && <span className="text-sm text-sub">{m.model}</span>}
-                  <Badge
-                    variant={
-                      m.status === "published"
-                        ? "ok"
-                        : m.status === "suspended"
-                          ? "warn"
-                          : "neutral"
-                    }
-                  >
-                    {t(`status.${m.status}`)}
-                  </Badge>
-                </div>
-                <div className="mt-1 text-xs text-mut">
-                  {m.category}
-                  {m.price ? ` · ฿${Number(m.price).toLocaleString()}${m.unit ? `/${m.unit}` : ""}` : ""}
-                </div>
-                {/* Completeness bar — AC 3.3 */}
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="h-1.5 w-40 overflow-hidden rounded-pill bg-line">
-                    <div
-                      className={cn(
-                        "h-full rounded-pill",
-                        m.completeness >= 80
-                          ? "bg-ok"
-                          : m.completeness >= 50
-                            ? "bg-brand"
-                            : "bg-warn",
+        // 3H: table view — swatch tile, mono SKU/price, completeness bar
+        // (= the only default-ranking lever, rule #1) and a status pill.
+        <div className="overflow-x-auto rounded-card border border-line bg-surface shadow-soft">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left font-mono text-[11px] uppercase tracking-[.05em] text-mut">
+                <th className="px-3 py-3.5 font-medium">{t("colMaterial")}</th>
+                <th className="px-3 py-3.5 font-medium">{t("colSku")}</th>
+                <th className="px-3 py-3.5 text-right font-medium">{t("colPrice")}</th>
+                <th className="px-3 py-3.5 font-medium">{t("colCompleteness")}</th>
+                <th className="px-3 py-3.5 font-medium">{t("colStatus")}</th>
+                {canEdit && <th className="px-3 py-3.5" />}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((m) => (
+                <tr key={m.id} className="border-t border-line">
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-2.5">
+                      {m.images[0] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={m.images[0]}
+                          alt=""
+                          className="h-[34px] w-[34px] shrink-0 rounded-sm border border-line object-cover"
+                        />
+                      ) : (
+                        <span
+                          className="h-[34px] w-[34px] shrink-0 rounded-sm border border-line"
+                          style={{ backgroundColor: m.swatchHex ?? "#c9c2b4" }}
+                        />
                       )}
-                      style={{ width: `${m.completeness}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-mut">
-                    {t("completeness")} {m.completeness}%
-                  </span>
-                </div>
-              </div>
-
-              {canEdit && (
-                <div className="flex shrink-0 items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditing({ id: m.id, form: fromRow(m), images: m.images })}
-                  >
-                    {t("edit")}
-                  </Button>
-                  {m.status === "published" ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={busyId === m.id}
-                      onClick={() => setStatus(m.id, "draft")}
+                      <span className="min-w-0">
+                        <span className="block font-semibold text-ink">{m.nameTh}</span>
+                        <span className="block text-xs text-mut">
+                          {m.category}
+                          {m.model ? ` · ${m.model}` : ""}
+                        </span>
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3 font-mono text-xs text-mut">{m.sku ?? "—"}</td>
+                  <td className="px-3 py-3 text-right font-mono text-ink-2">
+                    {m.price
+                      ? `฿${Number(m.price).toLocaleString()}${m.unit ? `/${m.unit}` : ""}`
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-1.5 w-[110px] overflow-hidden rounded-pill bg-canvas-2">
+                        <div
+                          className={cn(
+                            "h-full rounded-pill",
+                            m.completeness >= 80
+                              ? "bg-ok"
+                              : m.completeness >= 50
+                                ? "bg-brand"
+                                : "bg-warn",
+                          )}
+                          style={{ width: `${m.completeness}%` }}
+                        />
+                      </div>
+                      <span className="font-mono text-[11.5px] text-mut">{m.completeness}%</span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3">
+                    <span
+                      className={cn(
+                        "rounded-pill px-2.5 py-1 font-mono text-[11.5px] font-semibold",
+                        m.status === "published"
+                          ? "bg-ok-soft text-ok"
+                          : m.status === "suspended"
+                            ? "bg-warn-soft text-warn"
+                            : "bg-canvas-2 text-sub",
+                      )}
                     >
-                      {t("unpublish")}
-                    </Button>
-                  ) : m.status !== "suspended" ? (
-                    <Button
-                      size="sm"
-                      disabled={busyId === m.id}
-                      onClick={() => setStatus(m.id, "published")}
-                    >
-                      {t("publish")}
-                    </Button>
-                  ) : null}
-                </div>
-              )}
-            </div>
-          ))}
+                      {t(`status.${m.status}`)}
+                    </span>
+                  </td>
+                  {canEdit && (
+                    <td className="px-3 py-3 text-right">
+                      <span className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setEditing({ id: m.id, form: fromRow(m), images: m.images })
+                          }
+                        >
+                          {t("edit")}
+                        </Button>
+                        {m.status === "published" ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={busyId === m.id}
+                            onClick={() => setStatus(m.id, "draft")}
+                          >
+                            {t("unpublish")}
+                          </Button>
+                        ) : m.status !== "suspended" ? (
+                          <Button
+                            size="sm"
+                            disabled={busyId === m.id}
+                            onClick={() => setStatus(m.id, "published")}
+                          >
+                            {t("publish")}
+                          </Button>
+                        ) : null}
+                      </span>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 

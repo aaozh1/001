@@ -77,12 +77,17 @@ export async function listSellerInbox(sellerOrgId: string): Promise<SellerInboxR
 
 export interface SellerRfqDetail extends SellerInboxRfq {
   note: string | null;
+  // 5H composer context: the recipient material's published list price is the
+  // base row of the tier table (line total + % vs list computed client-side).
+  listPrice: string | null;
+  listUnit: string | null;
   existingQuote: {
     pricePerUnit: string;
     projectDiscount: string | null;
     leadTime: string | null;
     paymentTerms: string | null;
     validUntil: string | null;
+    specsheetUrl: string | null;
     includeSample: boolean;
     status: string;
   } | null;
@@ -116,7 +121,11 @@ export async function getSellerRfqDetail(
       specItem: { select: { zone: true, category: true, qty: true, qtyUnit: true } },
       recipients: {
         where: { sellerOrgId },
-        select: { materialId: true, respondedAt: true, material: { select: { nameTh: true } } },
+        select: {
+          materialId: true,
+          respondedAt: true,
+          material: { select: { nameTh: true, price: true, unit: true } },
+        },
       },
       quotes: { where: { sellerOrgId }, take: 1, orderBy: { createdAt: "desc" } },
     },
@@ -125,7 +134,10 @@ export async function getSellerRfqDetail(
   await markOpened(rfqId, sellerOrgId);
 
   const q = r.quotes[0] ?? null;
+  const withPrice = r.recipients.find((rc) => rc.material?.price != null);
   return {
+    listPrice: withPrice?.material?.price?.toString() ?? null,
+    listUnit: withPrice?.material?.unit ?? null,
     id: r.id,
     projectName: r.project.name,
     zone: r.specItem.zone,
@@ -149,6 +161,7 @@ export async function getSellerRfqDetail(
           leadTime: q.leadTime,
           paymentTerms: q.paymentTerms,
           validUntil: q.validUntil ? q.validUntil.toISOString() : null,
+          specsheetUrl: q.specsheetUrl,
           includeSample: q.includeSample,
           status: q.status,
         }
@@ -192,6 +205,7 @@ export async function submitQuote(
     leadTime: input.leadTime ?? null,
     paymentTerms: input.paymentTerms ?? null,
     validUntil: input.validUntil ? new Date(input.validUntil) : null,
+    specsheetUrl: input.specsheetUrl ?? null,
     includeSample: input.includeSample ?? false,
   };
 
