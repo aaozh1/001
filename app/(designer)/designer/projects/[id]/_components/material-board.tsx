@@ -156,9 +156,30 @@ export function MaterialBoard({
   );
   const infoByKey = useMemo(() => new Map(tiles.map((ti) => [ti.key, ti])), [tiles]);
 
-  const [layout, setLayout] = useState<BoardLayout>(() =>
-    normalizeBoardLayout(initialLayout, tiles.map((ti) => ti.key)),
-  );
+  const [layout, setLayout] = useState<BoardLayout>(() => {
+    if (initialLayout) return normalizeBoardLayout(initialLayout, tiles.map((ti) => ti.key));
+    // 3E mosaic defaults: confirmed = hero tiles, pending options smaller.
+    let x = 16;
+    let y = 16;
+    let rowH = 0;
+    const maxW = 900;
+    return {
+      tiles: tiles.map((ti, i) => {
+        const big = ti.option.isConfirmed;
+        const w = big ? 224 : 148;
+        const h = big ? 180 : 118;
+        if (x + w > maxW) {
+          x = 16;
+          y += rowH + 18;
+          rowH = 0;
+        }
+        const tile = { key: ti.key, x, y, w, h, z: i };
+        x += w + 18;
+        rowH = Math.max(rowH, h);
+        return tile;
+      }),
+    };
+  });
   const [selected, setSelected] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [presenting, setPresenting] = useState(false);
@@ -369,8 +390,8 @@ export function MaterialBoard({
               className={cn(
                 "absolute select-none overflow-hidden rounded-card shadow-soft",
                 canManage && "cursor-grab active:cursor-grabbing",
-                o.isConfirmed ? "ring-2 ring-ok" : "ring-1 ring-line-2",
-                isSel && "ring-2 ring-brand",
+                o.isConfirmed ? "ring-2 ring-ok" : "ring-1 ring-line-2 opacity-60",
+                isSel && "ring-2 ring-brand opacity-100",
               )}
               style={{
                 left: tl.x,

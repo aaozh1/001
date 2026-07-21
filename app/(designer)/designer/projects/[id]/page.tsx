@@ -10,7 +10,7 @@ import { deriveSpecStatus, rfqFlags } from "@/lib/spec/status";
 import { type BoardLayout, boardLayoutSchema } from "@/lib/spec/board";
 import { getMaterialsByIds } from "@/lib/materials/service";
 import { listSpecBooks } from "@/lib/spec-book/service";
-import { getRfqStatusMap } from "@/lib/rfq/service";
+import { getRfqStatusMap, getRfqTrackingMap } from "@/lib/rfq/service";
 import { getProjectQuotes } from "@/lib/quote/service";
 import { getSubscription } from "@/lib/billing/service";
 import { canUseMaterialSets } from "@/lib/templates/logic";
@@ -41,10 +41,11 @@ export default async function ProjectDetailPage({ params }: Props) {
   const optionMaterialIds = project.specItems.flatMap((i) =>
     i.options.map((o) => o.materialId),
   );
-  const [materials, rfqMap, quotesMap] = await Promise.all([
+  const [materials, rfqMap, quotesMap, trackingMap] = await Promise.all([
     getMaterialsByIds(optionMaterialIds),
     getRfqStatusMap(project.id),
     getProjectQuotes(ctx.orgId, project.id),
+    getRfqTrackingMap(ctx.orgId, project.id),
   ]);
 
   const rows: SpecRow[] = project.specItems.map((item) => {
@@ -85,6 +86,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         state: rfqState ?? "none",
         rfqId: group?.rfqId ?? null,
         rfqStatus: group?.rfqStatus ?? null,
+        tracking: trackingMap.get(item.id) ?? [],
         quotes: (group?.quotes ?? []).map((q) => ({
           quoteId: q.quoteId,
           sellerOrgId: q.sellerOrgId,

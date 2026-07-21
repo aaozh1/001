@@ -233,3 +233,50 @@ export async function listSellerRfqs(sellerOrgId: string): Promise<SellerRfqView
   // privacy projection is the single choke point.
   return rows.map((r) => toSellerRfqView(toDesignerRecord(r)));
 }
+
+// ── 5D RFQ tracking: per-seller timeline (sent → opened → quoted) ──────
+export interface RfqRecipientTrack {
+  sellerOrgId: string;
+  sellerName: string;
+  sentAt: string;
+  openedAt: string | null;
+  respondedAt: string | null;
+}
+
+/** specItemId → recipients with their timeline stamps (owner org only). */
+export async function getRfqTrackingMap(
+  orgId: string,
+  projectId: string,
+): Promise<Map<string, RfqRecipientTrack[]>> {
+  const rfqs = await prisma.rFQ.findMany({
+    where: { projectId, project: { orgId }, status: { in: ["open", "quoted", "closed_won"] } },
+    select: {
+      specItemId: true,
+      createdAt: true,
+      recipients: {
+        select: {
+          sellerOrgId: true,
+          openedAt: true,
+          respondedAt: true,
+          seller: { select: { name: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  const map = new Map<string, RfqRecipientTrack[]>();
+  for (const r of rfqs) {
+    if (map.has(r.specItemId)) continue; // newest RFQ per line wins
+    map.set(
+      r.specItemId,
+      r.recipients.map((rec) => ({
+        sellerOrgId: rec.sellerOrgId,
+        sellerName: rec.seller.name,
+        sentAt: r.createdAt.toISOString(),
+        openedAt: rec.openedAt ? rec.openedAt.toISOString() : null,
+        respondedAt: rec.respondedAt ? rec.respondedAt.toISOString() : null,
+      })),
+    );
+  }
+  return map;
+}

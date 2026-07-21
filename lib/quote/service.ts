@@ -89,6 +89,17 @@ export interface SellerRfqDetail extends SellerInboxRfq {
 }
 
 /** Detail for one RFQ, scoped to a seller that actually received it. */
+async function markOpened(rfqId: string, sellerOrgId: string): Promise<void> {
+  try {
+    await prisma.rFQRecipient.updateMany({
+      where: { rfqId, sellerOrgId, openedAt: null },
+      data: { openedAt: new Date() },
+    });
+  } catch {
+    // Timeline stamp only — never block the seller's view.
+  }
+}
+
 export async function getSellerRfqDetail(
   sellerOrgId: string,
   rfqId: string,
@@ -111,6 +122,7 @@ export async function getSellerRfqDetail(
     },
   });
   if (!r) return null;
+  await markOpened(rfqId, sellerOrgId);
 
   const q = r.quotes[0] ?? null;
   return {

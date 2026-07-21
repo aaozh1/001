@@ -150,7 +150,8 @@
     "selecting": "Selecting…",
     "yes": "Yes",
     "sendFailed": "Sending failed, please try again",
-    "done": "Done"
+    "done": "Done",
+    "reach48h": "Goes to every relevant seller · most reply within 48 h"
   },
   "import": {
     "title": "Import from Excel / CSV",
@@ -373,7 +374,8 @@
     "boardExport": "Export PNG",
     "boardPresentClose": "Close",
     "specProgress": "{confirmed} of {total} specified",
-    "specMeta": "{pending} options pending · {quoted} quoted"
+    "specMeta": "{pending} options pending · {quoted} quoted",
+    "bestValue": "Best value"
   },
   "seller": {
     "center": "Seller Center",
@@ -878,5 +880,17 @@
     "upsell": "Unlock templates & material sets on Studio.",
     "upgrade": "Upgrade",
     "plan": "Current plan"
+  },
+  "track": {
+    "title": "RFQ tracking per seller",
+    "stQuoted": "Quoted",
+    "stOpened": "Opened",
+    "stWaiting": "Not opened yet",
+    "nudge": "Nudge",
+    "nudged": "Nudged",
+    "nudgeLimit": "Nudge quota reached (2/day)",
+    "sSent": "Sent",
+    "sOpened": "Opened",
+    "sQuoted": "Quoted"
   }
 }
