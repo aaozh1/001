@@ -150,7 +150,8 @@
     "selecting": "กำลังเลือก…",
     "yes": "มี",
     "sendFailed": "ส่งไม่สำเร็จ ลองใหม่อีกครั้ง",
-    "done": "เสร็จสิ้น"
+    "done": "เสร็จสิ้น",
+    "reach48h": "ส่งถึงผู้ขายที่เกี่ยวข้องทุกเจ้า · ส่วนใหญ่ตอบภายใน 48 ชม."
   },
   "import": {
     "title": "นำเข้าจาก Excel / CSV",
@@ -373,7 +374,8 @@
     "boardExport": "ส่งออก PNG",
     "boardPresentClose": "ปิด",
     "specProgress": "ยืนยันแล้ว {confirmed} จาก {total}",
-    "specMeta": "รอเลือก {pending} · ได้ราคา {quoted}"
+    "specMeta": "รอเลือก {pending} · ได้ราคา {quoted}",
+    "bestValue": "คุ้มสุด"
   },
   "seller": {
     "center": "Center ผู้ขาย",
@@ -878,5 +880,17 @@
     "upsell": "ปลดล็อก template และชุดวัสดุด้วยแผน Studio",
     "upgrade": "อัปเกรด",
     "plan": "แผนปัจจุบัน"
+  },
+  "track": {
+    "title": "การติดตาม RFQ รายผู้ขาย",
+    "stQuoted": "เสนอราคาแล้ว",
+    "stOpened": "เปิดดูแล้ว",
+    "stWaiting": "รอเปิดดู",
+    "nudge": "สะกิดเตือน",
+    "nudged": "สะกิดแล้ว",
+    "nudgeLimit": "สะกิดครบโควตาแล้ว (2 ครั้ง/วัน)",
+    "sSent": "ส่งแล้ว",
+    "sOpened": "เปิดดู",
+    "sQuoted": "เสนอราคา"
   }
 }

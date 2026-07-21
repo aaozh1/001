@@ -50,6 +50,13 @@ export function SpecOptionsPanel({
     return <p className="px-4 py-3 text-sm text-sub">{t("noOptions")}</p>;
   }
 
+  // 3C "Best value": cheapest priced option (only when ≥2 carry prices).
+  const priced = options.filter((o) => o.price != null && Number(o.price) > 0);
+  const bestValueId =
+    priced.length >= 2
+      ? priced.reduce((min, o) => (Number(o.price) < Number(min.price) ? o : min)).materialId
+      : null;
+
   const facts: {
     label: string;
     value: (o: OptionView) => string | null;
@@ -97,6 +104,11 @@ export function SpecOptionsPanel({
                     <div className="mt-1.5 line-clamp-2 text-[13px] font-semibold text-ink">
                       {o.name}
                     </div>
+                    {o.materialId === bestValueId && (
+                      <span className="mt-1 inline-block rounded-pill bg-ok-soft px-2 py-0.5 font-mono text-[10.5px] font-semibold text-ok">
+                        ★ {t("bestValue")}
+                      </span>
+                    )}
                   </th>
                 ))}
               </tr>

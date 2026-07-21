@@ -30,11 +30,20 @@ export interface RfqQuoteView {
   status: string;
 }
 
+export interface RfqTrackView {
+  sellerOrgId: string;
+  sellerName: string;
+  sentAt: string;
+  openedAt: string | null;
+  respondedAt: string | null;
+}
+
 export interface RfqView {
   state: "none" | "sent" | "quoted" | "closed";
   rfqId: string | null;
   rfqStatus: string | null;
   quotes: RfqQuoteView[];
+  tracking: RfqTrackView[];
 }
 
 export interface SpecRow {

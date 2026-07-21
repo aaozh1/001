@@ -16,6 +16,7 @@ import type { ItemSnapshot } from "@/lib/spec/service";
 import { SpecOptionsPanel } from "./spec-options-panel";
 import { QuoteCompareButton } from "./quote-compare";
 import { ChatWithSellerButton } from "./chat-with-seller";
+import { RfqTimeline } from "./rfq-timeline";
 import { type MlistCol, type SpecRow, rowMaterial } from "./types";
 
 export type { SpecRow } from "./types";
@@ -501,6 +502,14 @@ function Row({
                   </div>
                 )}
               </div>
+            )}
+            {item.rfq.rfqId && item.rfq.tracking.length > 0 && item.rfq.state !== "closed" && (
+              <RfqTimeline
+                projectId={projectId}
+                rfqId={item.rfq.rfqId}
+                tracking={item.rfq.tracking}
+                canManage={canManage}
+              />
             )}
           </td>
         </tr>

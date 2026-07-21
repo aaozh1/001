@@ -108,6 +108,7 @@ export function RfqSendModal({
             />
             {t("wantSample")}
           </label>
+          <p className="font-mono text-[11.5px] text-mut">{t("reach48h")}</p>
           <p className="text-xs text-mut">🔒 {t("privacy")}</p>
           {sendError && (
             <p className="text-sm text-warn" role="alert">
