@@ -2,8 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui";
-import { getSharedSpecBook } from "@/lib/spec-book/service";
+import { getSharedSpecBook, listShareFeedback } from "@/lib/spec-book/service";
 import type { SpecBookSnapshot } from "@/lib/spec-book/snapshot";
+import { GuestFeedback } from "./_components/guest-feedback";
 
 type Props = { params: Promise<{ token: string }> };
 
@@ -17,7 +18,11 @@ export default async function SharedSpecBookPage({ params }: Props) {
   if (!book?.snapshot) notFound();
 
   const snapshot = book.snapshot as unknown as SpecBookSnapshot;
-  const [t, locale] = await Promise.all([getTranslations("share"), getLocale()]);
+  const [t, locale, feedback] = await Promise.all([
+    getTranslations("share"),
+    getLocale(),
+    listShareFeedback(book.id),
+  ]);
   const isEn = locale === "en";
 
   return (
@@ -34,6 +39,14 @@ export default async function SharedSpecBookPage({ params }: Props) {
                 .filter(Boolean)
                 .join(" · ")}
             </p>
+            {book.shareExpiresAt && (
+              <p className="mt-1 font-mono text-[11px] text-mut">
+                {t("expires")}{" "}
+                {new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
+                  dateStyle: "medium",
+                }).format(book.shareExpiresAt)}
+              </p>
+            )}
           </div>
         </div>
       </header>
@@ -96,6 +109,12 @@ export default async function SharedSpecBookPage({ params }: Props) {
                 ))}
               </div>
             )}
+            <GuestFeedback
+              token={token}
+              itemCode={item.code}
+              approvals={feedback.get(item.code)?.approvals ?? 0}
+              comments={feedback.get(item.code)?.comments ?? []}
+            />
           </section>
         ))}
       </main>

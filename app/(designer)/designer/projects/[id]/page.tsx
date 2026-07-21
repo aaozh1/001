@@ -116,6 +116,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     version: b.version,
     dateLabel: dateFmt.format(b.createdAt),
     shareToken: b.shareToken,
+    diff: b.diff,
   }));
 
   // Stored board layout (tolerant parse — junk becomes "no layout").
