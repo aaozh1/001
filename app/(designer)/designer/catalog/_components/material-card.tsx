@@ -42,7 +42,7 @@ export function MaterialCard({
         </div>
         {spec && <div className="text-xs text-mut">{spec}</div>}
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-          <span className="text-sm font-bold text-brand">
+          <span className="font-mono text-[13px] font-semibold text-brand-deep">
             {m.price ? `฿${m.price}${m.unit ? `/${m.unit}` : ""}` : ""}
           </span>
           {canManage && <AddToProjectButton materialId={m.id} />}

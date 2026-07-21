@@ -156,7 +156,7 @@ export function SpecTable({
       <div className="hidden overflow-x-auto sm:block">
         <table className="w-full min-w-[680px] text-left text-sm">
           <thead>
-            <tr className="border-b border-line text-xs text-mut">
+            <tr className="border-b border-line font-mono text-[11px] uppercase tracking-[.05em] text-mut">
               {canManage && <th className="w-8 px-2 py-2" />}
               <th className="w-8 px-2 py-2" />
               <Th label={t("colCode")} colKey="code" />
@@ -401,7 +401,7 @@ function Row({
               <input
                 defaultValue={item.code}
                 onBlur={commitText("code", item.code)}
-                className={cn(cell, "font-medium text-ink")}
+                className={cn(cell, "font-mono text-[12.5px] font-medium text-ink")}
                 aria-label={t("colCode")}
               />
             </td>
@@ -413,14 +413,14 @@ function Row({
             </td>
             <td className="px-2 py-1.5">
               <div className="flex items-center gap-1">
-                <input defaultValue={item.qty} onBlur={commitQty} inputMode="decimal" className={cn(cell, "w-20")} aria-label={t("colQty")} />
+                <input defaultValue={item.qty} onBlur={commitQty} inputMode="decimal" className={cn(cell, "w-20 font-mono text-[12.5px]")} aria-label={t("colQty")} />
                 <input defaultValue={item.qtyUnit} onBlur={commitText("qtyUnit", item.qtyUnit)} placeholder={t("qtyUnitPlaceholder")} className={cn(cell, "w-16 text-sub")} aria-label={t("qtyUnitPlaceholder")} />
               </div>
             </td>
           </>
         ) : (
           <>
-            <td className="px-4 py-2.5 font-medium text-ink">{item.code}</td>
+            <td className="px-4 py-2.5"><span className="rounded-[6px] border border-line bg-canvas px-[9px] py-[4px] font-mono text-[12px] text-sub">{item.code}</span></td>
             <td className="px-4 py-2.5 text-sub">{item.zone || "—"}</td>
             <td className="px-4 py-2.5 text-sub">{item.category || "—"}</td>
             <td className="px-4 py-2.5 text-sub">{item.qty ? `${item.qty} ${item.qtyUnit}` : "—"}</td>
@@ -510,8 +510,15 @@ function Row({
 }
 
 function FactCell({ value, confirmed }: { value: string | null; confirmed: boolean }) {
+  const isPrice = !!value && value.startsWith("฿");
   return (
-    <td className={cn("whitespace-nowrap px-4 py-1.5 text-sm", confirmed ? "text-ink" : "text-mut")}>
+    <td
+      className={cn(
+        "whitespace-nowrap px-4 py-1.5 text-sm",
+        isPrice && "font-mono text-[12.5px] font-semibold",
+        isPrice ? (confirmed ? "text-brand-deep" : "text-mut") : confirmed ? "text-ink" : "text-mut",
+      )}
+    >
       {value || "—"}
     </td>
   );

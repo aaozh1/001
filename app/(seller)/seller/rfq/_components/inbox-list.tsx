@@ -50,6 +50,7 @@ export function InboxList({ rows }: { rows: InboxRow[] }) {
         </p>
       ) : (
         <div className="flex flex-col gap-3">
+          {/* 3G privacy footnote renders after the list (see below) */}
           {visible.map((r) => (
             <Card key={r.id} className="flex-row items-center justify-between gap-4">
               <div className="min-w-0">
