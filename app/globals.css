@@ -6,42 +6,67 @@
   tokens live in components/ui/. Do not hardcode colors/radii/shadows in
   components — always go through these tokens (task 0.4).
 */
+/*
+  Redesign 2026-07 (design handoff "1B Crisp centered"): warm-cream neutrals,
+  IBM Plex Sans Thai + IBM Plex Mono, new semantic chip palette. Existing
+  components keep consuming the SAME token names, so the whole app reskins
+  from this block.
+*/
 @theme {
   /* Brand */
   --color-brand: #f4632a;
-  --color-brand-soft: #fff1ea; /* light tint — chip/hero backgrounds, focus ring */
+  --color-brand-deep: #b0512f; /* hover / deep accent, stat numbers */
+  --color-brand-bright: #ff8a50; /* accent on dark surfaces */
+  --color-brand-soft: #fff2ec; /* 9% tint — chips/hero backgrounds */
+  --color-brand-line: #ffd2bd; /* 28% tint — borders on accent chips */
 
   /* Text */
-  --color-ink: #1f2430; /* primary text / headings */
-  --color-sub: #6b7280; /* secondary text */
-  --color-mut: #9aa1ac; /* muted / disabled */
+  --color-ink: #1c1a17; /* primary text / headings */
+  --color-ink-2: #3a3833; /* secondary headings / chip text */
+  --color-sub: #5a5750; /* secondary text */
+  --color-mut: #8a857c; /* muted / disabled */
 
-  /* Lines & surfaces */
-  --color-line: #ecedf0;
-  --color-line-2: #e2e4e9;
-  --color-canvas: #f5f6f8; /* page background */
+  /* Lines & surfaces (warm cream) */
+  --color-line: #ece7de;
+  --color-line-2: #e6e1d8;
+  --color-line-3: #ddd6c8; /* stronger — secondary-button borders */
+  --color-canvas: #faf8f4; /* page background */
+  --color-canvas-2: #f5f2ec; /* sunk areas / neutral chip bg */
   --color-surface: #ffffff; /* cards */
 
-  /* Semantic (with soft background pair) — used by StatusChip / Badge */
-  --color-ok: #12a150;
-  --color-ok-soft: #e6f6ec;
-  --color-warn: #b45309;
-  --color-warn-soft: #fdf3e3;
-  --color-info: #4f46e5;
-  --color-info-soft: #efeefc;
-  --color-quoted: #0b6bae;
-  --color-quoted-soft: #e8f4fd;
+  /* Dark surfaces (seller sidebar, callouts, footer) */
+  --color-dark: #1c1a17;
+  --color-dark-2: #26221d;
+  --color-dark-3: #2c2822;
+  --color-dark-line: #3a352e;
+  --color-dark-text: #b8b1a6;
+
+  /* Semantic (fg on soft bg) — used by StatusChip / Badge */
+  --color-ok: #2f8a5b;
+  --color-ok-soft: #e7f2ea;
+  --color-warn: #b0512f;
+  --color-warn-soft: #fdf3e7;
+  --color-info: #3a6ea5;
+  --color-info-soft: #eaf1f7;
+  --color-quoted: #3a6ea5;
+  --color-quoted-soft: #eaf1f7;
+  --color-error: #b3402a;
+  --color-error-soft: #fbeae7;
+  --color-rating: #e0a030;
 
   /* Radii */
   --radius-sm: 10px;
   --radius-card: 14px;
+  --radius-frame: 22px;
   --radius-pill: 999px;
 
-  /* Soft shadows (nudged, layered — matches prototype --sh / --sh-2) */
-  --shadow-soft: 0 1px 3px rgb(16 24 40 / 0.06), 0 1px 2px rgb(16 24 40 / 0.04);
-  --shadow-lifted: 0 4px 12px rgb(16 24 40 / 0.1);
+  /* Shadows (warm ink) */
+  --shadow-soft: 0 1px 3px rgb(28 26 23 / 0.05), 0 1px 2px rgb(28 26 23 / 0.04);
+  --shadow-lifted: 0 24px 50px -30px rgb(28 26 23 / 0.35);
+  --shadow-frame: 0 40px 90px -50px rgb(28 26 23 / 0.5);
 
-  --font-sans: "Noto Sans Thai", "Inter", system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), "IBM Plex Sans Thai", "Noto Sans Thai", system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
 }
 
 html,
@@ -54,4 +79,13 @@ body {
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
+}
+
+/* Section eyebrow (design handoff): mono, uppercase, wide tracking, accent. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-brand);
 }
