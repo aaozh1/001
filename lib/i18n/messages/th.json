@@ -49,7 +49,8 @@
     "rfqInbox": "กล่องใบขอราคา",
     "materials": "สินค้าของฉัน",
     "performance": "ผลงาน",
-    "team": "ทีม"
+    "team": "ทีม",
+    "billing": "แผน/บิลลิง"
   },
   "roles": {
     "designer": "ผู้ออกแบบ",
@@ -370,7 +371,9 @@
     "optionRemoved": "ลบตัวเลือก {name} แล้ว",
     "boardPresent": "นำเสนอ",
     "boardExport": "ส่งออก PNG",
-    "boardPresentClose": "ปิด"
+    "boardPresentClose": "ปิด",
+    "specProgress": "ยืนยันแล้ว {confirmed} จาก {total}",
+    "specMeta": "รอเลือก {pending} · ได้ราคา {quoted}"
   },
   "seller": {
     "center": "Center ผู้ขาย",
@@ -432,7 +435,8 @@
     },
     "emptyTab": "ไม่มีรายการในแท็บนี้",
     "slaLeft": "เหลือ {hours} ชม. {minutes} น.",
-    "slaOverdueBy": "เลยกำหนดมา {hours} ชม."
+    "slaOverdueBy": "เลยกำหนดมา {hours} ชม.",
+    "privacyNote": "รายละเอียด RFQ เป็นความลับเฉพาะบริษัทคุณ — ระบบแชร์เฉพาะข้อมูลความต้องการแบบภาพรวมเท่านั้น"
   },
   "chat": {
     "title": "แชท",
@@ -868,5 +872,11 @@
     "tagline": "Every material. One list.",
     "terms": "ข้อกำหนด",
     "privacy": "ความเป็นส่วนตัว"
+  },
+  "shell": {
+    "freePlan": "FREE PLAN",
+    "upsell": "ปลดล็อก template และชุดวัสดุด้วยแผน Studio",
+    "upgrade": "อัปเกรด",
+    "plan": "แผนปัจจุบัน"
   }
 }

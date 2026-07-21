@@ -27,6 +27,40 @@ const VIEW_LABEL: Record<SpecView, string> = {
   board: "vBoard",
 };
 
+// 4B icon segment (design handoff): one glyph per view.
+const VIEW_ICON: Record<SpecView, React.ReactNode> = {
+  full: (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <rect x="1" y="2" width="14" height="3.4" rx="1.7" />
+      <rect x="1" y="7" width="14" height="3.4" rx="1.7" />
+      <rect x="1" y="12" width="9" height="3.4" rx="1.7" />
+    </svg>
+  ),
+  compact: (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <rect x="1" y="2" width="14" height="2" rx="1" />
+      <rect x="1" y="6" width="14" height="2" rx="1" />
+      <rect x="1" y="10" width="14" height="2" rx="1" />
+      <rect x="1" y="14" width="10" height="2" rx="1" />
+    </svg>
+  ),
+  grid: (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <rect x="1" y="1" width="6" height="6" rx="2" />
+      <rect x="9" y="1" width="6" height="6" rx="2" />
+      <rect x="1" y="9" width="6" height="6" rx="2" />
+      <rect x="9" y="9" width="6" height="6" rx="2" />
+    </svg>
+  ),
+  board: (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <rect x="1" y="1" width="8" height="14" rx="2.5" />
+      <rect x="11" y="1" width="4" height="6" rx="1.8" />
+      <rect x="11" y="9" width="4" height="6" rx="1.8" />
+    </svg>
+  ),
+};
+
 const COLS_KEY = "matlist.mlist.cols";
 
 // The Material List surface: table views + the action toolbar above them
@@ -97,10 +131,35 @@ export function SpecViews({
   const iconBtn =
     "rounded-pill border border-line-2 px-2.5 py-1.5 text-[13px] text-sub transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40";
 
+  const confirmed = items.filter((i) => i.confirmedMaterialId != null).length;
+  const optionsPending = items.filter(
+    (i) => i.confirmedMaterialId == null && i.options.length > 0,
+  ).length;
+  const quoted = items.filter((i) => i.rfq.state === "quoted").length;
+  const pct = items.length > 0 ? Math.round((confirmed / items.length) * 100) : 0;
+
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
-        <span className="font-semibold text-ink">{t("materialList")}</span>
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="font-semibold text-ink">{t("materialList")}</span>
+          {/* 4B progress: X of Y specified */}
+          <span className="hidden items-center gap-2.5 md:flex">
+            <span className="h-[7px] w-[140px] overflow-hidden rounded-pill bg-[#f0ece4]">
+              <span
+                className="block h-full rounded-pill bg-brand"
+                style={{ width: `${pct}%` }}
+              />
+            </span>
+            <span className="font-mono text-[12px] text-mut">
+              {t("specProgress", { confirmed, total: items.length })}
+            </span>
+            <span className="h-[18px] w-px bg-line-2" />
+            <span className="font-mono text-[12px] text-mut">
+              {t("specMeta", { pending: optionsPending, quoted })}
+            </span>
+          </span>
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {canManage && (
@@ -173,19 +232,23 @@ export function SpecViews({
             </div>
           )}
 
-          <div className="inline-flex rounded-pill border border-line-2 bg-canvas p-0.5 text-xs">
+          <div className="flex gap-[2px] rounded-sm border border-line bg-canvas p-[3px]">
             {SPEC_VIEWS.map((v) => (
               <button
                 key={v}
                 type="button"
                 onClick={() => setView(v)}
                 aria-pressed={view === v}
+                title={t(VIEW_LABEL[v])}
+                aria-label={t(VIEW_LABEL[v])}
                 className={cn(
-                  "rounded-pill px-3 py-1 font-medium transition-colors",
-                  view === v ? "bg-brand text-white" : "text-sub hover:text-ink",
+                  "flex h-[30px] w-[34px] items-center justify-center rounded-[7px] transition-colors",
+                  view === v
+                    ? "border border-line bg-surface text-brand"
+                    : "text-mut hover:text-ink",
                 )}
               >
-                {t(VIEW_LABEL[v])}
+                {VIEW_ICON[v]}
               </button>
             ))}
           </div>

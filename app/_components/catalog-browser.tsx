@@ -71,7 +71,7 @@ export async function CatalogBrowser({
         <p className="mt-1 text-sub">{t("subtitle")}</p>
         <div className="mt-4 max-w-xl">
           <CatalogSearch basePath={basePath} category={filters.category} initial={q ?? ""} />
-          <p className="mt-1.5 text-xs text-mut">{t("neutral")}</p>
+          <p className="mt-1.5 font-mono text-[11.5px] text-mut">{t("neutral")}</p>
         </div>
       </header>
 

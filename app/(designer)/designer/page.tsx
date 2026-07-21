@@ -25,8 +25,8 @@ export default async function DesignerDashboard() {
   const metric = (label: string, value: number | string, href?: string, accent?: boolean) => {
     const inner = (
       <Card className={`gap-1 ${href ? "transition hover:shadow-lifted" : ""}`} padded>
-        <span className="text-2xl font-bold tracking-tight text-ink">{value}</span>
-        <span className={`text-xs ${accent ? "text-brand" : "text-mut"}`}>{label}</span>
+        <span className="font-mono text-[26px] font-semibold text-brand-deep">{value}</span>
+        <span className={`text-[12.5px] ${accent ? "text-brand" : "text-mut"}`}>{label}</span>
       </Card>
     );
     return href ? (
@@ -55,10 +55,20 @@ export default async function DesignerDashboard() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="text-2xl font-bold tracking-tight text-ink">
-        {t("welcome", { name })}
-      </h1>
-      <p className="mt-1 text-sub">{t("subtitle")}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-[20px] font-bold tracking-[-.01em] text-ink">
+            {t("welcome", { name })}
+          </h1>
+          <p className="mt-0.5 text-[13px] text-mut">{t("subtitle")}</p>
+        </div>
+        <Link
+          href="/designer/projects"
+          className="inline-flex rounded-sm bg-brand px-[18px] py-2.5 text-[14px] font-semibold text-white transition hover:bg-brand-deep"
+        >
+          ＋ {t("goProjects")}
+        </Link>
+      </div>
 
       {/* First-run: no projects yet → point at the three ways to start, instead
           of showing a wall of zeros. */}
@@ -124,19 +134,24 @@ export default async function DesignerDashboard() {
                 <li key={p.id}>
                   <Link
                     href={`/designer/projects/${p.id}`}
-                    className="flex items-center justify-between gap-2 rounded-sm px-1 py-1 text-sm hover:bg-canvas"
+                    className="flex items-center justify-between gap-3 rounded-card border border-line px-4 py-3 transition hover:shadow-lifted"
                   >
-                    <span className="truncate font-medium text-ink">{p.name}</span>
-                    <span className="flex shrink-0 gap-1.5">
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-brand-soft text-[17px] text-brand-deep">
+                        ▦
+                      </span>
+                      <span className="truncate text-[14.5px] font-semibold text-ink">{p.name}</span>
+                    </span>
+                    <span className="shrink-0 text-right">
                       {p.quotesToReview > 0 && (
-                        <Badge variant="brand">
+                        <span className="block text-[13px] font-semibold text-ok">
                           {p.quotesToReview} {t("quotesTag")}
-                        </Badge>
+                        </span>
                       )}
                       {p.optionsPending > 0 && (
-                        <Badge variant="neutral">
+                        <span className="block text-[12px] text-brand-deep">
                           {p.optionsPending} {t("optionsTag")}
-                        </Badge>
+                        </span>
                       )}
                     </span>
                   </Link>
