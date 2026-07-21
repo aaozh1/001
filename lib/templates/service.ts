@@ -216,7 +216,7 @@ export async function deleteTemplate(
 export interface MaterialSetSummary {
   id: string;
   name: string;
-  materials: { id: string; name: string; category: string }[];
+  materials: { id: string; name: string; category: string; swatchHex: string | null }[];
 }
 
 export async function listMaterialSets(orgId: string): Promise<MaterialSetSummary[]> {
@@ -228,7 +228,7 @@ export async function listMaterialSets(orgId: string): Promise<MaterialSetSummar
   const allIds = [...new Set(sets.flatMap((s) => s.materialIds))];
   const materials = await prisma.material.findMany({
     where: { id: { in: allIds } },
-    select: { id: true, nameTh: true, category: true },
+    select: { id: true, nameTh: true, category: true, swatchHex: true },
   });
   const byId = new Map(materials.map((m) => [m.id, m]));
   return sets.map((s) => ({
@@ -237,7 +237,7 @@ export async function listMaterialSets(orgId: string): Promise<MaterialSetSummar
     materials: s.materialIds
       .map((id) => byId.get(id))
       .filter((m): m is NonNullable<typeof m> => Boolean(m))
-      .map((m) => ({ id: m.id, name: m.nameTh, category: m.category })),
+      .map((m) => ({ id: m.id, name: m.nameTh, category: m.category, swatchHex: m.swatchHex })),
   }));
 }
 

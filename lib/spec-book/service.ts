@@ -190,7 +190,7 @@ export async function getSharedSpecBook(token: string) {
       snapshot: true,
       createdAt: true,
       shareExpiresAt: true,
-      project: { select: { orgId: true, name: true } },
+      project: { select: { orgId: true, name: true, org: { select: { name: true } } } },
     },
   });
   if (!book) return null;

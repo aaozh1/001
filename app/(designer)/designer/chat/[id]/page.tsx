@@ -25,10 +25,22 @@ export default async function DesignerChatThreadPage({ params }: Props) {
         {t("back")}
       </Link>
 
-      <header className="mt-2">
-        <h1 className="text-2xl font-bold tracking-tight text-ink">
-          {t("withSeller")} {header.sellerName ?? "—"}
-        </h1>
+      {/* 3F: avatar tile + verified badge in the header */}
+      <header className="mt-2 flex items-center gap-3">
+        <span className="flex h-11 w-11 items-center justify-center rounded-[11px] bg-info-soft font-mono text-sm font-bold text-info">
+          {(header.sellerName ?? "?")
+            .split(/\s+/)
+            .map((w) => w[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()}
+        </span>
+        <span>
+          <h1 className="text-xl font-bold tracking-tight text-ink">
+            {t("withSeller")} {header.sellerName ?? "—"}
+          </h1>
+          <span className="font-mono text-[11px] text-ok">✓ {t("verifiedSeller")}</span>
+        </span>
       </header>
 
       <Card className="mt-3 gap-2">
@@ -44,6 +56,7 @@ export default async function DesignerChatThreadPage({ params }: Props) {
       <div className="mt-4">
         <ChatPanel threadId={header.threadId} />
       </div>
+      <p className="mt-3 text-center font-mono text-[11px] text-mut">{t("historyHint")}</p>
     </div>
   );
 }

@@ -102,7 +102,14 @@
     "consentTerms": "Terms of Service",
     "consentAnd": "and the",
     "consentPrivacy": "Privacy Policy",
-    "consentRequired": "Please accept the terms and privacy policy before signing up"
+    "consentRequired": "Please accept the terms and privacy policy before signing up",
+    "panelEyebrow": "For every designer",
+    "panelTitle": "Every material for the project. One living list.",
+    "panelB1": "Spec, request quotes & compare offers",
+    "panelB2": "Verified sellers, replies in 48 h",
+    "panelB3": "No paid placement, ever",
+    "panelTagline": "Every material. One list.",
+    "pwHint": "At least 8 characters"
   },
   "designer": {
     "workspace": "Designer Workspace",
@@ -152,7 +159,8 @@
     "yes": "Yes",
     "sendFailed": "Sending failed, please try again",
     "done": "Done",
-    "reach48h": "Goes to every relevant seller · most reply within 48 h"
+    "reach48h": "Goes to every relevant seller · most reply within 48 h",
+    "summaryCounts": "{items} items · {options} options"
   },
   "import": {
     "title": "Import from Excel / CSV",
@@ -258,7 +266,12 @@
     "col_warranty": "Warranty",
     "col_moq": "MOQ",
     "col_size": "Size",
-    "col_color": "Color"
+    "col_color": "Color",
+    "sku": "SKU",
+    "keySpec": "Key spec",
+    "chatSeller": "Chat with seller",
+    "openSpecsheet": "Open Specsheet (PDF)",
+    "openCatalogPdf": "Open Catalog"
   },
   "projects": {
     "title": "My projects",
@@ -379,7 +392,12 @@
     "bestValue": "Best value",
     "sbChanged": "{n} changed",
     "sbConfirmed": "{n} newly confirmed",
-    "siteVisit": "Site visit"
+    "siteVisit": "Site visit",
+    "connectRevit": "Connect Revit",
+    "revitSoon": "Coming soon — on the roadmap",
+    "inlineHint": "Tap code / location / quantity to edit inline",
+    "tickedSummary": "{n} items ticked",
+    "noMaterialYet": "No material yet"
   },
   "seller": {
     "center": "Seller Center",
@@ -451,7 +469,8 @@
     "thisRfqQty": "This RFQ · {qty}",
     "attachAdd": "Attach spec sheet / install guide link",
     "attachPlaceholder": "https://… (spec sheet or install guide)",
-    "neutrality": "Same lead fee for every seller — quotes compete on merit"
+    "neutrality": "Same lead fee for every seller — quotes compete on merit",
+    "chatBtn": "Chat"
   },
   "chat": {
     "title": "Chat",
@@ -470,7 +489,9 @@
     "send": "Send",
     "sending": "Sending…",
     "sendFailed": "Sending failed, please try again",
-    "noThreadsHintDesigner": "Start a chat from the 💬 button next to a quote on a project page"
+    "noThreadsHintDesigner": "Start a chat from the 💬 button next to a quote on a project page",
+    "verifiedSeller": "Verified seller",
+    "historyHint": "Chat history is tied to your project — sales sees your spec context, no need to repeat"
   },
   "dashboard": {
     "welcome": "Hi {name}",
@@ -505,7 +526,20 @@
     "onboardOption": "Add a material option to a project",
     "onboardRfq": "Send your first price/sample request",
     "onboardBook": "Create your first Spec Book",
-    "onboardHint": "We created a 🎓 sample project for you — try all three there, no real work affected"
+    "onboardHint": "We created a 🎓 sample project for you — try all three there, no real work affected",
+    "activeTitle": "Active projects",
+    "viewAll": "View all",
+    "rowMeta": "{items} line items · updated {date}",
+    "rowConfirmed": "{n} specified",
+    "rowPending": "{n} options pending",
+    "openSchedule": "Open schedule",
+    "activityTitle": "Recent quote activity",
+    "activityLine": "{seller} sent a quote for {code}",
+    "activityWon": "Selected",
+    "welcomeNewTitle": "Welcome to MatList",
+    "welcomeNewBody": "Your spec schedules will live here. Start from scratch, import your BOQ, or poke around a ready-made sample first.",
+    "sampleTitle": "Explore the sample: {name}",
+    "sampleHint": "Line items, options and quotes included — safe to break"
   },
   "billing": {
     "back": "← Back to dashboard",
@@ -545,7 +579,10 @@
     "colTaxInvoice": "Tax invoice",
     "download": "Download",
     "preparing": "Preparing",
-    "neutralityNote": "Neutrality is never for sale — every plan sees the same spec-ranked results"
+    "neutralityNote": "Neutrality is never for sale — every plan sees the same spec-ranked results",
+    "eyebrow": "Pricing",
+    "popular": "Popular",
+    "forever": "forever"
   },
   "library": {
     "navLabel": "📚 Library",
@@ -600,7 +637,10 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "editEmpty": "Needs a name and at least one line with a code",
-    "saveAsCopy": "Save as copy"
+    "saveAsCopy": "Save as copy",
+    "studioChip": "STUDIO FEATURE",
+    "lockedBody": "Start projects from a schedule skeleton and reuse confirmed palettes across every project",
+    "saveSetHint": "Save the current project's confirmed materials as a set — from the project page"
   },
   "sellerMat": {
     "title": "My products",
@@ -842,7 +882,14 @@
     "approve": "Approve this item",
     "approved": "Approved",
     "fbFailed": "Failed — try again",
-    "expires": "Link valid until"
+    "expires": "Link valid until",
+    "viewOnly": "View only",
+    "noAccount": "No account needed",
+    "reviewing": "Reviewing",
+    "commentsTitle": "Comments",
+    "onItem": "on",
+    "noComments": "No comments yet — comment on any item below",
+    "commentHint": "Approve or comment on the items below"
   },
   "palette": {
     "title": "Search & jump anywhere",
@@ -909,7 +956,8 @@
     "freePlan": "FREE PLAN",
     "upsell": "Unlock templates & material sets on Studio.",
     "upgrade": "Upgrade",
-    "plan": "Current plan"
+    "plan": "Current plan",
+    "sellerPlan": "Standard plan"
   },
   "track": {
     "title": "RFQ tracking per seller",

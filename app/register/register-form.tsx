@@ -86,6 +86,7 @@ export function RegisterForm() {
           minLength={8}
           autoComplete="new-password"
         />
+        <span className="font-mono text-xs font-normal text-mut">{t("auth.pwHint")}</span>
       </label>
 
       {/* PDPA consent (4.1) — required; acceptance time is stored server-side. */}

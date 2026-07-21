@@ -42,7 +42,11 @@ export function LoginForm() {
       </label>
 
       {state.error && (
-        <p role="alert" className="text-sm text-brand">
+        <p
+          role="alert"
+          className="flex items-center gap-2 rounded-sm border border-error-soft bg-error-soft px-3 py-2.5 text-sm text-error"
+        >
+          <span className="font-mono font-bold">!</span>
           {t(`auth.${state.error}`)}
         </p>
       )}

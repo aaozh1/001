@@ -252,6 +252,13 @@ export function SpecViews({
               </button>
             ))}
           </div>
+
+          {/* 2D: inline-edit affordance, mono like the mock */}
+          {view === "full" && canManage && (
+            <span className="hidden font-mono text-[11.5px] text-mut 2xl:inline">
+              {t("inlineHint")}
+            </span>
+          )}
         </div>
       </div>
 
@@ -270,6 +277,29 @@ export function SpecViews({
       {view === "grid" && <GridView items={items} />}
       {view === "board" && (
         <MaterialBoard projectId={projectId} items={items} canManage={canManage} initialLayout={boardLayout} />
+      )}
+
+      {/* 2D bottom bar: ticked summary + RFQ CTA (the mock's Request Samples
+          + Quotes row). Same action as the toolbar button. */}
+      {view === "full" && canManage && (
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line px-4 py-3">
+          <span className="font-mono text-xs text-mut">
+            {t("tickedSummary", { n: selectedValid.length })}
+          </span>
+          <button
+            type="button"
+            onClick={() => setModal("rfq")}
+            disabled={selectedValid.length === 0}
+            className={cn(
+              "rounded-sm px-[18px] py-2.5 text-sm font-semibold transition",
+              selectedValid.length > 0
+                ? "bg-brand text-white hover:bg-brand-deep"
+                : "cursor-not-allowed bg-canvas-2 text-mut",
+            )}
+          >
+            📨 {t("requestQuote")}
+          </button>
+        </div>
       )}
 
       {canManage && (
@@ -372,35 +402,60 @@ function CompactView({ items }: { items: SpecRow[] }) {
   );
 }
 
-// ── Grid: a card per spec line ────────────────────────────────────────
+// ── Cards (3O): swatch hero on top, code chip + status, zone as the title ──
 function GridView({ items }: { items: SpecRow[] }) {
+  const t = useTranslations("projects");
   return (
-    <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((it) => (
-        <div key={it.id} className="flex flex-col gap-2 rounded-card border border-line bg-surface p-3 shadow-soft">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold text-ink">{it.code}</span>
-            <StatusChip status={it.status} count={it.options.length || undefined} />
-          </div>
-          <div className="text-xs text-sub">
-            {[it.zone, it.qty ? `${it.qty} ${it.qtyUnit}` : ""].filter(Boolean).join(" · ") || "—"}
-          </div>
-          {it.options.length > 0 ? (
-            <div className="mt-1 flex gap-1.5">
-              {boardOrder(it.options).map((o) => (
-                <OptSwatch
-                  key={o.materialId}
-                  hex={o.swatchHex}
-                  category={o.category}
-                  className={cn("h-9 w-9 rounded-[6px]", !o.isConfirmed && "opacity-40")}
-                />
-              ))}
+    <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {items.map((it) => {
+        const hero = confirmedOf(it) ?? it.options[0] ?? null;
+        return (
+          <div
+            key={it.id}
+            className="flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-soft"
+          >
+            {hero?.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={hero.image} alt="" className="h-24 w-full object-cover" />
+            ) : (
+              <OptSwatch
+                hex={hero?.swatchHex ?? "#ece7de"}
+                category={hero?.category ?? it.category}
+                className="h-24 w-full rounded-none"
+              />
+            )}
+            <div className="flex flex-col gap-1 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="rounded-[6px] border border-line px-1.5 py-0.5 font-mono text-[11px] text-sub">
+                  {it.code}
+                </span>
+                <StatusChip status={it.status} count={it.options.length || undefined} />
+              </div>
+              <div className="mt-1 truncate text-sm font-bold text-ink">
+                {it.zone || it.code}
+              </div>
+              <div className={cn("truncate text-[13px]", hero ? "text-sub" : "text-mut")}>
+                {hero ? [hero.name, hero.brand].filter(Boolean).join(" · ") : t("noMaterialYet")}
+              </div>
+              <div className="font-mono text-xs text-mut">
+                {it.qty ? `${it.qty} ${it.qtyUnit}` : "—"}
+              </div>
+              {it.options.length > 1 && (
+                <div className="mt-1 flex gap-1">
+                  {boardOrder(it.options).map((o) => (
+                    <OptSwatch
+                      key={o.materialId}
+                      hex={o.swatchHex}
+                      category={o.category}
+                      className={cn("h-4 w-4 rounded-[3px]", !o.isConfirmed && "opacity-40")}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-xs text-mut">—</div>
-          )}
-        </div>
-      ))}
+          </div>
+        );
+      })}
     </div>
   );
 }

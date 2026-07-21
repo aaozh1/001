@@ -18,6 +18,7 @@ export interface DashboardSummary {
   veSavingsThb: number;
   veSwaps: number;
   attention: AttentionProject[];
+  projectRows: ProjectRow[];
 }
 
 export interface AttentionProject {
@@ -25,6 +26,28 @@ export interface AttentionProject {
   name: string;
   optionsPending: number;
   quotesToReview: number;
+}
+
+// 2B "Active projects" rows — every active project with its specified/pending
+// counts, newest work first.
+export interface ProjectRow {
+  id: string;
+  name: string;
+  lineItems: number;
+  confirmed: number;
+  optionsPending: number;
+  quotesToReview: number;
+  updatedAt: Date;
+}
+
+// 2B "Recent quote activity" feed — the latest quotes landing across the org.
+export interface QuoteActivity {
+  sellerName: string;
+  code: string;
+  projectName: string;
+  priceLabel: string;
+  status: string;
+  at: Date;
 }
 
 export async function getDesignerDashboard(orgId: string): Promise<DashboardSummary> {
@@ -47,25 +70,30 @@ export async function getDesignerDashboard(orgId: string): Promise<DashboardSumm
       }),
       prisma.project.findMany({
         where: { orgId, status: "active" },
+        orderBy: { updatedAt: "desc" },
         select: {
           id: true,
           name: true,
-          specItems: {
-            where: { confirmedMaterialId: null, options: { some: {} } },
-            select: { id: true },
-          },
+          updatedAt: true,
+          specItems: { select: { confirmedMaterialId: true, options: { select: { id: true }, take: 1 } } },
           rfqs: { where: { status: "quoted" }, select: { id: true } },
         },
       }),
     ]);
 
-  const attention: AttentionProject[] = projects
-    .map((p) => ({
-      id: p.id,
-      name: p.name,
-      optionsPending: p.specItems.length,
-      quotesToReview: p.rfqs.length,
-    }))
+  const rows: ProjectRow[] = projects.map((p) => ({
+    id: p.id,
+    name: p.name,
+    updatedAt: p.updatedAt,
+    lineItems: p.specItems.length,
+    confirmed: p.specItems.filter((s) => s.confirmedMaterialId != null).length,
+    optionsPending: p.specItems.filter(
+      (s) => s.confirmedMaterialId == null && s.options.length > 0,
+    ).length,
+    quotesToReview: p.rfqs.length,
+  }));
+
+  const attention: AttentionProject[] = rows
     .filter((p) => p.optionsPending > 0 || p.quotesToReview > 0)
     .sort((a, b) => b.quotesToReview - a.quotesToReview || b.optionsPending - a.optionsPending);
 
@@ -77,7 +105,43 @@ export async function getDesignerDashboard(orgId: string): Promise<DashboardSumm
     veSavingsThb: 0,
     veSwaps: 0,
     attention,
+    projectRows: rows,
   };
+}
+
+/** Latest quotes received across the org (2B activity feed). Fail-safe. */
+export async function getQuoteActivity(orgId: string, limit = 5): Promise<QuoteActivity[]> {
+  try {
+    const quotes = await prisma.quote.findMany({
+      where: { rfq: { project: { orgId } } },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        pricePerUnit: true,
+        status: true,
+        createdAt: true,
+        seller: { select: { name: true } },
+        rfq: {
+          select: {
+            specItem: { select: { code: true, qtyUnit: true } },
+            project: { select: { name: true } },
+          },
+        },
+      },
+    });
+    return quotes.map((q) => ({
+      sellerName: q.seller.name,
+      code: q.rfq.specItem.code,
+      projectName: q.rfq.project.name,
+      priceLabel: `฿${Number(q.pricePerUnit).toLocaleString()}${
+        q.rfq.specItem.qtyUnit ? `/${q.rfq.specItem.qtyUnit}` : ""
+      }`,
+      status: q.status,
+      at: q.createdAt,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 // ── Onboarding checklist (3 ก้าวแรกสู่ "aha moment") ───────────────────

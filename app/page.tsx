@@ -101,7 +101,10 @@ export default async function Home() {
           {t("eyebrow")}
         </span>
         <h1 className="max-w-[820px] text-[38px] font-bold leading-[1.05] tracking-[-.03em] text-ink sm:text-[54px] lg:text-[60px] sm:leading-[1.02]">
-          {t("h1")}
+          {/* <nb> keeps long Thai words (ซัพพลายเออร์) from breaking mid-word */}
+          {t.rich("h1", {
+            nb: (chunk) => <span className="whitespace-nowrap">{chunk}</span>,
+          })}
         </h1>
         <p className="max-w-[560px] text-[17px] leading-[1.55] text-[#6b6760] sm:text-[19px]">
           {t("heroSub")}
@@ -140,19 +143,22 @@ export default async function Home() {
       <section className="px-6 sm:px-12">
         <Link
           href="/catalog"
-          className="block h-[280px] overflow-hidden rounded-[18px] border border-[#eae4da] bg-canvas sm:h-[420px]"
+          className="group relative block h-[280px] overflow-hidden rounded-[18px] border border-[#eae4da] bg-canvas sm:h-[420px]"
           aria-label={t("previewAlt")}
         >
-          {/* Placeholder until real product screenshot photography lands
-              (handoff: image slots require real imagery). */}
-          <div className="flex h-full flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#faf8f4_25%,#f5f2ec_25%,#f5f2ec_50%,#faf8f4_50%,#faf8f4_75%,#f5f2ec_75%)] bg-[length:28px_28px]">
-            <span className="font-mono text-[12px] uppercase tracking-[.14em] text-mut">
-              {t("previewLabel")}
-            </span>
-            <span className="rounded-pill border border-line-3 bg-surface px-4 py-2 text-sm font-semibold text-ink">
+          {/* Real app screenshot in the 1B preview slot; the catalog door
+              stays as a pill overlay. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/preview-schedule.png"
+            alt={t("previewAlt")}
+            className="h-full w-full object-cover object-top"
+          />
+          <span className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-black/25 to-transparent pb-6 pt-14">
+            <span className="rounded-pill border border-line-3 bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-lifted transition group-hover:border-brand group-hover:text-brand">
               {t("previewCta")} →
             </span>
-          </div>
+          </span>
         </Link>
       </section>
 
@@ -179,15 +185,16 @@ export default async function Home() {
           </h2>
         </div>
         <div className="grid gap-6 sm:grid-cols-3">
+          {/* 1B: dashed image slots with mono captions — real photography
+              lands later (handoff note), so the slot look matches the mock. */}
           {steps.map((st) => (
             <div key={st.no} className="flex flex-col overflow-hidden rounded-2xl border border-line">
-              <div
-                className="flex h-[150px] items-center justify-center border-b border-line font-mono text-[44px] text-brand-deep/40"
-                style={{ backgroundColor: st.tint }}
-              >
-                {st.no}
+              <div className="m-2.5 flex h-[130px] items-center justify-center rounded-[12px] border border-dashed border-line-3 bg-canvas">
+                <span className="font-mono text-[11px] uppercase tracking-[.1em] text-mut">
+                  {st.title}
+                </span>
               </div>
-              <div className="flex flex-col gap-2.5 p-[22px]">
+              <div className="flex flex-col gap-2.5 px-[22px] pb-[22px] pt-2">
                 <span className="font-mono text-[13px] text-brand">{st.no}</span>
                 <h3 className="text-[19px] font-semibold tracking-[-.01em] text-ink">{st.title}</h3>
                 <p className="text-[14px] leading-[1.55] text-[#6b6760]">{st.body}</p>

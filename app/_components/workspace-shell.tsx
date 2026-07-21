@@ -137,7 +137,7 @@ export async function WorkspaceShell({
             <div className="font-mono text-[10.5px] uppercase tracking-[.08em] text-mut">
               {sellerFoot.orgName}
             </div>
-            <div className="mt-1 text-[12.5px] text-dark-text">{t("seller.center")}</div>
+            <div className="mt-1 text-[12.5px] text-dark-text">{t("shell.sellerPlan")}</div>
           </div>
         )}
       </aside>
