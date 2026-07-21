@@ -9,6 +9,7 @@ export interface SpecBookVersion {
   version: number;
   dateLabel: string;
   shareToken: string | null;
+  diff?: { added: number; removed: number; changed: number; confirmed: number } | null;
 }
 
 // Spec Book — now an icon button above the Material List; the modal holds the
@@ -113,7 +114,7 @@ export function SpecBookModal({
           setList((prev) =>
             prev.some((b) => b.version === r.version)
               ? prev
-              : [{ version: r.version!, dateLabel: "", shareToken: null }, ...prev],
+              : [{ version: r.version!, dateLabel: "", shareToken: null, diff: null }, ...prev],
           );
         } else {
           setFailed(true);
@@ -151,6 +152,18 @@ export function SpecBookModal({
                   {b.dateLabel ? <span className="text-mut"> · {b.dateLabel}</span> : null}
                   {created === b.version && (
                     <span className="ml-2 font-medium text-ok">✓ {t("sbReady")}</span>
+                  )}
+                  {b.diff && b.version > 1 && (
+                    <span className="ml-2 font-mono text-[11px] text-mut">
+                      {[
+                        b.diff.added > 0 ? `+${b.diff.added}` : null,
+                        b.diff.removed > 0 ? `−${b.diff.removed}` : null,
+                        b.diff.changed > 0 ? t("sbChanged", { n: b.diff.changed }) : null,
+                        b.diff.confirmed > 0 ? t("sbConfirmed", { n: b.diff.confirmed }) : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
                   )}
                 </span>
                 <span className="flex flex-wrap items-center gap-3">

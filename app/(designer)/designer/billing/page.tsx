@@ -129,6 +129,9 @@ export default async function BillingPage() {
           </div>
         )}
       </Card>
+      <p className="mt-6 text-center font-mono text-[11.5px] text-mut">
+        {t("neutralityNote")}
+      </p>
     </div>
   );
 }

@@ -131,11 +131,24 @@ export async function listSpecBooks(orgId: string, projectId: string) {
     select: { id: true },
   });
   if (!project) return null;
-  return prisma.specBook.findMany({
+  const books = await prisma.specBook.findMany({
     where: { projectId },
-    orderBy: { version: "desc" },
-    select: { version: true, createdAt: true, shareToken: true },
+    orderBy: { version: "asc" },
+    select: { version: true, createdAt: true, shareToken: true, snapshot: true },
   });
+  // 5G: summarise what changed vs the previous version.
+  const { diffSnapshots } = await import("./diff");
+  const out = books.map((b, i) => {
+    const prev = i > 0 ? (books[i - 1].snapshot as unknown as SpecBookSnapshot | null) : null;
+    const cur = b.snapshot as unknown as SpecBookSnapshot | null;
+    return {
+      version: b.version,
+      createdAt: b.createdAt,
+      shareToken: b.shareToken,
+      diff: cur ? diffSnapshots(prev, cur) : null,
+    };
+  });
+  return out.reverse();
 }
 
 /** Enable/disable the public share link for a version (เพิกถอนได้ตลอด). */
@@ -157,7 +170,12 @@ export async function setSpecBookShare(
   if (book.shareToken) return { ok: true, token: book.shareToken };
   const { randomBytes } = await import("crypto");
   const token = randomBytes(9).toString("base64url");
-  await prisma.specBook.update({ where: { id: book.id }, data: { shareToken: token } });
+  // 5F: links auto-expire after 30 days; re-enable mints a fresh window.
+  const shareExpiresAt = new Date(Date.now() + 30 * 24 * 3_600_000);
+  await prisma.specBook.update({
+    where: { id: book.id },
+    data: { shareToken: token, shareExpiresAt },
+  });
   return { ok: true, token };
 }
 
@@ -166,9 +184,60 @@ export async function getSharedSpecBook(token: string) {
   if (!/^[A-Za-z0-9_-]{8,24}$/.test(token)) return null;
   const book = await prisma.specBook.findUnique({
     where: { shareToken: token },
-    select: { version: true, snapshot: true, createdAt: true },
+    select: {
+      id: true,
+      version: true,
+      snapshot: true,
+      createdAt: true,
+      shareExpiresAt: true,
+      project: { select: { orgId: true, name: true } },
+    },
   });
+  if (!book) return null;
+  if (book.shareExpiresAt && book.shareExpiresAt.getTime() < Date.now()) return null;
   return book;
+}
+
+// ── 5F: guest approvals & comments on the share page ───────────────────
+export interface ItemFeedback {
+  approvals: number;
+  comments: { guestName: string; comment: string }[];
+}
+
+export async function listShareFeedback(
+  specBookId: string,
+): Promise<Map<string, ItemFeedback>> {
+  const rows = await prisma.shareFeedback.findMany({
+    where: { specBookId },
+    orderBy: { createdAt: "asc" },
+    select: { itemCode: true, guestName: true, kind: true, comment: true },
+  });
+  const map = new Map<string, ItemFeedback>();
+  for (const r of rows) {
+    const f = map.get(r.itemCode) ?? { approvals: 0, comments: [] };
+    if (r.kind === "approve") f.approvals++;
+    else if (r.comment) f.comments.push({ guestName: r.guestName, comment: r.comment });
+    map.set(r.itemCode, f);
+  }
+  return map;
+}
+
+export async function addShareFeedback(
+  token: string,
+  input: { itemCode: string; guestName: string; kind: "approve" | "comment"; comment?: string },
+): Promise<boolean> {
+  const book = await getSharedSpecBook(token);
+  if (!book) return false;
+  await prisma.shareFeedback.create({
+    data: {
+      specBookId: book.id,
+      itemCode: input.itemCode.slice(0, 40),
+      guestName: input.guestName.slice(0, 60),
+      kind: input.kind,
+      comment: input.kind === "comment" ? (input.comment ?? "").slice(0, 500) : null,
+    },
+  });
+  return true;
 }
 
 /** The frozen snapshot for one version (org-scoped). */

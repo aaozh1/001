@@ -375,7 +375,9 @@
     "boardPresentClose": "Close",
     "specProgress": "{confirmed} of {total} specified",
     "specMeta": "{pending} options pending · {quoted} quoted",
-    "bestValue": "Best value"
+    "bestValue": "Best value",
+    "sbChanged": "{n} changed",
+    "sbConfirmed": "{n} newly confirmed"
   },
   "seller": {
     "center": "Seller Center",
@@ -531,7 +533,8 @@
     "colAmount": "Amount",
     "colTaxInvoice": "Tax invoice",
     "download": "Download",
-    "preparing": "Preparing"
+    "preparing": "Preparing",
+    "neutralityNote": "Neutrality is never for sale — every plan sees the same spec-ranked results"
   },
   "library": {
     "navLabel": "📚 Library",
@@ -784,7 +787,8 @@
     "justNow": "just now",
     "minsAgo": "{n} min ago",
     "hoursAgo": "{n} h ago",
-    "daysAgo": "{n} d ago"
+    "daysAgo": "{n} d ago",
+    "shareFb": "📝 {guest} {kind, select, approve {approved} other {commented on}} {code} in the share link ({project})"
   },
   "ve": {
     "cta": "Find cheaper (VE)",
@@ -812,7 +816,17 @@
     "createLink": "Create share link",
     "copyLink": "Copy link",
     "copied": "Copied",
-    "revoke": "Revoke link"
+    "revoke": "Revoke link",
+    "approvedN": "Approved {n}",
+    "openForm": "Approve / comment",
+    "closeForm": "Close",
+    "guestName": "Your name",
+    "commentPh": "Comment to the designer (optional when approving)…",
+    "sendComment": "Send comment",
+    "approve": "Approve this item",
+    "approved": "Approved",
+    "fbFailed": "Failed — try again",
+    "expires": "Link valid until"
   },
   "palette": {
     "title": "Search & jump anywhere",

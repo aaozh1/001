@@ -476,7 +476,9 @@ model SpecBook {
   version   Int
   pdfUrl    String?
   // ลิงก์แชร์สาธารณะ (nullable = ยังไม่เปิดแชร์) — เพิกถอนได้โดยตั้งกลับเป็น null
-  shareToken String? @unique
+  shareToken     String?   @unique
+  // ลิงก์หมดอายุอัตโนมัติ (ตั้งตอนเปิดแชร์) — 5F expiring link
+  shareExpiresAt DateTime?
   // Frozen render data for this version (project + items + options + material
   // details at export time). The PDF is regenerated from this so an old version
   // stays faithful even after the schedule changes. pdfUrl stays for future S3.
@@ -484,7 +486,8 @@ model SpecBook {
   createdBy String?
   createdAt DateTime @default(now())
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project  Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  feedback ShareFeedback[]
 
   @@unique([projectId, version])
   @@index([projectId])
@@ -580,4 +583,21 @@ model Notification {
 
   @@index([userId, readAt])
   @@index([userId, createdAt])
+}
+
+// ── 5F: feedback จากลูกค้า/ผู้รับเหมาบนหน้าแชร์ Spec Book ─────────────
+// ผูกกับ SpecBook (ลิงก์ถูกเพิกถอน → feedback หยุดรับ แต่ประวัติคงอยู่)
+model ShareFeedback {
+  id         String   @id @default(cuid())
+  specBookId String
+  itemCode   String
+  guestName  String
+  // approve | comment
+  kind       String
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  specBook SpecBook @relation(fields: [specBookId], references: [id], onDelete: Cascade)
+
+  @@index([specBookId, itemCode])
 }

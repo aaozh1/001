@@ -6,7 +6,12 @@ import { prisma } from "@/lib/db";
 // read-state is personal. Creation is fire-safe: a notification must never
 // break the business action it decorates.
 
-export type NotificationType = "rfq_new" | "quote_in" | "quote_won" | "chat_new";
+export type NotificationType =
+  | "rfq_new"
+  | "quote_in"
+  | "quote_won"
+  | "chat_new"
+  | "share_feedback";
 
 export interface NotificationView {
   id: string;

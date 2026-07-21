@@ -92,6 +92,13 @@ export function NotificationBell() {
         return t("quoteWon", { code: String(p.code ?? ""), project: String(p.project ?? "") });
       case "chat_new":
         return t("chatNew", { project: String(p.project ?? "") });
+      case "share_feedback":
+        return t("shareFb", {
+          guest: String(p.guest ?? ""),
+          code: String(p.code ?? ""),
+          project: String(p.project ?? ""),
+          kind: String(p.kind ?? "comment"),
+        });
       default:
         return item.type;
     }

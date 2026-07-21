@@ -375,7 +375,9 @@
     "boardPresentClose": "ปิด",
     "specProgress": "ยืนยันแล้ว {confirmed} จาก {total}",
     "specMeta": "รอเลือก {pending} · ได้ราคา {quoted}",
-    "bestValue": "คุ้มสุด"
+    "bestValue": "คุ้มสุด",
+    "sbChanged": "เปลี่ยน {n}",
+    "sbConfirmed": "ยืนยันเพิ่ม {n}"
   },
   "seller": {
     "center": "Center ผู้ขาย",
@@ -531,7 +533,8 @@
     "colAmount": "จำนวนเงิน",
     "colTaxInvoice": "ใบกำกับภาษี",
     "download": "ดาวน์โหลด",
-    "preparing": "กำลังจัดเตรียม"
+    "preparing": "กำลังจัดเตรียม",
+    "neutralityNote": "ความเป็นกลางไม่มีขาย — ทุกแผนเห็นผลค้นหาเรียงตามความตรงสเปกเท่ากันหมด"
   },
   "library": {
     "navLabel": "📚 คลังส่วนตัว",
@@ -784,7 +787,8 @@
     "justNow": "เมื่อครู่",
     "minsAgo": "{n} นาทีที่แล้ว",
     "hoursAgo": "{n} ชม.ที่แล้ว",
-    "daysAgo": "{n} วันที่แล้ว"
+    "daysAgo": "{n} วันที่แล้ว",
+    "shareFb": "📝 {guest} {kind, select, approve {อนุมัติ} other {คอมเมนต์}} รายการ {code} ในลิงก์แชร์ ({project})"
   },
   "ve": {
     "cta": "หาตัวถูกกว่า (VE)",
@@ -812,7 +816,17 @@
     "createLink": "สร้างลิงก์แชร์",
     "copyLink": "คัดลอกลิงก์",
     "copied": "คัดลอกแล้ว",
-    "revoke": "ยกเลิกลิงก์"
+    "revoke": "ยกเลิกลิงก์",
+    "approvedN": "อนุมัติแล้ว {n}",
+    "openForm": "อนุมัติ / คอมเมนต์",
+    "closeForm": "ปิด",
+    "guestName": "ชื่อของคุณ",
+    "commentPh": "คอมเมนต์ถึงผู้ออกแบบ (ไม่บังคับถ้ากดอนุมัติ)…",
+    "sendComment": "ส่งคอมเมนต์",
+    "approve": "อนุมัติรายการนี้",
+    "approved": "อนุมัติแล้ว",
+    "fbFailed": "ส่งไม่สำเร็จ ลองใหม่อีกครั้ง",
+    "expires": "ลิงก์ใช้ได้ถึง"
   },
   "palette": {
     "title": "ค้นหาและไปได้ทุกที่",
