@@ -228,3 +228,41 @@ model CreditTransaction {
 4. **Q4/Q6** validate ราคา + โมเดลของแถมฟรี กับผู้ขาย 5–10 ราย
 5. **ข้อ 2** อนุมัติ/แก้ schema diff ก่อนทำ migration
 6. ยืนยันว่าจัดเป็น **Phase 5** (หลัง 3.5 + 4.1) — ไม่แซงคิว
+
+---
+
+## 6. UI Reframe Spec (พร้อม implement — ยังไม่เขียนโค้ด)
+
+> เอกสารสเปกระดับ component เพื่อให้กดทำได้ทันทีเมื่อ Phase 5 ปลดล็อก
+> **ยังไม่แตะโค้ด** เพราะเป็นการเปลี่ยน core/agreed flow ที่อยู่ในข้อเสนอที่ยังไม่อนุมัติ
+
+### 6.1 Audit สภาพปัจจุบัน (grep ยืนยัน)
+บนหน้า Material List (`app/(designer)/designer/projects/[id]/_components/spec-views.tsx`) **RFQ เป็น CTA เด่นอยู่แล้วถึง 3 จุด**:
+| จุด | ตำแหน่งโค้ด | สภาพ |
+|---|---|---|
+| ปุ่ม toolbar "📨 ขอราคา" | `spec-views.tsx:246` | เปลี่ยนเป็นเต็มสีแบรนด์เมื่อ tick แถว |
+| Bottom-bar CTA | `spec-views.tsx:385` | ปุ่มขอราคาที่แถบสรุปล่าง |
+| Floating bulk-action bar | `spec-views.tsx:408` | ลอยขึ้นตอน tick แถว |
+
+→ ปัจจุบัน RFQ *คือ* CTA กลางโดยพฤตินัย ตรงข้ามกับเป้าหมายบรีฟ (ให้ build/sync material list เป็นหลัก)
+
+### 6.2 Target state (ตามบรีฟ ข้อ 5)
+- **CTA กลางดีไซเนอร์** = "เพิ่มเข้า material list / sync เข้าแบบ" (value จริงของดีไซเนอร์)
+- **RFQ + sample + contact** = action ต่อแถวสเปก (secondary) ราคาเท่ากันทุกเจ้าใน type
+- **ฝั่งผู้ขาย** = inbox แยก type + credit cost/lead + ยอด wallet
+
+### 6.3 Change list ระดับไฟล์ (เมื่ออนุมัติแล้วเท่านั้น)
+| ไฟล์ | การเปลี่ยน | สถานะ |
+|---|---|---|
+| `spec-views.tsx` | ลดน้ำหนักปุ่ม RFQ (brand→ghost), ยุบ CTA ซ้ำ 3 จุด, ดัน sync/add material list ขึ้นเป็น primary | ✅ ปลอดภัย (UI ล้วน) — **รอ approve การเปลี่ยน agreed flow** |
+| spec row (`spec-table.tsx`) | เพิ่ม action ต่อแถว: `📨 ขอราคา` + (`🧪 ขอตัวอย่าง` `✉️ ขอติดต่อ`) | ⚠️ ปุ่ม sample/contact = **blocked** (PDPA+schema) — ทำได้เฉพาะ RFQ ก่อน |
+| seller inbox (`app/(seller)/seller/rfq/**`) | แยก tab ตาม type + แสดง credit cost + ยอด wallet | 🛑 **blocked** (wallet schema ยังไม่อนุมัติ) |
+| `lib/i18n/messages/{th,en}.json` | key ใหม่: `requestSample`, `requestContact`, `walletBalance`, `creditCost` ฯลฯ | ทำพร้อมฟีเจอร์ที่ปลดล็อก |
+
+### 6.4 Safe slice ที่ทำได้เลย (ถ้าคุณอนุมัติเฉพาะส่วนนี้)
+สิ่งเดียวที่ปลอดภัย 100% ตอนนี้ = **rebalance ความเด่นของ RFQ CTA** ใน `spec-views.tsx` (brand→ghost + ยุบ CTA ซ้ำ) โดยไม่เพิ่มปุ่มใหม่ ไม่แตะ billing/PDPA/schema
+- **ข้อดี:** ขยับทิศทางไปตามบรีฟได้ก่อน
+- **ข้อเสีย/ความเสี่ยง:** เป็นการแก้ *agreed UX* (งาน #83 ที่ทำเสร็จแล้ว) และ rationale เต็ม (RFQ เป็น 1 ใน 3 event) ยังไม่ครบจน sample/contact เกิด → อาจต้องปรับซ้ำ
+- **คำแนะนำผม:** *ยังไม่ควรทำ safe slice นี้* จนกว่าจะเคาะ schema + PDPA เพราะจะได้ reframe ครบทีเดียว ไม่แก้ 2 รอบ
+
+> ทั้งหมดในข้อ 6 = พร้อมกดทำเมื่อ 🛑 ในข้อ 5 ถูกปลดล็อก
