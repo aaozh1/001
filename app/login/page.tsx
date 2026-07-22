@@ -17,7 +17,7 @@ export default async function LoginPage() {
           "not set up yet" state otherwise (never a fake working button). */}
       <div className="my-5 flex items-center gap-3">
         <span className="h-px flex-1 bg-line" />
-        <span className="font-mono text-[10.5px] uppercase tracking-[.1em] text-mut">
+        <span className="font-mono text-[13.125px] uppercase tracking-[.1em] text-mut">
           {t("or")}
         </span>
         <span className="h-px flex-1 bg-line" />

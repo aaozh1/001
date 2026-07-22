@@ -100,16 +100,16 @@ export function SpecOptionsPanel({
                         className="h-16 rounded-none"
                       />
                       {o.isConfirmed && (
-                        <span className="absolute right-1.5 top-1.5 rounded-pill bg-ok px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                        <span className="absolute right-1.5 top-1.5 rounded-pill bg-ok px-1.5 py-0.5 text-[12.5px] font-semibold text-white">
                           ✓ {t("confirmed")}
                         </span>
                       )}
                     </div>
-                    <div className="mt-1.5 line-clamp-2 text-[13px] font-semibold text-ink">
+                    <div className="mt-1.5 line-clamp-2 text-[16.25px] font-semibold text-ink">
                       {o.name}
                     </div>
                     {o.materialId === bestValueId && (
-                      <span className="mt-1 inline-block rounded-pill bg-ok-soft px-2 py-0.5 font-mono text-[10.5px] font-semibold text-ok">
+                      <span className="mt-1 inline-block rounded-pill bg-ok-soft px-2 py-0.5 font-mono text-[13.125px] font-semibold text-ok">
                         ★ {t("bestValue")}
                       </span>
                     )}
@@ -240,7 +240,7 @@ export function SpecOptionsPanel({
             {t("customBrand")}
             <Input value={customBrand} onChange={(e) => setCustomBrand(e.target.value)} />
           </label>
-          <p className="font-mono text-[11px] text-mut">{t("customNote")}</p>
+          <p className="font-mono text-[13.75px] text-mut">{t("customNote")}</p>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setCustomOpen(false)}>
               {t("cancel")}

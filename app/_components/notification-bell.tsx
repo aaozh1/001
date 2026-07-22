@@ -120,11 +120,11 @@ export function NotificationBell() {
         onClick={() => setOpen((v) => !v)}
         aria-label={t("title")}
         aria-expanded={open}
-        className="relative rounded-pill px-2 py-1 text-[17px] leading-none text-sub hover:text-ink"
+        className="relative rounded-pill px-2 py-1 text-[21.25px] leading-none text-sub hover:text-ink"
       >
         🔔
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-pill bg-brand px-1 text-[10px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-pill bg-brand px-1 text-[12.5px] font-bold text-white">
             {unread > 9 ? "9+" : unread}
           </span>
         )}

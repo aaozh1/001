@@ -39,7 +39,7 @@ export default async function DesignerChatThreadPage({ params }: Props) {
           <h1 className="text-xl font-bold tracking-tight text-ink">
             {t("withSeller")} {header.sellerName ?? "—"}
           </h1>
-          <span className="font-mono text-[11px] text-ok">✓ {t("verifiedSeller")}</span>
+          <span className="font-mono text-[13.75px] text-ok">✓ {t("verifiedSeller")}</span>
         </span>
       </header>
 
@@ -56,7 +56,7 @@ export default async function DesignerChatThreadPage({ params }: Props) {
       <div className="mt-4">
         <ChatPanel threadId={header.threadId} />
       </div>
-      <p className="mt-3 text-center font-mono text-[11px] text-mut">{t("historyHint")}</p>
+      <p className="mt-3 text-center font-mono text-[13.75px] text-mut">{t("historyHint")}</p>
     </div>
   );
 }

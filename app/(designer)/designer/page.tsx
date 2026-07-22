@@ -39,8 +39,8 @@ export default async function DesignerDashboard() {
   const metric = (label: string, value: number | string, href?: string, accent?: boolean) => {
     const inner = (
       <Card className={`gap-1 ${href ? "transition hover:shadow-lifted" : ""}`} padded>
-        <span className="font-mono text-[26px] font-semibold text-brand-deep">{value}</span>
-        <span className={`text-[12.5px] ${accent ? "text-brand" : "text-mut"}`}>{label}</span>
+        <span className="font-mono text-[32.5px] font-semibold text-brand-deep">{value}</span>
+        <span className={`text-[15.625px] ${accent ? "text-brand" : "text-mut"}`}>{label}</span>
       </Card>
     );
     return href ? (
@@ -71,14 +71,14 @@ export default async function DesignerDashboard() {
     <div className="mx-auto max-w-4xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-[20px] font-bold tracking-[-.01em] text-ink">
+          <h1 className="text-[25px] font-bold tracking-[-.01em] text-ink">
             {t("welcome", { name })}
           </h1>
-          <p className="mt-0.5 text-[13px] text-mut">{t("subtitle")}</p>
+          <p className="mt-0.5 text-[16.25px] text-mut">{t("subtitle")}</p>
         </div>
         <Link
           href="/designer/projects"
-          className="inline-flex rounded-sm bg-brand px-[18px] py-2.5 text-[14px] font-semibold text-white transition hover:bg-brand-deep"
+          className="inline-flex rounded-sm bg-brand px-[18px] py-2.5 text-[17.5px] font-semibold text-white transition hover:bg-brand-deep"
         >
           ＋ {t("goProjects")}
         </Link>
@@ -97,10 +97,10 @@ export default async function DesignerDashboard() {
               />
             ))}
           </div>
-          <h2 className="mt-6 text-[26px] font-bold tracking-tight text-ink">
+          <h2 className="mt-6 text-[32.5px] font-bold tracking-tight text-ink">
             {t("welcomeNewTitle")}
           </h2>
-          <p className="mt-2 text-[15px] leading-relaxed text-sub">{t("welcomeNewBody")}</p>
+          <p className="mt-2 text-[18.75px] leading-relaxed text-sub">{t("welcomeNewBody")}</p>
           <div className="mt-5 flex gap-2.5">
             <Link href="/designer/projects" className={buttonClasses({})}>
               ＋ {t("startCreate")}
@@ -129,7 +129,7 @@ export default async function DesignerDashboard() {
           <div className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-1 font-mono text-xs text-mut">
             {[t("onboardOption"), t("onboardRfq"), t("onboardBook")].map((s, i) => (
               <span key={s} className="flex items-center gap-1.5">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-canvas-2 text-[9px] font-bold">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-canvas-2 text-[11.25px] font-bold">
                   {i + 1}
                 </span>
                 {s}
@@ -171,7 +171,7 @@ export default async function DesignerDashboard() {
       {!fresh && summary.projectRows.length > 0 && (
         <section className="mt-6">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-[16px] font-bold text-ink">{t("activeTitle")}</h2>
+            <h2 className="text-[20px] font-bold text-ink">{t("activeTitle")}</h2>
             <Link href="/designer/projects" className="text-sm font-semibold text-brand hover:underline">
               {t("viewAll")} →
             </Link>
@@ -181,11 +181,11 @@ export default async function DesignerDashboard() {
               <li key={p.id}>
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-line bg-surface px-4 py-3 shadow-soft">
                   <span className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-brand-soft text-[17px] text-brand-deep">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-brand-soft text-[21.25px] text-brand-deep">
                       ▦
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-[15px] font-bold text-ink">{p.name}</span>
+                      <span className="block truncate text-[18.75px] font-bold text-ink">{p.name}</span>
                       <span className="block font-mono text-xs text-mut">
                         {t("rowMeta", { items: p.lineItems, date: dateFmt.format(p.updatedAt) })}
                       </span>
@@ -193,7 +193,7 @@ export default async function DesignerDashboard() {
                   </span>
                   <span className="flex items-center gap-4">
                     <span className="text-right">
-                      <span className="block text-[13px] font-semibold text-ok">
+                      <span className="block text-[16.25px] font-semibold text-ok">
                         {t("rowConfirmed", { n: p.confirmed })}
                       </span>
                       {p.optionsPending > 0 && (
@@ -219,7 +219,7 @@ export default async function DesignerDashboard() {
       {/* 2B: Recent quote activity feed */}
       {!fresh && activity.length > 0 && (
         <section className="mt-6">
-          <h2 className="text-[16px] font-bold text-ink">{t("activityTitle")}</h2>
+          <h2 className="text-[20px] font-bold text-ink">{t("activityTitle")}</h2>
           <div className="mt-3 overflow-hidden rounded-card border border-line bg-surface shadow-soft">
             {activity.map((a, i) => (
               <div
@@ -227,7 +227,7 @@ export default async function DesignerDashboard() {
                 className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 last:border-0"
               >
                 <span className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-line bg-canvas font-mono text-[10px] font-semibold text-sub">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-line bg-canvas font-mono text-[12.5px] font-semibold text-sub">
                     {a.sellerName.slice(0, 2).toUpperCase()}
                   </span>
                   <span className="min-w-0">
@@ -240,11 +240,11 @@ export default async function DesignerDashboard() {
                   </span>
                 </span>
                 <span className="shrink-0 text-right">
-                  <span className="block font-mono text-[13px] font-semibold text-brand-deep">
+                  <span className="block font-mono text-[16.25px] font-semibold text-brand-deep">
                     {a.priceLabel}
                   </span>
                   {a.status === "selected" && (
-                    <span className="font-mono text-[11px] font-semibold text-ok">
+                    <span className="font-mono text-[13.75px] font-semibold text-ok">
                       ✓ {t("activityWon")}
                     </span>
                   )}

@@ -180,7 +180,7 @@ export function ImportWizard({ categories }: { categories: CategoryOpt[] }) {
   }
 
   const cell =
-    "w-full rounded-sm border border-line-2 bg-surface px-2 py-1 text-[13px] outline-none focus:border-brand";
+    "w-full rounded-sm border border-line-2 bg-surface px-2 py-1 text-[16.25px] outline-none focus:border-brand";
 
   // ── Step: source ─────────────────────────────────────────────────────
   if (step === "source") {

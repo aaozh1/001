@@ -85,7 +85,7 @@ export function InboxList({ rows }: { rows: InboxRow[] }) {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="truncate text-[15px] font-bold text-ink">
+                    <span className="truncate text-[18.75px] font-bold text-ink">
                       {r.materials || r.projectName}
                     </span>
                     {r.quoteStatus === "selected" ? (
@@ -104,7 +104,7 @@ export function InboxList({ rows }: { rows: InboxRow[] }) {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {!r.responded && (r.status === "open" || r.status === "quoted") && (
-                    <span className="rounded-pill bg-warn-soft px-2.5 py-1 font-mono text-[11px] font-semibold text-warn">
+                    <span className="rounded-pill bg-warn-soft px-2.5 py-1 font-mono text-[13.75px] font-semibold text-warn">
                       <SlaCountdown slaDueAt={r.slaDueAt} />
                     </span>
                   )}
@@ -142,7 +142,7 @@ export function InboxList({ rows }: { rows: InboxRow[] }) {
               )}
 
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="font-mono text-[11px] text-mut">
+                <span className="font-mono text-[13.75px] text-mut">
                   {r.slaDateLabel ? `${t("sla")}: ${r.slaDateLabel}` : ""}
                 </span>
                 <span className="flex gap-2">

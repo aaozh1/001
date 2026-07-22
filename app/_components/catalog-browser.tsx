@@ -113,13 +113,13 @@ export async function CatalogBrowser({
           {q && (
             <Link
               href={`${basePath}?${catalogParams({ filters, sort }).toString()}`}
-              className="rounded-pill border border-line-2 bg-canvas px-2 py-0.5 font-mono text-[11px] text-sub transition hover:border-brand hover:text-brand"
+              className="rounded-pill border border-line-2 bg-canvas px-2 py-0.5 font-mono text-[13.75px] text-sub transition hover:border-brand hover:text-brand"
             >
               🔍 {q} ✕
             </Link>
           )}
         </span>
-        <span className="font-mono text-[11.5px] text-mut">{t("neutral")}</span>
+        <span className="font-mono text-[14.375px] text-mut">{t("neutral")}</span>
       </div>
 
       {result.materials.length === 0 ? (
@@ -180,7 +180,7 @@ function CategoryChip({
       href={href}
       aria-current={active ? "true" : undefined}
       className={cn(
-        "rounded-pill border px-2.5 py-1 text-[13px] transition",
+        "rounded-pill border px-2.5 py-1 text-[16.25px] transition",
         active
           ? "border-dark bg-dark font-medium text-white"
           : "border-line-2 bg-surface text-sub hover:border-brand hover:text-brand",

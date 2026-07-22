@@ -60,12 +60,12 @@ export function Modal({
           onClick={onClose}
           autoFocus
           aria-label={resolvedCloseLabel}
-          className="absolute right-[14px] top-3 flex h-[30px] w-[30px] items-center justify-center rounded-pill bg-canvas text-[13px] text-sub hover:bg-line"
+          className="absolute right-[14px] top-3 flex h-[30px] w-[30px] items-center justify-center rounded-pill bg-canvas text-[16.25px] text-sub hover:bg-line"
         >
           ✕
         </button>
         {title && (
-          <h2 className="mb-3 pr-8 text-[16.5px] font-bold text-ink">{title}</h2>
+          <h2 className="mb-3 pr-8 text-[20.625px] font-bold text-ink">{title}</h2>
         )}
         {children}
       </div>

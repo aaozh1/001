@@ -34,7 +34,7 @@ export default async function SharedSpecBookPage({ params }: Props) {
             <div className="flex flex-wrap items-center gap-2.5">
               <Logo />
               {/* 5F: view-only chip like the mock */}
-              <span className="rounded-pill bg-canvas-2 px-2.5 py-0.5 font-mono text-[10.5px] uppercase tracking-[.06em] text-sub">
+              <span className="rounded-pill bg-canvas-2 px-2.5 py-0.5 font-mono text-[13.125px] uppercase tracking-[.06em] text-sub">
                 {t("viewOnly")} · {book.project.org.name}
               </span>
             </div>
@@ -47,7 +47,7 @@ export default async function SharedSpecBookPage({ params }: Props) {
                 .join(" · ")}
             </p>
           </div>
-          <p className="font-mono text-[11px] text-mut">
+          <p className="font-mono text-[13.75px] text-mut">
             {t("noAccount")}
             {book.shareExpiresAt &&
               ` · ${t("expires")} ${new Intl.DateTimeFormat(
@@ -84,7 +84,7 @@ export default async function SharedSpecBookPage({ params }: Props) {
                     <img src={o.image} alt={o.name} className="h-full w-full object-cover" />
                   )}
                   <span
-                    className={`absolute left-2 top-2 rounded-pill px-2 py-0.5 font-mono text-[10px] font-semibold ${
+                    className={`absolute left-2 top-2 rounded-pill px-2 py-0.5 font-mono text-[12.5px] font-semibold ${
                       approvals > 0
                         ? "bg-ok-soft text-ok"
                         : o.isConfirmed
@@ -99,11 +99,11 @@ export default async function SharedSpecBookPage({ params }: Props) {
                         : `? ${t("reviewing")}`}
                   </span>
                   <span className="absolute bottom-2 left-2 max-w-[88%] rounded-[9px] bg-white/95 px-2.5 py-1.5 shadow-soft">
-                    <span className="block font-mono text-[9px] leading-tight text-mut">
+                    <span className="block font-mono text-[11.25px] leading-tight text-mut">
                       {item.code}
                       {!o.isConfirmed && " · opt"}
                     </span>
-                    <span className="block truncate text-[11.5px] font-bold leading-tight text-ink">
+                    <span className="block truncate text-[14.375px] font-bold leading-tight text-ink">
                       {isEn && o.nameEn ? o.nameEn : o.name}
                     </span>
                   </span>
@@ -119,13 +119,13 @@ export default async function SharedSpecBookPage({ params }: Props) {
             {[...feedback.entries()].flatMap(([code, fb]) =>
               fb.comments.map((c, i) => (
                 <div key={`${code}-${i}`} className="rounded-sm border border-line bg-canvas px-3 py-2.5">
-                  <div className="text-[13px] font-bold text-ink">
+                  <div className="text-[16.25px] font-bold text-ink">
                     {c.guestName}
-                    <span className="ml-1.5 font-mono text-[10px] font-normal text-mut">
+                    <span className="ml-1.5 font-mono text-[12.5px] font-normal text-mut">
                       {t("onItem")} {code}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[13px] leading-snug text-sub">{c.comment}</p>
+                  <p className="mt-0.5 text-[16.25px] leading-snug text-sub">{c.comment}</p>
                 </div>
               )),
             )}
@@ -133,7 +133,7 @@ export default async function SharedSpecBookPage({ params }: Props) {
               <p className="text-sm text-mut">{t("noComments")}</p>
             )}
           </div>
-          <p className="mt-3 font-mono text-[10.5px] text-mut">{t("commentHint")}</p>
+          <p className="mt-3 font-mono text-[13.125px] text-mut">{t("commentHint")}</p>
         </aside>
       </section>
 

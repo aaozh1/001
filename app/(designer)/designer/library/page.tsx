@@ -37,7 +37,7 @@ export default async function LibraryPage() {
           <p className="mt-1 text-sub">{t("subtitle")}</p>
         </div>
         {/* 3I: Studio-feature chip, mono like the mock */}
-        <span className="rounded-pill bg-canvas-2 px-3 py-1 font-mono text-[11px] uppercase tracking-[.08em] text-sub">
+        <span className="rounded-pill bg-canvas-2 px-3 py-1 font-mono text-[13.75px] uppercase tracking-[.08em] text-sub">
           {t("studioChip")}
         </span>
       </header>

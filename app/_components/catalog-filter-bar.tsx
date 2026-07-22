@@ -80,10 +80,10 @@ export function CatalogFilterBar({
   }
 
   const sel =
-    "rounded-sm border border-line-2 bg-surface px-2.5 py-1.5 text-[13px] text-ink outline-none focus:border-brand";
+    "rounded-sm border border-line-2 bg-surface px-2.5 py-1.5 text-[16.25px] text-ink outline-none focus:border-brand";
   const toggleCls = (on: boolean) =>
     cn(
-      "rounded-pill border px-2.5 py-1.5 text-[13px] transition",
+      "rounded-pill border px-2.5 py-1.5 text-[16.25px] transition",
       on
         ? "border-brand bg-brand-soft font-medium text-brand"
         : "border-line-2 text-sub hover:border-brand hover:text-brand",
@@ -92,7 +92,7 @@ export function CatalogFilterBar({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Sort — explicit user choice; default stays neutral relevance. */}
-      <label className="flex items-center gap-1.5 text-[13px] text-sub">
+      <label className="flex items-center gap-1.5 text-[16.25px] text-sub">
         {t("sortLabel")}
         <select
           value={sort}
@@ -145,7 +145,7 @@ export function CatalogFilterBar({
       </div>
 
       {/* Price range */}
-      <div className="flex items-center gap-1 text-[13px] text-sub">
+      <div className="flex items-center gap-1 text-[16.25px] text-sub">
         <span>฿</span>
         <input
           value={min}
@@ -202,7 +202,7 @@ export function CatalogFilterBar({
               "relevance",
             )
           }
-          className="text-[13px] text-mut underline-offset-2 hover:text-brand hover:underline"
+          className="text-[16.25px] text-mut underline-offset-2 hover:text-brand hover:underline"
         >
           ✕ {t("clearFilters")}
         </button>

@@ -191,7 +191,7 @@ export function ImportWizard() {
                   return (
                     <th key={idx} className={cn("px-3 py-2", f ? "text-brand" : "text-mut")}>
                       <div className="font-semibold">{h || `#${idx + 1}`}</div>
-                      {f && <div className="text-[10px] font-normal">→ {t(FIELD_LABEL[f])}</div>}
+                      {f && <div className="text-[12.5px] font-normal">→ {t(FIELD_LABEL[f])}</div>}
                     </th>
                   );
                 })}

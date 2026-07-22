@@ -109,7 +109,7 @@ export function ChatPanel({ threadId }: { threadId: string }) {
               <p className="whitespace-pre-wrap break-words">{m.body}</p>
               <span
                 className={cn(
-                  "mt-1 block text-[10px]",
+                  "mt-1 block text-[12.5px]",
                   m.mine ? "text-white/70" : "text-mut",
                 )}
               >

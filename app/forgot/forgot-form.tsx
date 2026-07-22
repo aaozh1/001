@@ -29,7 +29,7 @@ export function ForgotForm() {
         <p className="rounded-sm border border-ok-soft bg-ok-soft px-3 py-2.5 text-sm text-ok">
           ✓ {t("forgotSent")}
         </p>
-        <p className="font-mono text-[11px] text-mut">{t("forgotMailNote")}</p>
+        <p className="font-mono text-[13.75px] text-mut">{t("forgotMailNote")}</p>
         <Link href="/login" className="text-sm font-medium text-brand hover:underline">
           ← {t("backToLogin")}
         </Link>

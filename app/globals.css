@@ -70,9 +70,10 @@
 }
 
 html,
-/* ขยายทั้งระบบเล็กน้อย (16px → 17px): utility ที่อิง rem โตตามอัตโนมัติ */
+/* ขยายตัวหนังสือทั้งระบบ +25% (16px → ~21.25px ที่ราก): utility ที่อิง rem
+   โตตามอัตโนมัติ; ค่าฟอนต์แบบ px ถูกคูณ 1.25 ที่ต้นทางแล้วเช่นกัน */
 html {
-  font-size: 106.25%;
+  font-size: 132.8125%;
 }
 
 body {
@@ -84,7 +85,7 @@ body {
 /* Section eyebrow (design handoff): mono, uppercase, wide tracking, accent. */
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 15px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-brand);

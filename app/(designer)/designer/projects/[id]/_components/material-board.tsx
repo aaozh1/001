@@ -359,11 +359,11 @@ export function MaterialBoard({
                     }}
                   >
                     <div className="pointer-events-none absolute bottom-2 left-2 max-w-[88%] rounded-[9px] bg-white/95 px-2.5 py-1.5 shadow-soft">
-                      <div className="font-mono text-[9px] leading-tight text-mut">
+                      <div className="font-mono text-[11.25px] leading-tight text-mut">
                         {info.itemCode}
                         {o.price ? ` · ฿${o.price}` : ""}
                       </div>
-                      <div className="truncate text-[11.5px] font-bold leading-tight text-ink">{o.name}</div>
+                      <div className="truncate text-[14.375px] font-bold leading-tight text-ink">{o.name}</div>
                     </div>
                   </div>
                 );
@@ -411,12 +411,12 @@ export function MaterialBoard({
               {/* ข้อมูลวัสดุวางอยู่ภายในรูป — gradient ให้อ่านออกบนทุกสี */}
               {/* 3E: white label pill inside the tile — mono code + bold name */}
               <div className="pointer-events-none absolute bottom-2 left-2 max-w-[88%] rounded-[9px] bg-white/95 px-2.5 py-1.5 shadow-soft">
-                <div className="font-mono text-[9px] leading-tight text-mut">
+                <div className="font-mono text-[11.25px] leading-tight text-mut">
                   {info.itemCode}
                   {!o.isConfirmed && " · opt"}
                   {o.price ? ` · ฿${o.price}` : ""}
                 </div>
-                <div className="truncate text-[11.5px] font-bold leading-tight text-ink">
+                <div className="truncate text-[14.375px] font-bold leading-tight text-ink">
                   {o.name}
                 </div>
               </div>
@@ -431,7 +431,7 @@ export function MaterialBoard({
                       aria-label={t("boardToFront")}
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={() => mutate((prev) => bringToFront(prev, tl.key))}
-                      className="rounded bg-black/55 px-1.5 py-0.5 text-[11px] text-white hover:bg-black/75"
+                      className="rounded bg-black/55 px-1.5 py-0.5 text-[13.75px] text-white hover:bg-black/75"
                     >
                       ⬆
                     </button>
@@ -441,7 +441,7 @@ export function MaterialBoard({
                       aria-label={t("boardToBack")}
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={() => mutate((prev) => sendToBack(prev, tl.key))}
-                      className="rounded bg-black/55 px-1.5 py-0.5 text-[11px] text-white hover:bg-black/75"
+                      className="rounded bg-black/55 px-1.5 py-0.5 text-[13.75px] text-white hover:bg-black/75"
                     >
                       ⬇
                     </button>

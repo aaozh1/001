@@ -67,16 +67,16 @@ export function RfqTimeline({
       <div className="flex min-w-[72px] flex-col items-center gap-1">
         <span
           className={cn(
-            "flex h-[22px] w-[22px] items-center justify-center rounded-pill text-[11px] font-bold",
+            "flex h-[22px] w-[22px] items-center justify-center rounded-pill text-[13.75px] font-bold",
             done ? "bg-ok text-white" : "border-2 border-line-2 bg-surface text-transparent",
           )}
         >
           ✓
         </span>
-        <span className={cn("text-[11px] font-semibold", done ? "text-ink" : "text-mut")}>
+        <span className={cn("text-[13.75px] font-semibold", done ? "text-ink" : "text-mut")}>
           {label}
         </span>
-        <span className="font-mono text-[10px] text-mut">{when || "·"}</span>
+        <span className="font-mono text-[12.5px] text-mut">{when || "·"}</span>
       </div>
       {!last && (
         <span
@@ -88,7 +88,7 @@ export function RfqTimeline({
 
   return (
     <div className="flex flex-col gap-2.5 border-t border-line px-4 py-3">
-      <span className="font-mono text-[11px] uppercase tracking-[.08em] text-mut">
+      <span className="font-mono text-[13.75px] uppercase tracking-[.08em] text-mut">
         {t("title")}
       </span>
       {tracking.map((rec) => {
@@ -101,13 +101,13 @@ export function RfqTimeline({
             className="rounded-card border border-line bg-surface p-3.5"
           >
             <div className="mb-3 flex flex-wrap items-center gap-2.5">
-              <span className="flex h-[30px] w-[30px] items-center justify-center rounded-[8px] border border-line bg-canvas font-mono text-[10px] font-semibold text-mut">
+              <span className="flex h-[30px] w-[30px] items-center justify-center rounded-[8px] border border-line bg-canvas font-mono text-[12.5px] font-semibold text-mut">
                 {rec.sellerName.slice(0, 2).toUpperCase()}
               </span>
-              <span className="text-[13.5px] font-bold text-ink">{rec.sellerName}</span>
+              <span className="text-[16.875px] font-bold text-ink">{rec.sellerName}</span>
               <span
                 className={cn(
-                  "rounded-pill px-2.5 py-1 font-mono text-[11px] font-semibold",
+                  "rounded-pill px-2.5 py-1 font-mono text-[13.75px] font-semibold",
                   quoted ? "bg-quoted-soft text-quoted" : "bg-warn-soft text-warn",
                 )}
               >
@@ -116,15 +116,15 @@ export function RfqTimeline({
               {canManage && !quoted && (
                 <span className="ml-auto">
                   {state === "ok" ? (
-                    <span className="text-[12px] font-medium text-ok">✓ {t("nudged")}</span>
+                    <span className="text-[15px] font-medium text-ok">✓ {t("nudged")}</span>
                   ) : state === "limit" ? (
-                    <span className="text-[12px] text-mut">{t("nudgeLimit")}</span>
+                    <span className="text-[15px] text-mut">{t("nudgeLimit")}</span>
                   ) : (
                     <button
                       type="button"
                       disabled={busy !== null}
                       onClick={() => void nudge(rec.sellerOrgId)}
-                      className="rounded-pill border border-line-3 px-2.5 py-1 text-[12px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
+                      className="rounded-pill border border-line-3 px-2.5 py-1 text-[15px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
                     >
                       🔔 {t("nudge")}
                     </button>

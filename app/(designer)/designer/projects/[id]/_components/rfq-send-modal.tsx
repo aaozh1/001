@@ -81,10 +81,10 @@ export function RfqSendModal({
                 key={i.id}
                 className="flex items-center gap-3 border-b border-line px-3.5 py-2.5 text-sm last:border-0"
               >
-                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] bg-brand text-[11px] text-white">
+                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] bg-brand text-[13.75px] text-white">
                   ✓
                 </span>
-                <span className="rounded-[6px] border border-line px-1.5 py-0.5 font-mono text-[11px] text-sub">
+                <span className="rounded-[6px] border border-line px-1.5 py-0.5 font-mono text-[13.75px] text-sub">
                   {i.code}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-ink">{i.zone || "—"}</span>
@@ -153,7 +153,7 @@ export function RfqSendModal({
                   options: items.reduce((n, i) => n + i.options.length, 0),
                 })}
               </span>
-              <span className="font-mono text-[11.5px] text-mut">{t("reach48h")}</span>
+              <span className="font-mono text-[14.375px] text-mut">{t("reach48h")}</span>
             </span>
             <span className="flex gap-2">
               <Button variant="ghost" onClick={close}>

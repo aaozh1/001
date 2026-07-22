@@ -15,7 +15,7 @@ export const Chip = forwardRef<HTMLButtonElement, ChipProps>(
       type={type ?? "button"}
       aria-pressed={active}
       className={cn(
-        "rounded-pill border px-[14px] py-[6px] text-[13.5px] transition",
+        "rounded-pill border px-[14px] py-[6px] text-[16.875px] transition",
         active
           ? "border-brand bg-brand-soft font-semibold text-brand"
           : "border-line-2 bg-surface text-sub hover:border-brand hover:text-brand",

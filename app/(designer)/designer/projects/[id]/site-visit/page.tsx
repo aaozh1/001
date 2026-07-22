@@ -45,7 +45,7 @@ export default async function SiteVisitPage({ params }: Props) {
         <h1 className="text-xl font-bold tracking-tight text-ink">
           {t("title", { project: view.projectName })}
         </h1>
-        <p className="mt-0.5 font-mono text-[11px] text-mut">
+        <p className="mt-0.5 font-mono text-[13.75px] text-mut">
           {dateLabel} · {t("itemCount", { n: view.items.length })}
         </p>
       </header>
@@ -60,18 +60,18 @@ export default async function SiteVisitPage({ params }: Props) {
       {/* Bottom tab bar — Checklist (here) / Board / Chat, 44px+ targets */}
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface">
         <div className="mx-auto flex max-w-md">
-          <span className="flex min-h-11 flex-1 items-center justify-center text-[12px] font-bold text-brand">
+          <span className="flex min-h-11 flex-1 items-center justify-center text-[15px] font-bold text-brand">
             {t("tabChecklist")}
           </span>
           <Link
             href={`/designer/projects/${view.projectId}`}
-            className="flex min-h-11 flex-1 items-center justify-center text-[12px] text-mut hover:text-ink"
+            className="flex min-h-11 flex-1 items-center justify-center text-[15px] text-mut hover:text-ink"
           >
             {t("tabBoard")}
           </Link>
           <Link
             href="/designer/chat"
-            className="flex min-h-11 flex-1 items-center justify-center text-[12px] text-mut hover:text-ink"
+            className="flex min-h-11 flex-1 items-center justify-center text-[15px] text-mut hover:text-ink"
           >
             {t("tabChat")}
           </Link>

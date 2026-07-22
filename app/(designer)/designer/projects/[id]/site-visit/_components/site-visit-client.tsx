@@ -120,11 +120,11 @@ export function SiteVisitClient({
               />
             )}
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-bold text-ink">
+              <div className="truncate text-[16.25px] font-bold text-ink">
                 {item.code}
                 {item.materialName ? ` · ${item.materialName}` : ""}
               </div>
-              <div className="font-mono text-[10px] text-mut">
+              <div className="font-mono text-[12.5px] text-mut">
                 {[item.zone, item.qty ? `${item.qty} ${item.qtyUnit ?? ""}`.trim() : null]
                   .filter(Boolean)
                   .join(" · ") || "—"}
@@ -132,7 +132,7 @@ export function SiteVisitClient({
             </div>
             <span
               className={cn(
-                "shrink-0 rounded-pill px-2 py-0.5 font-mono text-[10px] font-semibold",
+                "shrink-0 rounded-pill px-2 py-0.5 font-mono text-[12.5px] font-semibold",
                 item.installedAt ? "bg-ok-soft text-ok" : STATUS_PILL[item.status],
               )}
             >
@@ -191,7 +191,7 @@ export function SiteVisitClient({
                     alt=""
                     className="h-[34px] w-[34px] shrink-0 rounded-sm border border-line object-cover"
                   />
-                  <span className="font-mono text-[10px] text-sub">{t("photoPinned")}</span>
+                  <span className="font-mono text-[12.5px] text-sub">{t("photoPinned")}</span>
                 </>
               ) : (
                 <span className="text-xs text-warn">⚠ {log.note}</span>
@@ -258,7 +258,7 @@ export function SiteVisitClient({
           <button
             type="button"
             onClick={() => setIssueOpen(true)}
-            className="flex min-h-11 items-center justify-center rounded-card border border-dashed border-line-3 px-3 text-[12.5px] text-mut hover:border-brand hover:text-brand"
+            className="flex min-h-11 items-center justify-center rounded-card border border-dashed border-line-3 px-3 text-[15.625px] text-mut hover:border-brand hover:text-brand"
           >
             ＋ {t("logIssue")}
           </button>

@@ -38,7 +38,7 @@ export default async function BillingPage() {
       {/* 3K: centered pricing header with eyebrow */}
       <header className="mt-4 text-center">
         <p className="eyebrow">{t("eyebrow")}</p>
-        <h1 className="mt-1 text-[26px] font-bold tracking-tight text-ink">{t("title")}</h1>
+        <h1 className="mt-1 text-[32.5px] font-bold tracking-tight text-ink">{t("title")}</h1>
         <p className="mt-1 text-sub">{t("subtitle")}</p>
       </header>
 
@@ -64,12 +64,12 @@ export default async function BillingPage() {
                 {current ? (
                   <Badge variant="brand">{t("current")}</Badge>
                 ) : id === "pro" ? (
-                  <span className="font-mono text-[10px] font-semibold uppercase tracking-[.08em] text-brand">
+                  <span className="font-mono text-[12.5px] font-semibold uppercase tracking-[.08em] text-brand">
                     {t("popular")}
                   </span>
                 ) : null}
               </div>
-              <p className="font-mono text-[26px] font-semibold tracking-tight text-ink">
+              <p className="font-mono text-[32.5px] font-semibold tracking-tight text-ink">
                 ฿{plan.priceThb.toLocaleString()}
                 <span className="font-sans text-sm font-normal text-mut">
                   {plan.priceThb === 0 ? ` ${t("forever")}` : ` ${t("perSeatMonth")}`}
@@ -142,7 +142,7 @@ export default async function BillingPage() {
           </div>
         )}
       </Card>
-      <p className="mt-6 text-center font-mono text-[11.5px] text-mut">
+      <p className="mt-6 text-center font-mono text-[14.375px] text-mut">
         {t("neutralityNote")}
       </p>
     </div>

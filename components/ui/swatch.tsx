@@ -30,7 +30,7 @@ export function Swatch({
       {...props}
     >
       {label && (
-        <span className="absolute bottom-1.5 left-1.5 rounded-pill bg-black/45 px-2 py-0.5 text-[11px] font-medium text-white">
+        <span className="absolute bottom-1.5 left-1.5 rounded-pill bg-black/45 px-2 py-0.5 text-[13.75px] font-medium text-white">
           {label}
         </span>
       )}

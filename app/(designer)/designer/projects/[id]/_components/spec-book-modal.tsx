@@ -187,7 +187,7 @@ export function SpecBookModal({
                         setOpenDiff((v) => (v === b.version ? null : b.version))
                       }
                       disabled={entries.length === 0}
-                      className="ml-2 font-mono text-[11px] text-mut enabled:hover:text-brand enabled:hover:underline"
+                      className="ml-2 font-mono text-[13.75px] text-mut enabled:hover:text-brand enabled:hover:underline"
                     >
                       {[
                         b.diff.added > 0 ? `+${b.diff.added}` : null,
@@ -234,16 +234,16 @@ export function SpecBookModal({
                         className={`rounded-sm border border-line border-l-[3px] bg-canvas px-3 py-2 ${DIFF_STYLE[e.kind].cls}`}
                       >
                         <div className="flex items-baseline gap-2">
-                          <span className="font-mono text-[10px] font-semibold tracking-[.06em]">
+                          <span className="font-mono text-[12.5px] font-semibold tracking-[.06em]">
                             {DIFF_STYLE[e.kind].label}
                           </span>
-                          <span className="text-[13px] font-semibold text-ink">
+                          <span className="text-[16.25px] font-semibold text-ink">
                             {e.code}
                             {e.title ? ` · ${e.title}` : ""}
                           </span>
                         </div>
                         {(e.from || e.to) && (
-                          <div className="mt-0.5 font-mono text-[11px] text-sub">
+                          <div className="mt-0.5 font-mono text-[13.75px] text-sub">
                             {e.kind === "changed" || e.kind === "confirmed" ? (
                               <>
                                 {e.from && <span className="line-through opacity-70">{e.from}</span>}
@@ -257,7 +257,7 @@ export function SpecBookModal({
                         )}
                       </div>
                     ))}
-                    <p className="font-mono text-[10.5px] text-mut">{t("sbPinnedNote")}</p>
+                    <p className="font-mono text-[13.125px] text-mut">{t("sbPinnedNote")}</p>
                   </div>
                 )}
               </li>

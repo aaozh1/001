@@ -97,7 +97,7 @@ export async function WorkspaceShell({
         <Link href="/" className="flex items-center gap-[9px] px-2">
           <Logo />
           {dark && (
-            <span className="rounded-[5px] bg-dark-3 px-[7px] py-[3px] font-mono text-[9.5px] tracking-[.08em] text-dark-text">
+            <span className="rounded-[5px] bg-dark-3 px-[7px] py-[3px] font-mono text-[11.875px] tracking-[.08em] text-dark-text">
               SELLER
             </span>
           )}
@@ -108,15 +108,15 @@ export async function WorkspaceShell({
         {/* Bottom slot */}
         {workspace === "designer" && planCard?.isFree && (
           <div className="mt-auto rounded-card bg-dark p-4 text-white">
-            <div className="font-mono text-[11px] tracking-[.1em] text-brand-bright">
+            <div className="font-mono text-[13.75px] tracking-[.1em] text-brand-bright">
               {t("shell.freePlan")}
             </div>
-            <div className="mb-3 mt-2 text-[13.5px] leading-[1.5] text-dark-text">
+            <div className="mb-3 mt-2 text-[16.875px] leading-[1.5] text-dark-text">
               {t("shell.upsell")}
             </div>
             <Link
               href="/designer/billing"
-              className="block rounded-[9px] bg-brand py-[9px] text-center text-[13.5px] font-semibold text-white hover:bg-brand-deep"
+              className="block rounded-[9px] bg-brand py-[9px] text-center text-[16.875px] font-semibold text-white hover:bg-brand-deep"
             >
               {t("shell.upgrade")}
             </Link>
@@ -124,18 +124,18 @@ export async function WorkspaceShell({
         )}
         {workspace === "designer" && planCard && !planCard.isFree && (
           <div className="mt-auto px-2">
-            <div className="font-mono text-[10.5px] uppercase tracking-[.08em] text-mut">
+            <div className="font-mono text-[13.125px] uppercase tracking-[.08em] text-mut">
               {t("shell.plan")}
             </div>
-            <div className="mt-1 text-[12.5px] text-sub">{planCard.plan}</div>
+            <div className="mt-1 text-[15.625px] text-sub">{planCard.plan}</div>
           </div>
         )}
         {dark && sellerFoot && (
           <div className="mt-auto px-2">
-            <div className="font-mono text-[10.5px] uppercase tracking-[.08em] text-mut">
+            <div className="font-mono text-[13.125px] uppercase tracking-[.08em] text-mut">
               {sellerFoot.orgName}
             </div>
-            <div className="mt-1 text-[12.5px] text-dark-text">{t("shell.sellerPlan")}</div>
+            <div className="mt-1 text-[15.625px] text-dark-text">{t("shell.sellerPlan")}</div>
           </div>
         )}
       </aside>
@@ -159,7 +159,7 @@ export async function WorkspaceShell({
             <LogoutButton />
             <span
               aria-hidden
-              className="flex h-[34px] w-[34px] items-center justify-center rounded-pill bg-ok-soft text-[13px] font-semibold text-ok"
+              className="flex h-[34px] w-[34px] items-center justify-center rounded-pill bg-ok-soft text-[16.25px] font-semibold text-ok"
               title={session?.user?.name ?? undefined}
             >
               {initials}
@@ -173,7 +173,7 @@ export async function WorkspaceShell({
             <Link
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap rounded-pill px-3 py-1.5 text-[13px] font-medium text-sub hover:bg-canvas-2 hover:text-ink"
+              className="whitespace-nowrap rounded-pill px-3 py-1.5 text-[16.25px] font-medium text-sub hover:bg-canvas-2 hover:text-ink"
             >
               {item.icon} {item.label}
               {item.badge != null && item.badge > 0 ? ` (${item.badge})` : ""}
