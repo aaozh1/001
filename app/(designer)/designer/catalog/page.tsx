@@ -18,12 +18,17 @@ export default async function CatalogPage({ searchParams }: Props) {
   const session = await auth();
   const ctx = session?.user?.id ? await getDesignerContext(session.user.id) : null;
   const canManage = !!ctx && canManageProjects(ctx.role);
+  const addFallbackHref = canManage
+    ? undefined
+    : session?.user?.id
+      ? "/designer/projects"
+      : `/login?callbackUrl=${encodeURIComponent("/designer/catalog")}`;
   const q = Array.isArray(sp.q) ? sp.q[0] : sp.q;
 
   return (
     <CatalogBrowser
       basePath="/designer/catalog"
-      canManage={canManage}
+      addFallbackHref={addFallbackHref}
       q={q?.trim() || undefined}
       page={Math.max(1, Number(sp.page) || 1)}
       filters={parseCatalogFilters(sp)}

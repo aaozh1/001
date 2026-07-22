@@ -45,12 +45,14 @@ const COLS_KEY = "matlist.catalog.cols";
 export function CatalogResults({
   materials,
   locale,
-  canManage,
+  addFallbackHref,
   basePath,
 }: {
   materials: MaterialSummary[];
   locale: string;
-  canManage: boolean;
+  /** undefined when the viewer can add directly; a URL otherwise, so the
+   *  "+ Add" button always renders the same regardless of sign-in state. */
+  addFallbackHref?: string;
   basePath: string;
 }) {
   const t = useTranslations("catalog");
@@ -166,7 +168,13 @@ export function CatalogResults({
       {view === "grid" && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {materials.map((m) => (
-            <MaterialCard key={m.id} m={m} locale={locale} canManage={canManage} basePath={basePath} />
+            <MaterialCard
+              key={m.id}
+              m={m}
+              locale={locale}
+              addFallbackHref={addFallbackHref}
+              basePath={basePath}
+            />
           ))}
         </div>
       )}
@@ -244,11 +252,9 @@ export function CatalogResults({
                 </span>
               )}
               <span className="shrink-0 text-sm font-bold text-brand">{priceText(m)}</span>
-              {canManage && (
-                <span className="shrink-0">
-                  <AddToProjectButton materialId={m.id} />
-                </span>
-              )}
+              <span className="shrink-0">
+                <AddToProjectButton materialId={m.id} fallbackHref={addFallbackHref} />
+              </span>
             </div>
           ))}
         </div>
@@ -265,7 +271,7 @@ export function CatalogResults({
                     {t(`col_${c}`)}
                   </th>
                 ))}
-                {canManage && <th className="px-3 py-2" />}
+                <th className="px-3 py-2" />
               </tr>
             </thead>
             <tbody>
@@ -297,11 +303,9 @@ export function CatalogResults({
                       )}
                     </td>
                   ))}
-                  {canManage && (
-                    <td className="px-3 py-2 text-right">
-                      <AddToProjectButton materialId={m.id} />
-                    </td>
-                  )}
+                  <td className="px-3 py-2 text-right">
+                    <AddToProjectButton materialId={m.id} fallbackHref={addFallbackHref} />
+                  </td>
                 </tr>
               ))}
             </tbody>

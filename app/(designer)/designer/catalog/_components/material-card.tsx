@@ -10,12 +10,14 @@ import { AddToProjectButton } from "./add-to-project-button";
 export function MaterialCard({
   m,
   locale,
-  canManage,
+  addFallbackHref,
   basePath = "/designer/catalog",
 }: {
   m: MaterialSummary;
   locale: string;
-  canManage: boolean;
+  /** undefined when the viewer can add directly; a URL otherwise, so the
+   *  "+ Add" button always renders the same regardless of sign-in state. */
+  addFallbackHref?: string;
   /** Route prefix — the same card serves the designer and PUBLIC catalogs. */
   basePath?: string;
 }) {
@@ -69,13 +71,13 @@ export function MaterialCard({
             {meta}
           </div>
         )}
-        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-2">
           <span className="font-mono text-[16.875px] font-semibold text-brand-deep">
             {m.price
               ? `฿${Number(m.price).toLocaleString()}${m.unit ? ` / ${m.unit}` : ""}`
               : ""}
           </span>
-          {canManage && <AddToProjectButton materialId={m.id} compact />}
+          <AddToProjectButton materialId={m.id} compact fallbackHref={addFallbackHref} />
         </div>
       </div>
     </Card>

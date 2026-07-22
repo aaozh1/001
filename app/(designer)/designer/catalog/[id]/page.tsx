@@ -11,12 +11,18 @@ export default async function MaterialDetailPage({ params }: Props) {
   const session = await auth();
   const ctx = session?.user?.id ? await getDesignerContext(session.user.id) : null;
   const canManage = !!ctx && canManageProjects(ctx.role);
+  const addFallbackHref = canManage
+    ? undefined
+    : session?.user?.id
+      ? "/designer/projects"
+      : `/login?callbackUrl=${encodeURIComponent(`/designer/catalog/${id}`)}`;
 
   return (
     <MaterialDetailView
       id={id}
       basePath="/designer/catalog"
       canManage={canManage}
+      addFallbackHref={addFallbackHref}
       actionSlot={
         canManage ? <AddToProjectButton materialId={id} variant="primary" size="md" /> : null
       }

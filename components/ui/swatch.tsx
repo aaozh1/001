@@ -23,7 +23,7 @@ export function Swatch({
   return (
     <div
       className={cn(
-        "relative h-[110px] w-full overflow-hidden rounded-card",
+        "relative aspect-[9/5] w-full overflow-hidden rounded-card",
         className,
       )}
       style={{ ...texture(color, kind), ...style }}

@@ -22,11 +22,15 @@ export async function MaterialDetailView({
   id,
   basePath,
   canManage,
+  addFallbackHref,
   actionSlot,
 }: {
   id: string;
   basePath: string;
   canManage: boolean;
+  /** undefined when the viewer can add directly; a URL otherwise, so the
+   *  related-materials cards' "+ Add" button always renders the same. */
+  addFallbackHref?: string;
   actionSlot?: React.ReactNode;
 }) {
   const m = await getMaterialDetail(id);
@@ -252,7 +256,7 @@ export async function MaterialDetailView({
                 key={r.id}
                 m={r}
                 locale={locale}
-                canManage={canManage}
+                addFallbackHref={addFallbackHref}
                 basePath={basePath}
               />
             ))}

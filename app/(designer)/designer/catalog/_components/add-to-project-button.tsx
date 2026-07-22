@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Modal } from "@/components/ui";
+import { Button, Modal, buttonClasses } from "@/components/ui";
 import {
   addMaterialToItemAction,
   listAddTargetsAction,
@@ -15,12 +15,20 @@ export function AddToProjectButton({
   size = "sm",
   variant = "ghost",
   compact = false,
+  fallbackHref,
 }: {
   materialId: string;
   size?: "sm" | "md";
   variant?: "primary" | "ghost";
   /** 2C card style: small "+ เพิ่ม" pill like the mock's "+ Add". */
   compact?: boolean;
+  /**
+   * Set when the viewer can't add yet (guest → login, logged-in non-manager →
+   * their workspace). Renders as a same-styled link instead of opening the
+   * modal, so the button looks identical across auth states (catalog page
+   * must not change appearance based on sign-in).
+   */
+  fallbackHref?: string;
 }) {
   const t = useTranslations("catalog");
   const [open, setOpen] = useState(false);
@@ -41,6 +49,22 @@ export function AddToProjectButton({
       // refresh option counts
       setTargets(await listAddTargetsAction());
     });
+  }
+
+  if (fallbackHref) {
+    return compact ? (
+      <Link
+        href={fallbackHref}
+        title={t("addToProject")}
+        className="shrink-0 rounded-pill border border-brand-line bg-brand-soft px-2.5 py-1 text-xs font-semibold text-brand transition hover:bg-brand hover:text-white"
+      >
+        ＋ {t("addShort")}
+      </Link>
+    ) : (
+      <Link href={fallbackHref} className={buttonClasses({ variant, size })}>
+        {t("addToProject")}
+      </Link>
+    );
   }
 
   return (

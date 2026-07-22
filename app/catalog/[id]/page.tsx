@@ -18,6 +18,11 @@ export default async function PublicMaterialDetailPage({ params }: Props) {
       id={id}
       basePath="/catalog"
       canManage={false}
+      addFallbackHref={
+        loggedIn
+          ? "/designer/projects"
+          : `/login?callbackUrl=${encodeURIComponent("/catalog")}`
+      }
       actionSlot={
         loggedIn ? (
           <Link href={`/designer/catalog/${id}`} className={buttonClasses({ size: "md" })}>

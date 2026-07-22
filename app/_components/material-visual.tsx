@@ -26,7 +26,7 @@ export function MaterialVisual({
         src={image}
         alt={alt}
         loading="lazy"
-        className={cn("block h-[110px] w-full rounded-card object-cover", className)}
+        className={cn("block aspect-[9/5] w-full rounded-card object-cover", className)}
       />
     );
   }
