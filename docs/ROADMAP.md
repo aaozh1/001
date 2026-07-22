@@ -65,6 +65,18 @@
 - [x] **4.3 Monitoring/error tracking/backup** + rate limit + security review (ดู docs/OPERATIONS.md · security review เต็มอยู่ใน PR #17)
 - [ ] **4.4 Seed ข้อมูลวัสดุจริงจากผู้ขาย 20-30 ราย** (งานคน + AI ช่วยแปลง spec sheet)
 
+## PHASE 5 — Monetization Rework (Billable Engagement Events) 🛑 ข้อเสนอ ยังไม่อนุมัติ
+> รายละเอียด + ร่าง schema + คำตอบคำถามเปิด อยู่ที่ `docs/proposals/MONETIZATION_REWORK.md`
+> **พึ่ง Phase 4.1 (PDPA/ทนาย) + Phase 3.5 (payment) ที่ยังไม่เสร็จ — ห้ามแซงคิว**
+> แยกเก็บเงินผู้ขายเป็นชุด event ตาม intent (sample/contact/quote) ราคาเท่ากันทุกเจ้าใน type เดียวกัน (กติกาข้อ 2)
+- [ ] **5.0 คนตัดสินก่อน 🛑** — อนุมัติ schema diff (`EngagementEvent`/`SellerWallet`/`CreditTransaction`) + ค่า dedup/cap + ราคาต่อ type (validate ผู้ขาย 5–10 ราย) · ยืนยัน `spec_sync` ไม่เก็บเงินผู้ขาย
+- [ ] **5.1 PDPA/ทนายอนุมัติ 🛑** (= ปลดล็อก Phase 4.1) — flow consent ที่อยู่จัดส่ง (`sample_request`) + เปิดเผย contact (`contact_request`)
+- [ ] **5.2 Migration** `EngagementEvent` + wallet/credit (หลังอนุมัติ schema เท่านั้น — แตะ core relation → 🛑)
+- [ ] **5.3 Backend** event + credit logic + dedup/cap + **test business logic** (คิดเครดิต, dedup, สิทธิ์)
+  - AC: ราคาเท่ากันทุกผู้ขายใน type · dedup กันเก็บซ้ำ · หักเครดิตถูกต้อง · ไม่มี boost/ซื้ออันดับ (ข้อ 1)
+- [ ] **5.4 UI reframe** — RFQ ลดจาก CTA กลาง → action ต่อแถวสเปก (คู่ "ขอตัวอย่าง"/"ขอติดต่อ") · CTA กลางดีไซเนอร์ = material list/sync · inbox ผู้ขายแยก type + ยอด wallet · i18n TH/EN ครบ
+- [ ] **5.5 เปิด + วัดผล** ผ่าน analytics (spec_sync = signal อย่างเดียว ไม่ผูก billing)
+
 ---
 
 ## จุดที่ Claude Code ต้อง"หยุดถามมนุษย์" (ไม่ตัดสินเอง)
