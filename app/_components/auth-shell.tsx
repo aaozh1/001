@@ -1,15 +1,8 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { LangToggle } from "./lang-toggle";
+import { Logo } from "./logo";
 import { Card } from "@/components/ui";
-
-function LogoMark() {
-  return (
-    <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-brand font-mono text-sm font-bold text-white">
-      M
-    </span>
-  );
-}
 
 // Auth layouts (design 2A/3A): login uses the split brand-panel layout, the
 // register page keeps the centered card. Both carry the language toggle.
@@ -20,19 +13,14 @@ export async function AuthShell({
   children: React.ReactNode;
   variant?: "card" | "split";
 }) {
-  const t = await getTranslations("common");
-
   if (variant === "split") {
     const ta = await getTranslations("auth");
     return (
       <main className="flex min-h-screen bg-surface">
         {/* Brand panel — 2A left side */}
         <aside className="hidden w-[44%] flex-col justify-between border-r border-line bg-canvas p-8 lg:flex">
-          <Link href="/" className="flex items-center gap-2">
-            <LogoMark />
-            <span className="text-[21px] font-bold tracking-tight text-brand">
-              {t("appName")}
-            </span>
+          <Link href="/" className="flex items-center">
+            <Logo />
           </Link>
           <div>
             <p className="eyebrow">{ta("panelEyebrow")}</p>
@@ -54,12 +42,8 @@ export async function AuthShell({
         {/* Form side */}
         <div className="flex flex-1 flex-col">
           <header className="flex items-center justify-between px-6 py-4">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-[19px] font-bold tracking-tight text-brand lg:invisible"
-            >
-              <LogoMark />
-              {t("appName")}
+            <Link href="/" className="flex items-center lg:invisible">
+              <Logo />
             </Link>
             <LangToggle />
           </header>
@@ -74,18 +58,15 @@ export async function AuthShell({
   return (
     <main className="flex min-h-screen flex-col bg-canvas">
       <header className="flex items-center justify-between px-6 py-4">
-        <Link href="/" className="text-[21px] font-bold tracking-tight text-brand">
-          {t("appName")}
+        <Link href="/">
+          <Logo />
         </Link>
         <LangToggle />
       </header>
       <div className="flex flex-1 items-center justify-center p-4">
         <Card padded={false} className="w-full max-w-sm p-8">
-          <div className="mb-4 flex items-center gap-2">
-            <LogoMark />
-            <span className="text-lg font-bold tracking-tight text-brand">
-              {t("appName")}
-            </span>
+          <div className="mb-4">
+            <Logo />
           </div>
           {children}
         </Card>

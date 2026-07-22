@@ -4,69 +4,79 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { LangToggle } from "./_components/lang-toggle";
 import { GlobalSearch } from "./_components/global-search";
+import { Logo } from "./_components/logo";
 import { CATEGORY_META, categoryIcon, categoryLabel } from "@/lib/materials/categories";
 
-// Homepage — design handoff direction "1B Crisp centered": centered hero +
-// search, category chips, app preview, stat band, 3-step how-it-works, dark
-// "no paid placement" callout, CTA, footer.
+// Homepage — design direction "1A warm editorial": left-aligned hero with a
+// floating quote card, trust strip, material-family card grid, 3 steps,
+// Material Board feature block, brick CTA band, dark footer.
 export default async function Home() {
   const [t, locale, session] = await Promise.all([
-    getTranslations("home1b"),
+    getTranslations("home1a"),
     getLocale(),
     auth(),
   ]);
   const loggedIn = !!session?.user;
 
-  // Live numbers for the stat band — decoration only; never block the door.
-  let counts: { materials: number; sellers: number } | null = null;
+  // Live decoration — category counts + verified seller initials. Fail-safe:
+  // the door must open even with the database down.
+  let counts = new Map<string, number>();
+  let sellerChips: string[] = [];
   try {
-    const [materials, sellers] = await Promise.all([
-      prisma.material.count({ where: { status: "published" } }),
-      prisma.organization.count({ where: { type: "seller" } }),
+    const [byCat, sellers] = await Promise.all([
+      prisma.material.groupBy({
+        by: ["category"],
+        where: { status: "published" },
+        _count: { _all: true },
+      }),
+      prisma.organization.findMany({
+        where: { type: "seller" },
+        select: { name: true },
+        take: 7,
+      }),
     ]);
-    counts = { materials, sellers };
+    counts = new Map(byCat.map((c) => [c.category, c._count._all]));
+    sellerChips = sellers.map((s) =>
+      s.name
+        .split(/\s+/)
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase(),
+    );
   } catch {
-    counts = null;
+    // Decoration only.
   }
-  const stats: { value: string; label: string }[] = [
-    { value: counts ? `${counts.materials.toLocaleString()}+` : "1,000+", label: t("stat1") },
-    { value: counts ? `${counts.sellers.toLocaleString()}` : "28", label: t("stat2") },
-    { value: "48h", label: t("stat3") },
-    { value: "0", label: t("stat4") },
-  ];
 
   const steps = [
-    { no: "01", title: t("step1Title"), body: t("step1Body"), tint: "#fdf3e7" },
-    { no: "02", title: t("step2Title"), body: t("step2Body"), tint: "#eaf1f7" },
-    { no: "03", title: t("step3Title"), body: t("step3Body"), tint: "#e7f2ea" },
+    { no: "01", title: t("step1Title"), body: t("step1Body") },
+    { no: "02", title: t("step2Title"), body: t("step2Body") },
+    { no: "03", title: t("step3Title"), body: t("step3Body") },
   ];
 
-  const primaryBtn =
-    "inline-flex items-center rounded-sm bg-brand px-[26px] py-[13px] text-[15px] font-semibold text-white transition hover:bg-brand-deep";
-  const secondaryBtn =
-    "inline-flex items-center rounded-sm border border-line-3 bg-surface px-[26px] py-[13px] text-[15px] font-semibold text-ink transition hover:border-brand hover:text-brand";
+  const navLink = "text-[14.5px] font-medium text-sub hover:text-ink";
 
   return (
-    <main className="flex min-h-screen flex-col bg-surface">
+    <main className="flex min-h-screen flex-col bg-canvas">
       {/* ── Nav ── */}
-      <header className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-b border-line px-6 py-5 sm:px-12">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex h-[30px] w-[30px] items-center justify-center rounded-[8px] bg-brand text-[16px] font-bold text-white">
-            M
+      <header className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-b border-line bg-surface px-6 py-4 sm:px-12">
+        <Link href="/" className="flex items-baseline gap-3">
+          <Logo />
+          <span className="hidden font-mono text-[11.5px] text-mut sm:inline">
+            {t("tagline")}
           </span>
-          <span className="text-[20px] font-bold tracking-tight text-brand">MatList</span>
         </Link>
         <nav className="hidden items-center gap-[30px] md:flex">
-          <Link href="/catalog" className="text-[14.5px] font-medium text-sub hover:text-ink">
+          <Link href="/catalog" className={navLink}>
             {t("navMaterials")}
           </Link>
-          <a href="#how" className="text-[14.5px] font-medium text-sub hover:text-ink">
+          <a href="#how" className={navLink}>
             {t("navHow")}
           </a>
-          <Link href="/seller" className="text-[14.5px] font-medium text-sub hover:text-ink">
+          <Link href="/seller" className={navLink}>
             {t("navSellers")}
           </Link>
-          <Link href="/designer/billing" className="text-[14.5px] font-medium text-sub hover:text-ink">
+          <Link href="/designer/billing" className={navLink}>
             {t("navPricing")}
           </Link>
         </nav>
@@ -75,7 +85,7 @@ export default async function Home() {
           {loggedIn ? (
             <Link
               href="/designer"
-              className="inline-flex rounded-sm bg-dark px-5 py-2.5 text-[14.5px] font-semibold text-white transition hover:bg-dark-2"
+              className="inline-flex rounded-pill bg-brand px-5 py-2 text-[14.5px] font-semibold text-white transition hover:bg-brand-deep"
             >
               {t("myWorkspace")}
             </Link>
@@ -86,182 +96,244 @@ export default async function Home() {
               </Link>
               <Link
                 href="/register"
-                className="inline-flex rounded-sm bg-dark px-5 py-2.5 text-[14.5px] font-semibold text-white transition hover:bg-dark-2"
+                className="inline-flex rounded-pill bg-brand px-5 py-2 text-[14.5px] font-semibold text-white transition hover:bg-brand-deep"
               >
-                {t("signupFree")}
+                {t("signup")}
               </Link>
             </>
           )}
         </div>
       </header>
 
-      {/* ── Hero (centered) ── */}
-      <section className="flex flex-col items-center gap-6 px-6 pb-10 pt-16 text-center sm:px-12 sm:pt-20">
-        <span className="inline-flex items-center gap-2 rounded-pill border border-brand-line bg-brand-soft px-3.5 py-[7px] font-mono text-[12px] uppercase tracking-[.1em] text-brand">
-          {t("eyebrow")}
-        </span>
-        <h1 className="max-w-[820px] text-[38px] font-bold leading-[1.05] tracking-[-.03em] text-ink sm:text-[54px] lg:text-[60px] sm:leading-[1.02]">
-          {/* <nb> keeps long Thai words (ซัพพลายเออร์) from breaking mid-word */}
-          {t.rich("h1", {
-            nb: (chunk) => <span className="whitespace-nowrap">{chunk}</span>,
-          })}
-        </h1>
-        <p className="max-w-[560px] text-[17px] leading-[1.55] text-[#6b6760] sm:text-[19px]">
-          {t("heroSub")}
-        </p>
+      {/* ── Hero: copy left, hero card right ── */}
+      <section className="grid gap-10 px-6 pb-16 pt-14 sm:px-12 lg:grid-cols-[1fr_1fr] lg:items-center">
+        <div className="max-w-[560px]">
+          <p className="eyebrow">◆ {t("eyebrow")}</p>
+          <h1 className="mt-4 text-[40px] font-bold leading-[1.06] tracking-[-.03em] text-ink sm:text-[52px]">
+            {t.rich("h1", {
+              nb: (chunk) => <span className="whitespace-nowrap">{chunk}</span>,
+            })}
+          </h1>
+          <p className="mt-5 max-w-[460px] text-[16.5px] leading-[1.6] text-sub">
+            {t("heroBody")}
+          </p>
 
-        {/* Search — the real search box, styled per mock */}
-        <div className="w-full max-w-[620px] rounded-card border border-line-2 bg-canvas p-2 shadow-[0_14px_30px_-22px_rgba(28,26,23,.3)]">
-          <GlobalSearch target="/catalog" />
+          <div className="mt-6 max-w-[440px] rounded-pill border border-line-2 bg-surface p-1.5 shadow-soft">
+            <GlobalSearch target="/catalog" />
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3.5">
+            <Link
+              href={loggedIn ? "/designer" : "/register"}
+              className="inline-flex items-center rounded-[12px] bg-brand px-[24px] py-[13px] text-[15px] font-semibold text-white transition hover:bg-brand-deep"
+            >
+              {t("ctaSchedule")}
+            </Link>
+            <Link
+              href="/catalog"
+              className="inline-flex items-center rounded-[12px] border border-line-3 bg-surface px-[24px] py-[13px] text-[15px] font-semibold text-ink transition hover:border-brand hover:text-brand"
+            >
+              {t("ctaBrowse")}
+            </Link>
+          </div>
+          <p className="mt-4 font-mono text-[11.5px] text-mut">{t("neutralNote")}</p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3.5">
-          <Link href={loggedIn ? "/designer" : "/register"} className={primaryBtn}>
-            {t("startFree")}
+        {/* Hero card: real schedule screenshot + floating best-offer card */}
+        <div className="relative mx-auto w-full max-w-[560px]">
+          <div className="overflow-hidden rounded-[22px] border border-line bg-surface shadow-lifted">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/preview-schedule.png"
+              alt={t("heroShotAlt")}
+              className="h-[340px] w-full object-cover object-top sm:h-[400px]"
+            />
+          </div>
+          <div className="absolute -bottom-6 left-4 w-[240px] rounded-card border border-line bg-surface p-4 shadow-lifted sm:left-8">
+            <div className="flex items-center justify-between">
+              <span className="rounded-[6px] border border-line px-1.5 py-0.5 font-mono text-[10px] text-sub">
+                FL-01
+              </span>
+              <span className="rounded-pill bg-quoted-soft px-2 py-0.5 font-mono text-[10px] font-semibold text-quoted">
+                {t("cardQuoted")}
+              </span>
+            </div>
+            <div className="mt-2 text-sm font-bold text-ink">{t("cardName")}</div>
+            <div className="text-xs text-sub">{t("cardMeta")}</div>
+            <div className="mt-2 flex items-baseline justify-between border-t border-line pt-2">
+              <span className="text-[11px] text-mut">{t("cardBestOffer")}</span>
+              <span className="font-mono text-[15px] font-bold text-brand-deep">{t("cardPrice")}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust strip ── */}
+      <section className="border-y border-line bg-canvas-2 px-6 py-4 sm:px-12">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="font-mono text-[11.5px] text-mut">{t("trust")}</span>
+          <span className="flex flex-wrap gap-1.5">
+            {(sellerChips.length > 0 ? sellerChips : ["GC", "ET", "ST", "SF", "WW"]).map(
+              (chip, i) => (
+                <span
+                  key={`${chip}-${i}`}
+                  className="rounded-[7px] border border-line bg-surface px-2 py-1 font-mono text-[10.5px] font-semibold text-sub"
+                >
+                  {chip}
+                </span>
+              ),
+            )}
+          </span>
+        </div>
+      </section>
+
+      {/* ── Catalog: material family cards ── */}
+      <section className="bg-surface px-6 py-16 sm:px-12">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-[480px]">
+            <p className="eyebrow">{t("catalogEyebrow")}</p>
+            <h2 className="mt-2 text-[30px] font-bold leading-tight tracking-[-.02em] text-ink">
+              {t("catalogTitle")}
+            </h2>
+            <p className="mt-2 text-[14.5px] leading-relaxed text-sub">{t("catalogSub")}</p>
+          </div>
+          <Link href="/catalog" className="text-sm font-bold text-brand hover:underline">
+            {t("allFamilies", { n: CATEGORY_META.length })} →
           </Link>
-          <a href="#how" className={secondaryBtn}>
-            {t("seeHow")}
-          </a>
         </div>
-
-        {/* Category chips — 14 families, straight into the open catalog */}
-        <div className="mt-3 flex max-w-[760px] flex-wrap justify-center gap-2.5">
+        <div className="grid grid-cols-2 gap-3.5 md:grid-cols-3 lg:grid-cols-4">
           {CATEGORY_META.map((c) => (
             <Link
               key={c.key}
               href={`/catalog?category=${encodeURIComponent(c.key)}`}
-              className="inline-flex items-center gap-2 rounded-pill border border-line bg-canvas px-[15px] py-2 text-[13.5px] font-medium text-ink-2 transition hover:-translate-y-0.5 hover:border-brand hover:text-brand"
+              className="flex items-center gap-3 rounded-card border border-line bg-canvas px-4 py-3.5 transition hover:-translate-y-0.5 hover:border-brand hover:shadow-soft"
             >
-              <span className="text-[15px] text-brand-deep">{categoryIcon(c.key)}</span>
-              {categoryLabel(c.key, locale)}
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-brand-soft text-[16px] text-brand-deep">
+                {categoryIcon(c.key)}
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[14px] font-bold text-ink">
+                  {categoryLabel(c.key, locale)}
+                </span>
+                <span className="block font-mono text-[10.5px] text-mut">
+                  {t("nItems", { n: counts.get(categoryLabel(c.key, "th")) ?? counts.get(c.key) ?? 0 })}
+                </span>
+              </span>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ── App preview slot ── */}
-      <section className="px-6 sm:px-12">
-        <Link
-          href="/catalog"
-          className="group relative block h-[280px] overflow-hidden rounded-[18px] border border-[#eae4da] bg-canvas sm:h-[420px]"
-          aria-label={t("previewAlt")}
-        >
-          {/* Real app screenshot in the 1B preview slot; the catalog door
-              stays as a pill overlay. */}
+      {/* ── 3 steps ── */}
+      <section id="how" className="border-y border-line bg-canvas px-6 py-16 sm:px-12">
+        <div className="mb-9 text-center">
+          <h2 className="text-[28px] font-bold tracking-[-.02em] text-ink">{t("howTitle")}</h2>
+          <p className="mt-2 text-[15px] text-sub">{t("howSub")}</p>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-3">
+          {steps.map((st) => (
+            <div key={st.no} className="rounded-card border border-line bg-surface p-6">
+              <span className="font-mono text-[13px] text-brand">{st.no}</span>
+              <h3 className="mt-2 text-[18px] font-bold tracking-[-.01em] text-ink">{st.title}</h3>
+              <p className="mt-2 text-[14px] leading-[1.6] text-sub">{st.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Material Board feature ── */}
+      <section className="grid gap-10 bg-surface px-6 py-16 sm:px-12 lg:grid-cols-[1fr_1fr] lg:items-center">
+        <div className="overflow-hidden rounded-[22px] border border-line shadow-soft">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/preview-schedule.png"
-            alt={t("previewAlt")}
-            className="h-full w-full object-cover object-top"
+            src="/preview-board.png"
+            alt={t("boardAlt")}
+            className="h-[300px] w-full object-cover sm:h-[380px]"
           />
-          <span className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-black/25 to-transparent pb-6 pt-14">
-            <span className="rounded-pill border border-line-3 bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-lifted transition group-hover:border-brand group-hover:text-brand">
-              {t("previewCta")} →
-            </span>
-          </span>
-        </Link>
-      </section>
-
-      {/* ── Stat band ── */}
-      <section className="mx-6 mt-14 overflow-hidden rounded-2xl border border-[#eee9e0] sm:mx-12">
-        <div className="grid grid-cols-2 gap-px bg-[#eee9e0] sm:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="bg-surface px-5 py-[26px] text-center">
-              <div className="font-mono text-[26px] font-semibold tracking-[-.01em] text-brand-deep sm:text-[30px]">
-                {s.value}
-              </div>
-              <div className="mt-1.5 text-[13px] text-mut">{s.label}</div>
-            </div>
-          ))}
         </div>
-      </section>
-
-      {/* ── How it works ── */}
-      <section id="how" className="px-6 pb-14 pt-[72px] sm:px-12">
-        <div className="mb-10 text-center">
-          <span className="eyebrow">{t("howEyebrow")}</span>
-          <h2 className="mt-3 text-[28px] font-bold tracking-[-.02em] text-ink sm:text-[34px]">
-            {t("howTitle")}
+        <div className="max-w-[460px]">
+          <p className="eyebrow">{t("boardEyebrow")}</p>
+          <h2 className="mt-2 text-[30px] font-bold leading-tight tracking-[-.02em] text-ink">
+            {t("boardTitle")}
           </h2>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-3">
-          {/* 1B: dashed image slots with mono captions — real photography
-              lands later (handoff note), so the slot look matches the mock. */}
-          {steps.map((st) => (
-            <div key={st.no} className="flex flex-col overflow-hidden rounded-2xl border border-line">
-              <div className="m-2.5 flex h-[130px] items-center justify-center rounded-[12px] border border-dashed border-line-3 bg-canvas">
-                <span className="font-mono text-[11px] uppercase tracking-[.1em] text-mut">
-                  {st.title}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2.5 px-[22px] pb-[22px] pt-2">
-                <span className="font-mono text-[13px] text-brand">{st.no}</span>
-                <h3 className="text-[19px] font-semibold tracking-[-.01em] text-ink">{st.title}</h3>
-                <p className="text-[14px] leading-[1.55] text-[#6b6760]">{st.body}</p>
-              </div>
-            </div>
-          ))}
+          <p className="mt-3 text-[15px] leading-[1.65] text-sub">{t("boardBody")}</p>
+          <ul className="mt-5 flex flex-col gap-2.5 text-[14.5px] text-ink-2">
+            {(["boardB1", "boardB2", "boardB3"] as const).map((k) => (
+              <li key={k} className="flex items-start gap-2.5">
+                <span className="mt-0.5 text-brand">✓</span>
+                {t(k)}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* ── Neutrality callout (dark) ── */}
-      <section className="mx-6 sm:mx-12">
-        <div className="flex flex-col items-center gap-4 rounded-[20px] bg-dark px-8 py-16 text-center sm:px-14">
-          <span className="font-mono text-[12px] uppercase tracking-[.14em] text-brand-bright">
-            {t("ruleEyebrow")}
-          </span>
-          <h2 className="max-w-[660px] text-[28px] font-bold leading-[1.1] tracking-[-.02em] text-white sm:text-[38px]">
-            {t("ruleTitle")}
-          </h2>
-          <p className="max-w-[560px] text-[15px] leading-[1.6] text-dark-text sm:text-[16px]">
-            {t("ruleBody")}
-          </p>
-        </div>
-      </section>
-
-      {/* ── Final CTA ── */}
-      <section className="flex flex-col items-center gap-5 px-6 py-[72px] text-center sm:px-12">
-        <h2 className="max-w-[620px] text-[28px] font-bold leading-[1.08] tracking-[-.025em] text-ink sm:text-[38px]">
+      {/* ── Brick CTA band ── */}
+      <section className="bg-brand-deep px-6 py-16 text-center sm:px-12">
+        <h2 className="mx-auto max-w-[560px] text-[30px] font-bold leading-[1.15] tracking-[-.02em] text-white sm:text-[34px]">
           {t("ctaTitle")}
         </h2>
-        <p className="max-w-[460px] text-[15px] leading-[1.55] text-[#6b6760] sm:text-[16px]">
+        <p className="mx-auto mt-3 max-w-[460px] text-[15px] leading-relaxed text-white/85">
           {t("ctaSub")}
         </p>
-        <div className="mt-1 flex flex-wrap justify-center gap-3.5">
-          <Link href={loggedIn ? "/designer" : "/register"} className={primaryBtn}>
+        <div className="mt-6 flex flex-wrap justify-center gap-3.5">
+          <Link
+            href={loggedIn ? "/designer" : "/register"}
+            className="inline-flex items-center rounded-[12px] bg-white px-[24px] py-[13px] text-[15px] font-semibold text-brand-deep transition hover:bg-brand-soft"
+          >
             {t("ctaPrimary")}
           </Link>
-          <Link href="/seller" className={secondaryBtn}>
+          <Link
+            href="/seller"
+            className="inline-flex items-center rounded-[12px] border border-white/50 px-[24px] py-[13px] text-[15px] font-semibold text-white transition hover:border-white"
+          >
             {t("ctaSeller")}
           </Link>
         </div>
+        <p className="mt-5 font-mono text-[11.5px] text-white/70">{t("ctaNote")}</p>
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-line px-6 py-9 text-[13px] text-mut sm:px-12">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[7px] bg-brand text-[14px] font-bold text-white">
-            M
-          </span>
-          <span className="text-[15px] font-bold text-brand">MatList</span>
-          <span className="ml-2 font-mono text-[11.5px]">{t("tagline")}</span>
-        </div>
-        <div className="flex flex-wrap gap-7">
-          <Link href="/catalog" className="hover:text-ink">
-            {t("navMaterials")}
-          </Link>
-          <Link href="/designer/billing" className="hover:text-ink">
-            {t("navPricing")}
-          </Link>
-          <Link href="/seller" className="hover:text-ink">
-            {t("navSellers")}
-          </Link>
-          <Link href="/legal/terms" className="hover:text-ink">
-            {t("terms")}
-          </Link>
-          <Link href="/legal/privacy" className="hover:text-ink">
-            {t("privacy")}
-          </Link>
+      {/* ── Dark footer ── */}
+      <footer className="bg-dark px-6 py-12 sm:px-12">
+        <div className="flex flex-wrap items-start justify-between gap-10">
+          <div>
+            <Logo className="text-white" />
+            <p className="mt-2 font-mono text-[11.5px] text-dark-text">{t("tagline")}</p>
+          </div>
+          <div className="flex flex-wrap gap-16 text-[13.5px]">
+            <div>
+              <div className="mb-3 font-mono text-[11px] uppercase tracking-[.1em] text-dark-text">
+                {t("footProduct")}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Link href="/catalog" className="text-white/85 hover:text-white">
+                  {t("navMaterials")}
+                </Link>
+                <Link href="/register" className="text-white/85 hover:text-white">
+                  {t("footSchedule")}
+                </Link>
+                <Link href="/seller" className="text-white/85 hover:text-white">
+                  {t("navSellers")}
+                </Link>
+              </div>
+            </div>
+            <div>
+              <div className="mb-3 font-mono text-[11px] uppercase tracking-[.1em] text-dark-text">
+                {t("footCompany")}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Link href="/designer/billing" className="text-white/85 hover:text-white">
+                  {t("navPricing")}
+                </Link>
+                <Link href="/legal/terms" className="text-white/85 hover:text-white">
+                  {t("terms")}
+                </Link>
+                <Link href="/legal/privacy" className="text-white/85 hover:text-white">
+                  {t("privacy")}
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </main>

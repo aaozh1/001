@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { buttonClasses } from "@/components/ui";
 import { GlobalSearch } from "@/app/_components/global-search";
+import { Logo } from "@/app/_components/logo";
 import { LangToggle } from "@/app/_components/lang-toggle";
 
 // PUBLIC catalog chrome — no login required (the catalog is the platform's
@@ -18,8 +19,8 @@ export default async function PublicCatalogLayout({
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <header className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-line bg-surface px-6 py-3">
-        <Link href="/" className="text-[22px] font-bold tracking-tight text-brand">
-          {t("common.appName")}
+        <Link href="/">
+          <Logo />
         </Link>
         <div className="order-last w-full flex-none sm:order-none sm:flex sm:w-auto sm:flex-1 sm:justify-center">
           <GlobalSearch target="/catalog" className="w-full sm:max-w-md" />
