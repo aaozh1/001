@@ -205,7 +205,7 @@ export function SpecTable({
 
       {canManage && (
         <div className="border-t border-line p-3">
-          <Button variant="ghost" size="sm" onClick={addRow} disabled={pending}>
+          <Button variant="ghost" size="sm" onClick={addRow} disabled={pending} data-add-row>
             {t("addRow")}
           </Button>
         </div>

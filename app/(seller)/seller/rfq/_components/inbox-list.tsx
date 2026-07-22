@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Badge, Card, Chip, buttonClasses } from "@/components/ui";
+import { submitQuoteAction } from "@/lib/quote/actions";
 import {
   INBOX_TABS,
   type InboxTab,
@@ -29,10 +31,36 @@ export interface InboxRow {
 // a live SLA countdown on every awaiting lead.
 export function InboxList({ rows }: { rows: InboxRow[] }) {
   const t = useTranslations("sellerRfq");
+  const router = useRouter();
   const [tab, setTab] = useState<InboxTab>("all");
+  const [quick, setQuick] = useState<Record<string, string>>({});
+  const [quickBusy, setQuickBusy] = useState<string | null>(null);
+  const [quickError, setQuickError] = useState<string | null>(null);
 
   const counts = useMemo(() => countByTab(rows), [rows]);
   const visible = rows.filter((r) => matchesTab(r, tab));
+
+  // 3G quick quote: price-only reply straight from the inbox row. Full terms
+  // (lead time, validity, attachments) still live in the composer.
+  async function sendQuick(rfqId: string) {
+    const price = (quick[rfqId] ?? "").trim();
+    if (!price || quickBusy) return;
+    setQuickBusy(rfqId);
+    setQuickError(null);
+    try {
+      const r = await submitQuoteAction(rfqId, { pricePerUnit: price });
+      if (r.ok) {
+        setQuick((prev) => ({ ...prev, [rfqId]: "" }));
+        router.refresh();
+      } else {
+        setQuickError(rfqId);
+      }
+    } catch {
+      setQuickError(rfqId);
+    } finally {
+      setQuickBusy(null);
+    }
+  }
 
   return (
     <>
@@ -82,6 +110,37 @@ export function InboxList({ rows }: { rows: InboxRow[] }) {
                   )}
                 </div>
               </div>
+              {/* 3G quick-quote row: inline price input for unanswered leads */}
+              {!r.responded && (r.status === "open" || r.status === "quoted") && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    value={quick[r.id] ?? ""}
+                    onChange={(e) => setQuick((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") void sendQuick(r.id);
+                    }}
+                    placeholder={t("quickPlaceholder")}
+                    className="min-w-0 flex-1 rounded-sm border border-line-2 bg-surface px-3 py-2 text-sm outline-none focus:border-brand"
+                  />
+                  <button
+                    type="button"
+                    disabled={quickBusy === r.id || !(quick[r.id] ?? "").trim()}
+                    onClick={() => void sendQuick(r.id)}
+                    className="rounded-sm bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-deep disabled:opacity-40"
+                  >
+                    {quickBusy === r.id ? t("submitting") : t("quickSend")}
+                  </button>
+                </div>
+              )}
+              {quickError === r.id && (
+                <p className="text-xs text-warn" role="alert">
+                  {t("errFailed")}
+                </p>
+              )}
+
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="font-mono text-[11px] text-mut">
                   {r.slaDateLabel ? `${t("sla")}: ${r.slaDateLabel}` : ""}
@@ -94,7 +153,7 @@ export function InboxList({ rows }: { rows: InboxRow[] }) {
                     {t("chatBtn")}
                   </Link>
                   <Link href={`/seller/rfq/${r.id}`} className={buttonClasses({ size: "sm" })}>
-                    {r.responded ? t("open") : t("respond")}
+                    {r.responded ? t("open") : t("respondFull")}
                   </Link>
                 </span>
               </div>

@@ -32,7 +32,12 @@ export function LoginForm() {
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium text-ink">
-        {t("common.password")}
+        <span className="flex items-baseline justify-between">
+          {t("common.password")}
+          <Link href="/forgot" className="text-xs font-normal text-brand hover:underline">
+            {t("auth.forgot")}
+          </Link>
+        </span>
         <Input
           type="password"
           name="password"

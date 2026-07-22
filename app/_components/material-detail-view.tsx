@@ -1,10 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
 import { Card, Swatch } from "@/components/ui";
 import { getMaterialDetail } from "@/lib/materials/service";
 import { categoryLabel, categoryTexture } from "@/lib/materials/categories";
+import { getDesignerContext } from "@/lib/projects/service";
+import {
+  averageStars,
+  canReviewMaterial,
+  listMaterialReviews,
+} from "@/lib/reviews/service";
 import { MaterialCard } from "@/app/(designer)/designer/catalog/_components/material-card";
+import { MaterialReviews } from "./material-reviews";
 
 // Material detail (design 3B): photo hero + colorway thumbs on the left with
 // the seller card underneath; name/price/CTA/spec table on the right. Shared
@@ -24,7 +32,21 @@ export async function MaterialDetailView({
   const m = await getMaterialDetail(id);
   if (!m) notFound();
 
-  const [t, locale] = await Promise.all([getTranslations("catalog"), getLocale()]);
+  const [t, locale, session, reviews] = await Promise.all([
+    getTranslations("catalog"),
+    getLocale(),
+    auth(),
+    listMaterialReviews(id).catch(() => []),
+  ]);
+  const reviewerCtx = session?.user?.id
+    ? await getDesignerContext(session.user.id).catch(() => null)
+    : null;
+  const canReview = reviewerCtx ? await canReviewMaterial(reviewerCtx.orgId, id) : false;
+  const avg = averageStars(reviews);
+  const reviewDateFmt = new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
+    month: "short",
+    year: "numeric",
+  });
   const name = locale === "en" && m.nameEn ? m.nameEn : m.nameTh;
   const spec = locale === "en" && m.specEn ? m.specEn : m.specTh;
   const note = locale === "en" && m.noteEn ? m.noteEn : m.noteTh;
@@ -134,11 +156,20 @@ export async function MaterialDetailView({
             {m.model ? <span className="text-sub"> · {m.model}</span> : null}
           </h1>
           {m.price && (
-            <div className="mt-2 font-mono text-[22px] font-semibold text-brand-deep">
-              ฿{Number(m.price).toLocaleString()}
-              {m.unit ? (
-                <span className="text-[15px] font-normal text-sub"> / {m.unit}</span>
-              ) : null}
+            <div className="mt-2 flex flex-wrap items-baseline gap-3">
+              <span className="font-mono text-[22px] font-semibold text-brand-deep">
+                ฿{Number(m.price).toLocaleString()}
+                {m.unit ? (
+                  <span className="text-[15px] font-normal text-sub"> / {m.unit}</span>
+                ) : null}
+              </span>
+              {avg != null && (
+                <span className="text-sm text-sub">
+                  <span className="text-rating">★</span>{" "}
+                  <span className="font-mono">{avg}</span> · {reviews.length}{" "}
+                  {t("reviewsCount")}
+                </span>
+              )}
             </div>
           )}
 
@@ -199,6 +230,18 @@ export async function MaterialDetailView({
           )}
         </div>
       </div>
+
+      <MaterialReviews
+        materialId={id}
+        canReview={canReview}
+        reviews={reviews.map((r) => ({
+          id: r.id,
+          role: r.role,
+          stars: r.stars,
+          body: r.body,
+          dateLabel: reviewDateFmt.format(r.createdAt),
+        }))}
+      />
 
       {m.related.length > 0 && (
         <section className="mt-10">

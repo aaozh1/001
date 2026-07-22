@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { managerContextOrThrow } from "@/lib/projects/manager-context";
 import { getDesignerContext } from "@/lib/projects/service";
+import { z } from "zod";
 import {
+  addCustomOption,
   addOption,
   clearConfirmation,
   confirmMaterial,
@@ -28,6 +30,28 @@ export async function addOptionAction(
 ): Promise<OptionActionResult> {
   const ctx = await managerContextOrThrow();
   const result = await addOption(ctx, itemId, materialId);
+  if (result.ok) revalidateProject(projectId);
+  return { ok: result.ok, error: result.ok ? undefined : result.error };
+}
+
+const customSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  brand: z.string().trim().max(80).nullable().optional(),
+});
+
+/** 3N: add an unlisted product (name + optional brand) as a draft option. */
+export async function addCustomOptionAction(
+  projectId: string,
+  itemId: string,
+  raw: unknown,
+): Promise<OptionActionResult> {
+  const parsed = customSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const ctx = await managerContextOrThrow();
+  const result = await addCustomOption(ctx, itemId, {
+    name: parsed.data.name,
+    brand: parsed.data.brand?.trim() || null,
+  });
   if (result.ok) revalidateProject(projectId);
   return { ok: result.ok, error: result.ok ? undefined : result.error };
 }

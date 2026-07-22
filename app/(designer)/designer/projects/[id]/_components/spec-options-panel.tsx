@@ -2,11 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Button, UndoToast } from "@/components/ui";
+import { Button, Input, Modal, UndoToast } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import { MaterialVisual } from "@/app/_components/material-visual";
 import { MAX_SPEC_OPTIONS } from "@/lib/spec/options";
 import {
+  addCustomOptionAction,
   addOptionAction,
   clearConfirmationAction,
   confirmMaterialAction,
@@ -32,6 +33,9 @@ export function SpecOptionsPanel({
   const t = useTranslations("projects");
   const [pending, startTransition] = useTransition();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [customBrand, setCustomBrand] = useState("");
   const [failed, setFailed] = useState(false);
   const [undo, setUndo] = useState<{ materialId: string; name: string; wasConfirmed: boolean } | null>(null);
 
@@ -202,17 +206,60 @@ export function SpecOptionsPanel({
           {atLimit ? (
             <span className="text-xs text-mut">{t("optionLimit")}</span>
           ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={pending}
-              onClick={() => setPickerOpen(true)}
-            >
-              {t("addOption")}
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={pending}
+                onClick={() => setPickerOpen(true)}
+              >
+                {t("addOption")}
+              </Button>
+              {/* 3N: unlisted product — draft material, never in the catalog */}
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={pending}
+                onClick={() => setCustomOpen(true)}
+              >
+                ＋ {t("addCustom")}
+              </Button>
+            </>
           )}
         </div>
       )}
+
+      <Modal open={customOpen} onClose={() => setCustomOpen(false)} title={`＋ ${t("customTitle")}`}>
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-sub">{t("customHint")}</p>
+          <label className="flex flex-col gap-1 text-sm font-medium text-ink">
+            {t("customName")} <span className="text-brand">*</span>
+            <Input value={customName} onChange={(e) => setCustomName(e.target.value)} />
+          </label>
+          <label className="flex flex-col gap-1 text-sm font-medium text-ink">
+            {t("customBrand")}
+            <Input value={customBrand} onChange={(e) => setCustomBrand(e.target.value)} />
+          </label>
+          <p className="font-mono text-[11px] text-mut">{t("customNote")}</p>
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setCustomOpen(false)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              disabled={pending || !customName.trim()}
+              onClick={() => {
+                const payload = { name: customName, brand: customBrand || null };
+                setCustomOpen(false);
+                setCustomName("");
+                setCustomBrand("");
+                run(() => addCustomOptionAction(projectId, itemId, payload));
+              }}
+            >
+              {t("customAdd")}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {undo && (
         <UndoToast
