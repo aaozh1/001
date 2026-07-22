@@ -19,7 +19,7 @@ export function Badge({ variant = "neutral", className, ...props }: BadgeProps) 
   return (
     <span
       className={cn(
-        "inline-block whitespace-nowrap rounded-pill px-[11px] py-[4px] font-mono text-[11.5px] font-semibold",
+        "inline-block whitespace-nowrap rounded-pill px-[11px] py-[4px] font-mono text-[14.375px] font-semibold",
         variants[variant],
         className,
       )}

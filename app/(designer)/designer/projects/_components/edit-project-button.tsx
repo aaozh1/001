@@ -54,7 +54,7 @@ export function EditProjectButton({
             <select
               name="status"
               defaultValue={project.status}
-              className="w-full rounded-sm border border-line-2 bg-surface px-[14px] py-[10px] text-[13.5px] outline-none focus:border-brand"
+              className="w-full rounded-sm border border-line-2 bg-surface px-[14px] py-[10px] text-[16.875px] outline-none focus:border-brand"
             >
               {PROJECT_STATUSES.map((s) => (
                 <option key={s} value={s}>

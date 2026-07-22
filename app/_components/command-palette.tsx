@@ -185,7 +185,7 @@ export function CommandPalette({ workspace }: { workspace: "designer" | "seller"
             aria-label={t("placeholder")}
             className="w-full bg-transparent py-3 text-sm text-ink outline-none"
           />
-          <kbd className="rounded-sm border border-line-2 px-1.5 py-0.5 text-[10px] text-mut">esc</kbd>
+          <kbd className="rounded-sm border border-line-2 px-1.5 py-0.5 text-[12.5px] text-mut">esc</kbd>
         </div>
         <div className="max-h-80 overflow-y-auto py-1">
           {entries.length === 0 ? (
@@ -209,7 +209,7 @@ export function CommandPalette({ workspace }: { workspace: "designer" | "seller"
             ))
           )}
         </div>
-        <div className="border-t border-line px-4 py-1.5 text-[11px] text-mut">
+        <div className="border-t border-line px-4 py-1.5 text-[13.75px] text-mut">
           ↑↓ {t("kbNav")} · ⏎ {t("kbOpen")} · Ctrl+K
         </div>
       </div>

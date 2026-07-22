@@ -217,7 +217,7 @@ export function MaterialsClient({
         <div className="overflow-x-auto rounded-card border border-line bg-surface shadow-soft">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left font-mono text-[11px] uppercase tracking-[.05em] text-mut">
+              <tr className="text-left font-mono text-[13.75px] uppercase tracking-[.05em] text-mut">
                 <th className="px-3 py-3.5 font-medium">{t("colMaterial")}</th>
                 <th className="px-3 py-3.5 font-medium">{t("colSku")}</th>
                 <th className="px-3 py-3.5 text-right font-medium">{t("colPrice")}</th>
@@ -274,13 +274,13 @@ export function MaterialsClient({
                           style={{ width: `${m.completeness}%` }}
                         />
                       </div>
-                      <span className="font-mono text-[11.5px] text-mut">{m.completeness}%</span>
+                      <span className="font-mono text-[14.375px] text-mut">{m.completeness}%</span>
                     </div>
                   </td>
                   <td className="px-3 py-3">
                     <span
                       className={cn(
-                        "rounded-pill px-2.5 py-1 font-mono text-[11.5px] font-semibold",
+                        "rounded-pill px-2.5 py-1 font-mono text-[14.375px] font-semibold",
                         m.status === "published"
                           ? "bg-ok-soft text-ok"
                           : m.status === "suspended"
@@ -406,7 +406,7 @@ export function MaterialsClient({
                         onClick={() => void removeImage(img)}
                         disabled={imgBusy}
                         aria-label={t("imgRemove")}
-                        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ink/80 text-[10px] text-white hover:bg-brand"
+                        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ink/80 text-[12.5px] text-white hover:bg-brand"
                       >
                         ✕
                       </button>

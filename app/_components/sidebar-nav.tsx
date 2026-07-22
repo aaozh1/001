@@ -37,7 +37,7 @@ export function SidebarNav({
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex items-center justify-between rounded-sm px-3 py-[11px] text-[14.5px] transition-colors",
+              "flex items-center justify-between rounded-sm px-3 py-[11px] text-[18.125px] transition-colors",
               dark
                 ? isActive
                   ? "bg-dark-3 font-semibold text-brand-bright"
@@ -52,7 +52,7 @@ export function SidebarNav({
               {item.label}
             </span>
             {item.badge != null && item.badge > 0 && (
-              <span className="rounded-pill bg-brand px-2 py-0.5 font-mono text-[11px] font-semibold text-white">
+              <span className="rounded-pill bg-brand px-2 py-0.5 font-mono text-[13.75px] font-semibold text-white">
                 {item.badge > 9 ? "9+" : item.badge}
               </span>
             )}

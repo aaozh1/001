@@ -86,7 +86,7 @@ export function QuoteBuilder({
     <div className="flex flex-col gap-4">
       {/* ── Tier table: list price base row + this-RFQ row with live math ── */}
       <div className="overflow-hidden rounded-card border border-line">
-        <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 border-b border-line bg-canvas px-3.5 py-2 font-mono text-[10.5px] uppercase tracking-[.05em] text-mut">
+        <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 border-b border-line bg-canvas px-3.5 py-2 font-mono text-[13.125px] uppercase tracking-[.05em] text-mut">
           <span>{t("tierHead")}</span>
           <span className="text-right">{t("unitPriceHead")}</span>
           <span className="w-24 text-right sm:w-28">{t("lineTotalHead")}</span>
@@ -120,7 +120,7 @@ export function QuoteBuilder({
           <span className="w-24 text-right font-mono font-bold text-brand-deep sm:w-28">
             {summary.lineTotal != null ? formatBaht(summary.lineTotal) : "—"}
           </span>
-          <span className="w-10 pl-1 font-mono text-[11px] text-ok">
+          <span className="w-10 pl-1 font-mono text-[13.75px] text-ok">
             {summary.discountPct != null && summary.discountPct !== 0
               ? `${summary.discountPct > 0 ? "+" : "−"}${Math.abs(summary.discountPct)}%`
               : ""}
@@ -219,7 +219,7 @@ export function QuoteBuilder({
 
       {/* ── Footer: neutrality note (rule #2) + submit ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-        <span className="font-mono text-[11.5px] text-mut">{t("neutrality")}</span>
+        <span className="font-mono text-[14.375px] text-mut">{t("neutrality")}</span>
         <Button onClick={submit} disabled={pending || !pricePerUnit}>
           {pending ? t("submitting") : existing ? t("updateQuote") : t("submit")}
         </Button>

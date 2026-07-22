@@ -134,7 +134,7 @@ export function SpecViews({
   }
 
   const iconBtn =
-    "rounded-pill border border-line-2 px-2.5 py-1.5 text-[13px] text-sub transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40";
+    "rounded-pill border border-line-2 px-2.5 py-1.5 text-[16.25px] text-sub transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40";
 
   const confirmed = items.filter((i) => i.confirmedMaterialId != null).length;
   const optionsPending = items.filter(
@@ -229,11 +229,11 @@ export function SpecViews({
                 style={{ width: `${pct}%` }}
               />
             </span>
-            <span className="font-mono text-[12px] text-mut">
+            <span className="font-mono text-[15px] text-mut">
               {t("specProgress", { confirmed, total: items.length })}
             </span>
             <span className="h-[18px] w-px bg-line-2" />
-            <span className="font-mono text-[12px] text-mut">
+            <span className="font-mono text-[15px] text-mut">
               {t("specMeta", { pending: optionsPending, quoted })}
             </span>
           </span>
@@ -333,7 +333,7 @@ export function SpecViews({
 
           {/* 2D: inline-edit affordance, mono like the mock */}
           {view === "full" && canManage && (
-            <span className="hidden font-mono text-[11.5px] text-mut 2xl:inline">
+            <span className="hidden font-mono text-[14.375px] text-mut 2xl:inline">
               {t("inlineHint")}
             </span>
           )}
@@ -577,7 +577,7 @@ function GridView({ items }: { items: SpecRow[] }) {
             )}
             <div className="flex flex-col gap-1 p-3">
               <div className="flex items-center justify-between gap-2">
-                <span className="rounded-[6px] border border-line px-1.5 py-0.5 font-mono text-[11px] text-sub">
+                <span className="rounded-[6px] border border-line px-1.5 py-0.5 font-mono text-[13.75px] text-sub">
                   {it.code}
                 </span>
                 <StatusChip status={it.status} count={it.options.length || undefined} />
@@ -585,7 +585,7 @@ function GridView({ items }: { items: SpecRow[] }) {
               <div className="mt-1 truncate text-sm font-bold text-ink">
                 {it.zone || it.code}
               </div>
-              <div className={cn("truncate text-[13px]", hero ? "text-sub" : "text-mut")}>
+              <div className={cn("truncate text-[16.25px]", hero ? "text-sub" : "text-mut")}>
                 {hero ? [hero.name, hero.brand].filter(Boolean).join(" · ") : t("noMaterialYet")}
               </div>
               <div className="font-mono text-xs text-mut">

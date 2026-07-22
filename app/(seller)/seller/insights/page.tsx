@@ -48,7 +48,7 @@ export default async function SellerInsightsPage() {
 
   const stat = (value: string, label: string) => (
     <div className="rounded-card border border-line bg-surface p-5">
-      <div className="font-mono text-[26px] font-semibold text-brand-deep">{value}</div>
+      <div className="font-mono text-[32.5px] font-semibold text-brand-deep">{value}</div>
       <div className="mt-1 text-sm text-mut">{label}</div>
     </div>
   );
@@ -105,7 +105,7 @@ export default async function SellerInsightsPage() {
         {data.gap && (
           <div className="mt-5 flex items-center gap-2.5 rounded-sm border border-brand-line bg-brand-soft px-4 py-3">
             <span aria-hidden>💡</span>
-            <span className="text-[12.5px] text-sub">
+            <span className="text-[15.625px] text-sub">
               {t("gapNudge", {
                 name: data.gap.name,
                 filter: filterLabel(data.gap.filterKey),
@@ -119,7 +119,7 @@ export default async function SellerInsightsPage() {
         )}
       </section>
 
-      <p className="mt-3 font-mono text-[11.5px] text-mut">🔒 {t("aggregateNote")}</p>
+      <p className="mt-3 font-mono text-[14.375px] text-mut">🔒 {t("aggregateNote")}</p>
     </div>
   );
 }

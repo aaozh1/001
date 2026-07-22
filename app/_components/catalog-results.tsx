@@ -190,7 +190,7 @@ export function CatalogResults({
                 <div className="truncate text-xs font-semibold text-ink group-hover:text-brand">
                   {name(m)}
                 </div>
-                <div className="truncate text-[11px] text-mut">
+                <div className="truncate text-[13.75px] text-mut">
                   {[m.brand, m.model].filter(Boolean).join(" · ") || "—"}
                 </div>
                 <div className="mt-0.5 text-xs font-bold text-brand">{priceText(m)}</div>
@@ -225,7 +225,7 @@ export function CatalogResults({
                     href={`${basePath}/${m.id}`}
                     className={cn(
                       "truncate font-semibold text-ink hover:text-brand",
-                      view === "list" ? "text-sm" : "text-[13px]",
+                      view === "list" ? "text-sm" : "text-[16.25px]",
                     )}
                   >
                     {name(m)}

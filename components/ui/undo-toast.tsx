@@ -29,7 +29,7 @@ export function UndoToast({
       <button
         type="button"
         onClick={onUndo}
-        className="rounded-pill bg-white/15 px-2.5 py-1 text-[13px] font-semibold text-white hover:bg-white/25"
+        className="rounded-pill bg-white/15 px-2.5 py-1 text-[16.25px] font-semibold text-white hover:bg-white/25"
       >
         ↩ {undoLabel}
       </button>

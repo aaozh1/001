@@ -16,7 +16,7 @@ export interface ReviewRow {
 
 function Stars({ n }: { n: number }) {
   return (
-    <span className="text-[13px] tracking-tight text-rating" aria-label={`${n}/5`}>
+    <span className="text-[16.25px] tracking-tight text-rating" aria-label={`${n}/5`}>
       {"★".repeat(n)}
       <span className="opacity-30">{"★".repeat(5 - n)}</span>
     </span>
@@ -124,11 +124,11 @@ export function MaterialReviews({
                 <span className="flex items-center gap-2 text-sm font-bold text-ink">
                   {t(`role.${r.role}`)}
                   <Stars n={r.stars} />
-                  <span className="rounded-pill bg-ok-soft px-2 py-0.5 font-mono text-[10px] text-ok">
+                  <span className="rounded-pill bg-ok-soft px-2 py-0.5 font-mono text-[12.5px] text-ok">
                     ✓ {t("verified")}
                   </span>
                 </span>
-                <span className="font-mono text-[11px] text-mut">{r.dateLabel}</span>
+                <span className="font-mono text-[13.75px] text-mut">{r.dateLabel}</span>
               </div>
               {r.body && <p className="mt-1 text-sm text-sub">{r.body}</p>}
             </div>

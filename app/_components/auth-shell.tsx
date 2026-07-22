@@ -24,10 +24,10 @@ export async function AuthShell({
           </Link>
           <div>
             <p className="eyebrow">{ta("panelEyebrow")}</p>
-            <h2 className="mt-3 max-w-md text-[32px] font-bold leading-tight tracking-tight text-ink">
+            <h2 className="mt-3 max-w-md text-[40px] font-bold leading-tight tracking-tight text-ink">
               {ta("panelTitle")}
             </h2>
-            <ul className="mt-6 flex flex-col gap-2.5 text-[15px] text-ink-2">
+            <ul className="mt-6 flex flex-col gap-2.5 text-[18.75px] text-ink-2">
               {(["panelB1", "panelB2", "panelB3"] as const).map((k) => (
                 <li key={k} className="flex items-start gap-2.5">
                   <span className="mt-0.5 text-brand">✓</span>

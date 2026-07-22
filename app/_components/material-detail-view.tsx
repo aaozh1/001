@@ -123,7 +123,7 @@ export async function MaterialDetailView({
                   <span>
                     <span className="block font-bold text-ink">{m.seller.name}</span>
                     {m.seller.verified && (
-                      <span className="font-mono text-[11px] text-ok">✓ {t("verified")}</span>
+                      <span className="font-mono text-[13.75px] text-ok">✓ {t("verified")}</span>
                     )}
                   </span>
                 </div>
@@ -141,26 +141,26 @@ export async function MaterialDetailView({
         {/* ── Right: identity, price, CTA, spec table ── */}
         <div>
           <div className="flex flex-wrap items-center gap-2 text-sm text-sub">
-            <span className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-canvas-2 font-mono text-[9px] font-bold text-sub">
+            <span className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-canvas-2 font-mono text-[11.25px] font-bold text-sub">
               {sellerInitials}
             </span>
             {[m.brand, categoryLabel(m.category, locale)].filter(Boolean).join(" · ")}
             {m.seller?.verified && (
-              <span className="rounded-pill bg-ok-soft px-2 py-0.5 font-mono text-[10.5px] text-ok">
+              <span className="rounded-pill bg-ok-soft px-2 py-0.5 font-mono text-[13.125px] text-ok">
                 ✓ {t("verified")}
               </span>
             )}
           </div>
-          <h1 className="mt-2 text-[28px] font-bold leading-tight tracking-tight text-ink">
+          <h1 className="mt-2 text-[35px] font-bold leading-tight tracking-tight text-ink">
             {name}
             {m.model ? <span className="text-sub"> · {m.model}</span> : null}
           </h1>
           {m.price && (
             <div className="mt-2 flex flex-wrap items-baseline gap-3">
-              <span className="font-mono text-[22px] font-semibold text-brand-deep">
+              <span className="font-mono text-[27.5px] font-semibold text-brand-deep">
                 ฿{Number(m.price).toLocaleString()}
                 {m.unit ? (
-                  <span className="text-[15px] font-normal text-sub"> / {m.unit}</span>
+                  <span className="text-[18.75px] font-normal text-sub"> / {m.unit}</span>
                 ) : null}
               </span>
               {avg != null && (
