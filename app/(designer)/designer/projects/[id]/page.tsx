@@ -142,7 +142,23 @@ export default async function ProjectDetailPage({ params }: Props) {
             {t("items")}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* 2D header actions: Import Excel is live; Revit is roadmap (3.4) —
+              shown disabled per the design, never a fake working button. */}
+          {canManage && (
+            <Link
+              href="/designer/projects/import"
+              className="rounded-pill border border-line-3 px-3 py-1.5 text-sm font-medium text-sub transition hover:border-brand hover:text-brand"
+            >
+              ⬆ {t("importExcel")}
+            </Link>
+          )}
+          <span
+            title={t("revitSoon")}
+            className="cursor-not-allowed rounded-pill border border-line px-3 py-1.5 text-sm text-mut opacity-70"
+          >
+            ⧉ {t("connectRevit")}
+          </span>
           <Link
             href={`/designer/projects/${project.id}/site-visit`}
             className="rounded-pill border border-line-3 px-3 py-1.5 text-sm font-medium text-sub transition hover:border-brand hover:text-brand"

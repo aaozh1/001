@@ -52,38 +52,52 @@ export function InboxList({ rows }: { rows: InboxRow[] }) {
         <div className="flex flex-col gap-3">
           {/* 3G privacy footnote renders after the list (see below) */}
           {visible.map((r) => (
-            <Card key={r.id} className="flex-row items-center justify-between gap-4">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-ink">{r.projectName}</span>
-                  {r.quoteStatus === "selected" ? (
-                    <Badge variant="ok">{t("won")}</Badge>
-                  ) : r.quoteStatus === "rejected" ? (
-                    <Badge variant="neutral">{t("lost")}</Badge>
-                  ) : r.responded ? (
-                    <Badge variant="ok">✓ {t("responded")}</Badge>
-                  ) : null}
-                  {r.wantSample && <Badge variant="brand">{t("wantSample")}</Badge>}
+            <Card key={r.id} className="gap-2.5">
+              {/* 3G row: material title bold, project/qty meta, SLA chip */}
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate text-[15px] font-bold text-ink">
+                      {r.materials || r.projectName}
+                    </span>
+                    {r.quoteStatus === "selected" ? (
+                      <Badge variant="ok">{t("won")}</Badge>
+                    ) : r.quoteStatus === "rejected" ? (
+                      <Badge variant="neutral">{t("lost")}</Badge>
+                    ) : r.responded ? (
+                      <Badge variant="ok">✓ {t("responded")}</Badge>
+                    ) : null}
+                  </div>
+                  <div className="mt-1 truncate text-sm text-sub">
+                    {r.projectName}
+                    {r.qtyLabel ? ` · ${r.qtyLabel}` : ""}
+                    {r.wantSample ? ` · ${t("wantSample")}` : ""}
+                  </div>
                 </div>
-                <div className="mt-1 truncate text-sm text-sub">
-                  {r.materials}
-                  {r.qtyLabel ? ` · ${r.qtyLabel}` : ""}
-                </div>
-                <div className="mt-0.5 flex flex-wrap gap-3 text-xs">
-                  {!r.responded &&
-                    (r.status === "open" || r.status === "quoted") && (
+                <div className="flex shrink-0 items-center gap-2">
+                  {!r.responded && (r.status === "open" || r.status === "quoted") && (
+                    <span className="rounded-pill bg-warn-soft px-2.5 py-1 font-mono text-[11px] font-semibold text-warn">
                       <SlaCountdown slaDueAt={r.slaDueAt} />
-                    )}
-                  {r.slaDateLabel && (
-                    <span className="text-mut">
-                      {t("sla")}: {r.slaDateLabel}
                     </span>
                   )}
                 </div>
               </div>
-              <Link href={`/seller/rfq/${r.id}`} className={buttonClasses({ size: "sm" })}>
-                {r.responded ? t("open") : t("respond")}
-              </Link>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="font-mono text-[11px] text-mut">
+                  {r.slaDateLabel ? `${t("sla")}: ${r.slaDateLabel}` : ""}
+                </span>
+                <span className="flex gap-2">
+                  <Link
+                    href="/seller/chat"
+                    className={buttonClasses({ size: "sm", variant: "ghost" })}
+                  >
+                    {t("chatBtn")}
+                  </Link>
+                  <Link href={`/seller/rfq/${r.id}`} className={buttonClasses({ size: "sm" })}>
+                    {r.responded ? t("open") : t("respond")}
+                  </Link>
+                </span>
+              </div>
             </Card>
           ))}
         </div>

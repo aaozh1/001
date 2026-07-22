@@ -21,7 +21,7 @@ export function MaterialCard({
   const spec = locale === "en" && m.specEn ? m.specEn : m.specTh;
   return (
     <Card padded={false} interactive className="overflow-hidden">
-      <Link href={`${basePath}/${m.id}`}>
+      <Link href={`${basePath}/${m.id}`} className="relative block">
         <MaterialVisual
           image={m.image}
           swatchHex={m.swatchHex}
@@ -29,6 +29,12 @@ export function MaterialCard({
           alt={m.nameTh}
           className="rounded-none"
         />
+        {/* 2C: SKU chip pinned on the photo, mono like the mock */}
+        {m.sku && (
+          <span className="absolute left-2 top-2 rounded-[6px] bg-white/92 px-1.5 py-0.5 font-mono text-[10px] text-ink-2 shadow-soft">
+            {m.sku}
+          </span>
+        )}
       </Link>
       <div className="flex flex-1 flex-col gap-1.5 p-[14px]">
         <Link

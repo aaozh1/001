@@ -7,7 +7,7 @@ import { Button } from "@/components/ui";
 // Starts a checkout via the payment-gateway boundary. Real charging is Phase
 // 3.5; today the gateway returns "unavailable", so we surface a "coming soon"
 // note instead of pretending to bill.
-export function UpgradeButton({ plan }: { plan: "pro" | "studio" }) {
+export function UpgradeButton({ plan, dark = false }: { plan: "pro" | "studio"; dark?: boolean }) {
   const t = useTranslations("billing");
   const [pending, setPending] = useState(false);
   const [note, setNote] = useState<string | null>(null);
@@ -40,9 +40,21 @@ export function UpgradeButton({ plan }: { plan: "pro" | "studio" }) {
 
   return (
     <div className="flex flex-col gap-1">
-      <Button size="sm" onClick={upgrade} disabled={pending}>
-        {pending ? t("starting") : t("choosePlan")}
-      </Button>
+      {dark ? (
+        // 3K: Studio's CTA is the dark button in the design.
+        <button
+          type="button"
+          onClick={upgrade}
+          disabled={pending}
+          className="rounded-sm bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-dark-2 disabled:opacity-60"
+        >
+          {pending ? t("starting") : t("choosePlan")}
+        </button>
+      ) : (
+        <Button size="sm" onClick={upgrade} disabled={pending}>
+          {pending ? t("starting") : t("choosePlan")}
+        </Button>
+      )}
       {note && <p className="text-xs text-mut">{note}</p>}
     </div>
   );

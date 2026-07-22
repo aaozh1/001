@@ -35,15 +35,17 @@ export default async function BillingPage() {
       <Link href="/designer" className="text-sm text-sub hover:text-ink">
         {t("back")}
       </Link>
-      <header className="mt-2">
-        <h1 className="text-2xl font-bold tracking-tight text-ink">{t("title")}</h1>
+      {/* 3K: centered pricing header with eyebrow */}
+      <header className="mt-4 text-center">
+        <p className="eyebrow">{t("eyebrow")}</p>
+        <h1 className="mt-1 text-[26px] font-bold tracking-tight text-ink">{t("title")}</h1>
         <p className="mt-1 text-sub">{t("subtitle")}</p>
       </header>
 
-      {!owner && <p className="mt-3 text-xs text-warn">{t("ownerOnly")}</p>}
+      {!owner && <p className="mt-3 text-center text-xs text-warn">{t("ownerOnly")}</p>}
 
-      {/* Plan comparison */}
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      {/* Plan comparison — Pro carries the POPULAR chip + tinted ring */}
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
         {DESIGNER_PLAN_ORDER.map((id) => {
           const plan = DESIGNER_PLANS[id];
           const current = id === sub.plan;
@@ -51,34 +53,45 @@ export default async function BillingPage() {
           return (
             <Card
               key={id}
-              className={cn("gap-3", current && "ring-2 ring-brand")}
+              className={cn(
+                "gap-3",
+                id === "pro" && "border-brand bg-brand-soft/40",
+                current && "ring-2 ring-brand",
+              )}
             >
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-ink">{t(`plan.${id}`)}</h2>
-                {current && <Badge variant="brand">{t("current")}</Badge>}
+                {current ? (
+                  <Badge variant="brand">{t("current")}</Badge>
+                ) : id === "pro" ? (
+                  <span className="font-mono text-[10px] font-semibold uppercase tracking-[.08em] text-brand">
+                    {t("popular")}
+                  </span>
+                ) : null}
               </div>
-              <p className="text-2xl font-bold tracking-tight text-ink">
-                {plan.priceThb === 0 ? (
-                  t("free")
-                ) : (
-                  <>
-                    ฿{plan.priceThb.toLocaleString()}
-                    <span className="text-sm font-normal text-mut">{t("perSeatMonth")}</span>
-                  </>
-                )}
+              <p className="font-mono text-[26px] font-semibold tracking-tight text-ink">
+                ฿{plan.priceThb.toLocaleString()}
+                <span className="font-sans text-sm font-normal text-mut">
+                  {plan.priceThb === 0 ? ` ${t("forever")}` : ` ${t("perSeatMonth")}`}
+                </span>
               </p>
+              <hr className="border-line" />
               <ul className="flex flex-col gap-1.5 text-sm text-sub">
                 {plan.featureKeys.map((f) => (
                   <li key={f} className="flex gap-2">
-                    <span className="text-ok">✓</span>
+                    <span className="text-brand">✓</span>
                     {t(`feat.${f}`)}
                   </li>
                 ))}
               </ul>
               {current ? (
-                <span className="text-xs text-mut">{t("onThisPlan")}</span>
-              ) : upgradeable && id !== "free" ? (
-                <UpgradeButton plan={id as "pro" | "studio"} />
+                <span className="rounded-sm border border-line-3 px-4 py-2 text-center text-sm font-semibold text-ink">
+                  {t("onThisPlan")}
+                </span>
+              ) : upgradeable && id === "pro" ? (
+                <UpgradeButton plan="pro" />
+              ) : upgradeable && id === "studio" ? (
+                <UpgradeButton plan="studio" dark />
               ) : null}
             </Card>
           );

@@ -358,12 +358,12 @@ export function MaterialBoard({
                         : texture(o.swatchHex ?? "#c9c2b4", categoryTexture(o.category))),
                     }}
                   >
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-2 pb-1.5 pt-6">
-                      <div className="truncate text-[11px] font-semibold leading-tight text-white">{o.name}</div>
-                      <div className="truncate text-[10px] text-white/80">
-                        {[info.itemCode, o.brand].filter(Boolean).join(" · ")}
+                    <div className="pointer-events-none absolute bottom-2 left-2 max-w-[88%] rounded-[9px] bg-white/95 px-2.5 py-1.5 shadow-soft">
+                      <div className="font-mono text-[9px] leading-tight text-mut">
+                        {info.itemCode}
                         {o.price ? ` · ฿${o.price}` : ""}
                       </div>
+                      <div className="truncate text-[11.5px] font-bold leading-tight text-ink">{o.name}</div>
                     </div>
                   </div>
                 );
@@ -390,8 +390,8 @@ export function MaterialBoard({
               className={cn(
                 "absolute select-none overflow-hidden rounded-card shadow-soft",
                 canManage && "cursor-grab active:cursor-grabbing",
-                o.isConfirmed ? "ring-2 ring-ok" : "ring-1 ring-line-2 opacity-60",
-                isSel && "ring-2 ring-brand opacity-100",
+                !o.isConfirmed && "opacity-60",
+                isSel ? "ring-2 ring-brand opacity-100" : "ring-1 ring-line-2",
               )}
               style={{
                 left: tl.x,
@@ -409,20 +409,17 @@ export function MaterialBoard({
               }}
             >
               {/* ข้อมูลวัสดุวางอยู่ภายในรูป — gradient ให้อ่านออกบนทุกสี */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-2 pb-1.5 pt-6">
-                <div className="truncate text-[11px] font-semibold leading-tight text-white">
-                  {o.name}
-                </div>
-                <div className="truncate text-[10px] text-white/80">
-                  {[info.itemCode, o.brand].filter(Boolean).join(" · ")}
+              {/* 3E: white label pill inside the tile — mono code + bold name */}
+              <div className="pointer-events-none absolute bottom-2 left-2 max-w-[88%] rounded-[9px] bg-white/95 px-2.5 py-1.5 shadow-soft">
+                <div className="font-mono text-[9px] leading-tight text-mut">
+                  {info.itemCode}
+                  {!o.isConfirmed && " · opt"}
                   {o.price ? ` · ฿${o.price}` : ""}
                 </div>
+                <div className="truncate text-[11.5px] font-bold leading-tight text-ink">
+                  {o.name}
+                </div>
               </div>
-              {o.isConfirmed && (
-                <span className="absolute left-1.5 top-1.5 rounded-pill bg-ok px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                  ✓
-                </span>
-              )}
 
               {canManage && isSel && (
                 <>

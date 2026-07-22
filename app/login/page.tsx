@@ -4,7 +4,7 @@ import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
   return (
-    <AuthShell>
+    <AuthShell variant="split">
       {/* Suspense: LoginForm reads useSearchParams (callbackUrl deep link). */}
       <Suspense>
         <LoginForm />
