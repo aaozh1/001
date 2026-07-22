@@ -294,7 +294,8 @@
     "chatSeller": "แชทกับผู้ขาย",
     "openSpecsheet": "เปิดสเปกชีต (PDF)",
     "openCatalogPdf": "เปิดแคตตาล็อก",
-    "reviewsCount": "รีวิว"
+    "reviewsCount": "รีวิว",
+    "addShort": "เพิ่ม"
   },
   "projects": {
     "title": "โปรเจกต์ของฉัน",

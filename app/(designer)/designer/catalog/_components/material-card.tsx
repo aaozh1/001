@@ -4,7 +4,9 @@ import { MaterialVisual } from "@/app/_components/material-visual";
 import type { MaterialSummary } from "@/lib/materials/service";
 import { AddToProjectButton } from "./add-to-project-button";
 
-// One catalog result. `locale` picks the TH/EN name + spec summary.
+// One catalog result, laid out per design 2C: photo with a mono SKU chip,
+// brand row with an initials tile, bold name, mono spec meta, then the mono
+// price + compact "+ เพิ่ม" pill. `locale` picks the TH/EN name + spec.
 export function MaterialCard({
   m,
   locale,
@@ -19,6 +21,16 @@ export function MaterialCard({
 }) {
   const name = locale === "en" && m.nameEn ? m.nameEn : m.nameTh;
   const spec = locale === "en" && m.specEn ? m.specEn : m.specTh;
+  const meta = [m.size, spec].filter(Boolean).join(" · ");
+  const brandInitials = m.brand
+    ? m.brand
+        .split(/\s+/)
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : null;
+
   return (
     <Card padded={false} interactive className="overflow-hidden">
       <Link href={`${basePath}/${m.id}`} className="relative block">
@@ -36,22 +48,34 @@ export function MaterialCard({
           </span>
         )}
       </Link>
-      <div className="flex flex-1 flex-col gap-1.5 p-[14px]">
+      <div className="flex flex-1 flex-col gap-1 p-[14px]">
+        {brandInitials && (
+          <div className="flex items-center gap-1.5 text-xs text-sub">
+            <span className="flex h-4 w-4 items-center justify-center rounded-[4px] border border-line bg-canvas font-mono text-[8px] font-semibold text-mut">
+              {brandInitials}
+            </span>
+            {m.brand}
+          </div>
+        )}
         <Link
           href={`${basePath}/${m.id}`}
-          className="text-sm font-semibold text-ink hover:text-brand"
+          className="text-sm font-bold leading-snug text-ink hover:text-brand"
         >
           {name}
+          {m.model ? <span className="font-semibold text-sub"> · {m.model}</span> : null}
         </Link>
-        <div className="text-xs text-sub">
-          {[m.brand, m.model].filter(Boolean).join(" · ")}
-        </div>
-        {spec && <div className="text-xs text-mut">{spec}</div>}
+        {meta && (
+          <div className="truncate font-mono text-[11px] text-mut" title={meta}>
+            {meta}
+          </div>
+        )}
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-          <span className="font-mono text-[13px] font-semibold text-brand-deep">
-            {m.price ? `฿${m.price}${m.unit ? `/${m.unit}` : ""}` : ""}
+          <span className="font-mono text-[13.5px] font-semibold text-brand-deep">
+            {m.price
+              ? `฿${Number(m.price).toLocaleString()}${m.unit ? ` / ${m.unit}` : ""}`
+              : ""}
           </span>
-          {canManage && <AddToProjectButton materialId={m.id} />}
+          {canManage && <AddToProjectButton materialId={m.id} compact />}
         </div>
       </div>
     </Card>

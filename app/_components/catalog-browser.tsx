@@ -71,7 +71,6 @@ export async function CatalogBrowser({
         <p className="mt-1 text-sub">{t("subtitle")}</p>
         <div className="mt-4 max-w-xl">
           <CatalogSearch basePath={basePath} category={filters.category} initial={q ?? ""} />
-          <p className="mt-1.5 font-mono text-[11.5px] text-mut">{t("neutral")}</p>
         </div>
       </header>
 
@@ -102,8 +101,14 @@ export async function CatalogBrowser({
         />
       </div>
 
-      <div className="mb-3 text-sm text-sub">
-        {heading} · {result.total} {t("items")}
+      {/* 2C results row: bold count left, mono neutrality note right */}
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <span className="text-sm text-ink">
+          <span className="font-bold">{result.total.toLocaleString()}</span>{" "}
+          {t("items")}
+          <span className="text-sub"> · {heading}</span>
+        </span>
+        <span className="font-mono text-[11.5px] text-mut">{t("neutral")}</span>
       </div>
 
       {result.materials.length === 0 ? (
@@ -166,7 +171,7 @@ function CategoryChip({
       className={cn(
         "rounded-pill border px-2.5 py-1 text-[13px] transition",
         active
-          ? "border-brand bg-brand font-medium text-white"
+          ? "border-dark bg-dark font-medium text-white"
           : "border-line-2 bg-surface text-sub hover:border-brand hover:text-brand",
       )}
     >
