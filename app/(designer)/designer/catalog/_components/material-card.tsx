@@ -66,8 +66,9 @@ export function MaterialCard({
           </span>
         )}
       </Link>
-      {/* Compare checkbox — top-right, revealed on hover (or kept visible once
-          picked). Sits above the photo Link so it never triggers navigation. */}
+      {/* Compare checkbox — top-right of the photo, always visible so it's
+          discoverable on touch devices too (hover-only hides it on mobile).
+          Sits above the photo Link so it never triggers navigation. */}
       {onToggleCompare && (
         <button
           type="button"
@@ -84,8 +85,8 @@ export function MaterialCard({
           className={cn(
             "absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-[6px] border text-xs font-bold shadow-soft transition",
             compareSelected
-              ? "border-brand bg-brand text-white opacity-100"
-              : "border-line-2 bg-white/92 text-transparent opacity-0 hover:border-brand focus-visible:opacity-100 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-0",
+              ? "border-brand bg-brand text-white"
+              : "border-line-3 bg-white/90 text-transparent hover:border-brand hover:text-brand/40 disabled:cursor-not-allowed disabled:opacity-40",
           )}
         >
           ✓
