@@ -66,7 +66,11 @@
   --shadow-frame: 0 40px 90px -50px rgb(28 26 23 / 0.5);
 
   --font-sans: var(--font-plex-sans), "IBM Plex Sans Thai", "Noto Sans Thai", system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+  /* Label type = "Clean sans" (per explicit request): every SKU/price/timestamp/
+     eyebrow/meta/chip/kbd element uses `font-mono` in markup, but the token
+     itself resolves to the Sans family — one line flips the whole system,
+     no IBM Plex Mono asset loaded. */
+  --font-mono: var(--font-sans);
 }
 
 html,
@@ -82,9 +86,9 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Section eyebrow (design handoff): mono, uppercase, wide tracking, accent. */
+/* Section eyebrow (design handoff): uppercase, wide tracking, accent — sans per label-type. */
 .eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 15px;
   letter-spacing: 0.14em;
   text-transform: uppercase;

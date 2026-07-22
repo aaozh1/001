@@ -9,6 +9,7 @@ import { MaterialVisual } from "@/app/_components/material-visual";
 import type { MaterialSummary } from "@/lib/materials/service";
 import { MaterialCard } from "@/app/(designer)/designer/catalog/_components/material-card";
 import { AddToProjectButton } from "@/app/(designer)/designer/catalog/_components/add-to-project-button";
+import { CompareBar, CompareModal, COMPARE_MAX } from "@/app/_components/catalog-compare";
 
 // Display modes for catalog results (สลับด้วยปุ่มไอคอนมุมขวาบน) — persisted in
 // localStorage so the choice sticks across pages/visits.
@@ -45,12 +46,14 @@ const COLS_KEY = "matlist.catalog.cols";
 export function CatalogResults({
   materials,
   locale,
-  canManage,
+  addFallbackHref,
   basePath,
 }: {
   materials: MaterialSummary[];
   locale: string;
-  canManage: boolean;
+  /** undefined when the viewer can add directly; a URL otherwise, so the
+   *  "+ Add" button always renders the same regardless of sign-in state. */
+  addFallbackHref?: string;
   basePath: string;
 }) {
   const t = useTranslations("catalog");
@@ -58,6 +61,27 @@ export function CatalogResults({
   const [cols, setCols] = useState<TableCol[]>(DEFAULT_COLS);
   const [colsOpen, setColsOpen] = useState(false);
   const colsRef = useRef<HTMLDivElement>(null);
+
+  // Compare selection — user-picked materials lined up side-by-side. Order is
+  // the pick order (no ranking); capped at COMPARE_MAX columns.
+  const [compare, setCompare] = useState<MaterialSummary[]>([]);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const compareIds = new Set(compare.map((m) => m.id));
+
+  function toggleCompare(m: MaterialSummary) {
+    setCompare((prev) => {
+      if (prev.some((x) => x.id === m.id)) return prev.filter((x) => x.id !== m.id);
+      if (prev.length >= COMPARE_MAX) return prev;
+      return [...prev, m];
+    });
+  }
+  function removeCompare(id: string) {
+    setCompare((prev) => prev.filter((x) => x.id !== id));
+  }
+  function clearCompare() {
+    setCompare([]);
+    setCompareOpen(false);
+  }
 
   // Restore persisted display preferences after mount (SSR-safe).
   useEffect(() => {
@@ -166,7 +190,16 @@ export function CatalogResults({
       {view === "grid" && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {materials.map((m) => (
-            <MaterialCard key={m.id} m={m} locale={locale} canManage={canManage} basePath={basePath} />
+            <MaterialCard
+              key={m.id}
+              m={m}
+              locale={locale}
+              addFallbackHref={addFallbackHref}
+              basePath={basePath}
+              compareSelected={compareIds.has(m.id)}
+              compareDisabled={compare.length >= COMPARE_MAX}
+              onToggleCompare={() => toggleCompare(m)}
+            />
           ))}
         </div>
       )}
@@ -177,7 +210,10 @@ export function CatalogResults({
             <Link
               key={m.id}
               href={`${basePath}/${m.id}`}
-              className="group overflow-hidden rounded-card border border-line bg-surface shadow-soft transition hover:-translate-y-0.5 hover:border-brand"
+              className={cn(
+                "group relative overflow-hidden rounded-card border border-line bg-surface shadow-soft transition hover:-translate-y-0.5 hover:border-brand",
+                compareIds.has(m.id) && "ring-2 ring-brand",
+              )}
             >
               <MaterialVisual
                 image={m.image}
@@ -186,6 +222,31 @@ export function CatalogResults({
                 alt={name(m)}
                 className="h-20 rounded-none"
               />
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={compareIds.has(m.id)}
+                aria-label={t("compareAdd")}
+                title={
+                  compare.length >= COMPARE_MAX && !compareIds.has(m.id)
+                    ? t("compareMax")
+                    : t("compareAdd")
+                }
+                disabled={compare.length >= COMPARE_MAX && !compareIds.has(m.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleCompare(m);
+                }}
+                className={cn(
+                  "absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-[5px] border text-[11px] font-bold shadow-soft transition",
+                  compareIds.has(m.id)
+                    ? "border-brand bg-brand text-white opacity-100"
+                    : "border-line-2 bg-white/92 text-transparent opacity-0 hover:border-brand focus-visible:opacity-100 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-0",
+                )}
+              >
+                ✓
+              </button>
               <div className="p-2">
                 <div className="truncate text-xs font-semibold text-ink group-hover:text-brand">
                   {name(m)}
@@ -244,11 +305,9 @@ export function CatalogResults({
                 </span>
               )}
               <span className="shrink-0 text-sm font-bold text-brand">{priceText(m)}</span>
-              {canManage && (
-                <span className="shrink-0">
-                  <AddToProjectButton materialId={m.id} />
-                </span>
-              )}
+              <span className="shrink-0">
+                <AddToProjectButton materialId={m.id} fallbackHref={addFallbackHref} />
+              </span>
             </div>
           ))}
         </div>
@@ -265,7 +324,7 @@ export function CatalogResults({
                     {t(`col_${c}`)}
                   </th>
                 ))}
-                {canManage && <th className="px-3 py-2" />}
+                <th className="px-3 py-2" />
               </tr>
             </thead>
             <tbody>
@@ -297,17 +356,31 @@ export function CatalogResults({
                       )}
                     </td>
                   ))}
-                  {canManage && (
-                    <td className="px-3 py-2 text-right">
-                      <AddToProjectButton materialId={m.id} />
-                    </td>
-                  )}
+                  <td className="px-3 py-2 text-right">
+                    <AddToProjectButton materialId={m.id} fallbackHref={addFallbackHref} />
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      <CompareBar
+        items={compare}
+        locale={locale}
+        onOpen={() => setCompareOpen(true)}
+        onClear={clearCompare}
+        onRemove={removeCompare}
+      />
+      <CompareModal
+        open={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        items={compare}
+        locale={locale}
+        addFallbackHref={addFallbackHref}
+        onRemove={removeCompare}
+      />
     </div>
   );
 }

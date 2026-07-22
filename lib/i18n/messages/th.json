@@ -295,7 +295,15 @@
     "openSpecsheet": "เปิดสเปกชีต (PDF)",
     "openCatalogPdf": "เปิดแคตตาล็อก",
     "reviewsCount": "รีวิว",
-    "addShort": "เพิ่ม"
+    "addShort": "เพิ่ม",
+    "compareAdd": "เพิ่มลงการเปรียบเทียบ",
+    "compareRemove": "เอาออกจากการเปรียบเทียบ",
+    "compareMax": "เปรียบเทียบได้สูงสุด 4 รายการ",
+    "compareSelected": "เลือกแล้ว {n} รายการ",
+    "compareOpen": "เปรียบเทียบ",
+    "compareClear": "ล้างการเลือก",
+    "compareTitle": "เปรียบเทียบวัสดุ",
+    "compareHint": "เทียบสเปกแบบเคียงข้างกัน เรียงตามที่คุณเลือก — ไม่มีการจัดอันดับหรือแนะนำผู้ขาย"
   },
   "projects": {
     "title": "โปรเจกต์ของฉัน",

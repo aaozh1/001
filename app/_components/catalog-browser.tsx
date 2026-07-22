@@ -23,14 +23,16 @@ import { CatalogResults } from "@/app/_components/catalog-results";
 // appears differ.
 export async function CatalogBrowser({
   basePath,
-  canManage,
+  addFallbackHref,
   q,
   page,
   filters,
   sort,
 }: {
   basePath: string;
-  canManage: boolean;
+  /** undefined when the viewer can add directly; a URL otherwise, so the
+   *  "+ Add" button always renders the same regardless of sign-in state. */
+  addFallbackHref?: string;
   q?: string;
   page: number;
   filters: CatalogFilters;
@@ -130,7 +132,7 @@ export async function CatalogBrowser({
         <CatalogResults
           materials={result.materials}
           locale={locale}
-          canManage={canManage}
+          addFallbackHref={addFallbackHref}
           basePath={basePath}
         />
       )}

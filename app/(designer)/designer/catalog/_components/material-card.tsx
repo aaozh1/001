@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
+import { cn } from "@/lib/ui/cn";
 import { MaterialVisual } from "@/app/_components/material-visual";
 import type { MaterialSummary } from "@/lib/materials/service";
 import { AddToProjectButton } from "./add-to-project-button";
@@ -10,15 +12,27 @@ import { AddToProjectButton } from "./add-to-project-button";
 export function MaterialCard({
   m,
   locale,
-  canManage,
+  addFallbackHref,
   basePath = "/designer/catalog",
+  compareSelected = false,
+  compareDisabled = false,
+  onToggleCompare,
 }: {
   m: MaterialSummary;
   locale: string;
-  canManage: boolean;
+  /** undefined when the viewer can add directly; a URL otherwise, so the
+   *  "+ Add" button always renders the same regardless of sign-in state. */
+  addFallbackHref?: string;
   /** Route prefix — the same card serves the designer and PUBLIC catalogs. */
   basePath?: string;
+  /** Compare selection: whether this card is currently picked. */
+  compareSelected?: boolean;
+  /** Compare selection is full (max reached) and this card isn't in it. */
+  compareDisabled?: boolean;
+  /** When set, a compare checkbox shows on hover (top-right of the photo). */
+  onToggleCompare?: () => void;
 }) {
+  const t = useTranslations("catalog");
   const name = locale === "en" && m.nameEn ? m.nameEn : m.nameTh;
   const spec = locale === "en" && m.specEn ? m.specEn : m.specTh;
   const meta = [m.size, spec].filter(Boolean).join(" · ");
@@ -32,7 +46,11 @@ export function MaterialCard({
     : null;
 
   return (
-    <Card padded={false} interactive className="overflow-hidden">
+    <Card
+      padded={false}
+      interactive
+      className={cn("group relative", compareSelected && "ring-2 ring-brand")}
+    >
       <Link href={`${basePath}/${m.id}`} className="relative block">
         <MaterialVisual
           image={m.image}
@@ -48,6 +66,31 @@ export function MaterialCard({
           </span>
         )}
       </Link>
+      {/* Compare checkbox — top-right, revealed on hover (or kept visible once
+          picked). Sits above the photo Link so it never triggers navigation. */}
+      {onToggleCompare && (
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={compareSelected}
+          aria-label={t("compareAdd")}
+          title={compareDisabled && !compareSelected ? t("compareMax") : t("compareAdd")}
+          disabled={compareDisabled && !compareSelected}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleCompare();
+          }}
+          className={cn(
+            "absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-[6px] border text-xs font-bold shadow-soft transition",
+            compareSelected
+              ? "border-brand bg-brand text-white opacity-100"
+              : "border-line-2 bg-white/92 text-transparent opacity-0 hover:border-brand focus-visible:opacity-100 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-0",
+          )}
+        >
+          ✓
+        </button>
+      )}
       <div className="flex flex-1 flex-col gap-1 p-[14px]">
         {brandInitials && (
           <div className="flex items-center gap-1.5 text-xs text-sub">
@@ -69,13 +112,13 @@ export function MaterialCard({
             {meta}
           </div>
         )}
-        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-2">
           <span className="font-mono text-[16.875px] font-semibold text-brand-deep">
             {m.price
               ? `฿${Number(m.price).toLocaleString()}${m.unit ? ` / ${m.unit}` : ""}`
               : ""}
           </span>
-          {canManage && <AddToProjectButton materialId={m.id} compact />}
+          <AddToProjectButton materialId={m.id} compact fallbackHref={addFallbackHref} />
         </div>
       </div>
     </Card>

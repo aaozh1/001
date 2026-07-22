@@ -295,7 +295,15 @@
     "openSpecsheet": "Open Specsheet (PDF)",
     "openCatalogPdf": "Open Catalog",
     "reviewsCount": "reviews",
-    "addShort": "Add"
+    "addShort": "Add",
+    "compareAdd": "Add to compare",
+    "compareRemove": "Remove from compare",
+    "compareMax": "Compare up to 4 items",
+    "compareSelected": "{n} selected",
+    "compareOpen": "Compare",
+    "compareClear": "Clear selection",
+    "compareTitle": "Compare materials",
+    "compareHint": "Specs side by side, in the order you picked — no ranking or seller promotion."
   },
   "projects": {
     "title": "My projects",
