@@ -100,11 +100,11 @@ enum SubscriptionPlan {
 // ── Identity & org ─────────────────────────────────────────────────────
 
 model User {
-  id                  String   @id @default(cuid())
-  email               String   @unique
+  id                  String    @id @default(cuid())
+  email               String    @unique
   name                String?
   phone               String?
-  locale              Locale   @default(th)
+  locale              Locale    @default(th)
   // bcrypt hash — credentials auth (task 0.3). Nullable so accounts created by
   // other flows (e.g. a seller who first replies to an RFQ, Phase 2) can exist
   // before a password is set. Never returned to the client.
@@ -113,16 +113,16 @@ model User {
   professionalLicense String?
   // เวลาที่ผู้ใช้ติ๊กยอมรับข้อกำหนด+นโยบายความเป็นส่วนตัวตอนสมัคร (PDPA 4.1)
   termsAcceptedAt     DateTime?
-  createdAt           DateTime @default(now())
+  createdAt           DateTime  @default(now())
 
   memberships     Membership[]
   notifications   Notification[]
   reviews         Review[]
   chatMessages    ChatMessage[]
   auditLogs       AuditLog[]
-  projectsCreated Project[]     @relation("ProjectCreatedBy")
-  rfqsCreated     RFQ[]         @relation("RFQCreatedBy")
-  siteLogsCreated SiteLog[]     @relation("SiteLogCreatedBy")
+  projectsCreated Project[]            @relation("ProjectCreatedBy")
+  rfqsCreated     RFQ[]                @relation("RFQCreatedBy")
+  siteLogsCreated SiteLog[]            @relation("SiteLogCreatedBy")
   resetTokens     PasswordResetToken[]
 }
 
@@ -151,20 +151,24 @@ model Organization {
   addresses Json?
   createdAt DateTime @default(now())
 
-  memberships       Membership[]
-  projects          Project[]
-  materials         Material[]
-  brands            Brand[]
-  rfqRecipients     RFQRecipient[]
-  quotes            Quote[]
-  subscriptions     Subscription[]
-  invoices          Invoice[]
-  auditLogs         AuditLog[]
-  templates         Template[]
-  materialSets      MaterialSet[]
-  importMappings    ImportMapping[]
-  threadsAsDesigner ChatThread[]   @relation("DesignerThreads")
-  threadsAsSeller   ChatThread[]   @relation("SellerThreads")
+  memberships           Membership[]
+  projects              Project[]
+  materials             Material[]
+  brands                Brand[]
+  rfqRecipients         RFQRecipient[]
+  quotes                Quote[]
+  subscriptions         Subscription[]
+  invoices              Invoice[]
+  auditLogs             AuditLog[]
+  templates             Template[]
+  materialSets          MaterialSet[]
+  importMappings        ImportMapping[]
+  threadsAsDesigner     ChatThread[]      @relation("DesignerThreads")
+  threadsAsSeller       ChatThread[]      @relation("SellerThreads")
+  // Phase 5 (inert) — engagement events + prepaid wallet
+  engagementsAsDesigner EngagementEvent[] @relation("DesignerEngagements")
+  engagementsAsSeller   EngagementEvent[] @relation("SellerEngagements")
+  wallet                SellerWallet?
 
   @@index([type])
 }
@@ -247,29 +251,30 @@ model SiteLog {
 
 // ★ ตารางที่สำคัญที่สุด — a line in the spec schedule.
 model SpecItem {
-  id                  String   @id @default(cuid())
+  id                  String    @id @default(cuid())
   projectId           String
   // รหัสตำแหน่ง เช่น FL-01 — แก้ได้อิสระต่อโปรเจกต์ (ห้าม hardcode มาตรฐาน)
   code                String
   zone                String?
   // ตระกูลวัสดุ; nullable ตอนยังไม่เลือกหมวด
   category            String?
-  qty                 Decimal? @db.Decimal(14, 2)
+  qty                 Decimal?  @db.Decimal(14, 2)
   qtyUnit             String?
   // วัสดุที่ confirm แล้ว (ตัวเลือกทั้งหมดอยู่ใน SpecOption)
   confirmedMaterialId String?
-  sortOrder           Int      @default(0)
+  sortOrder           Int       @default(0)
   // 5J: เช็คหน้างานว่าติดตั้งแล้ว (site-visit companion)
   installedAt         DateTime?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  project           Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  confirmedMaterial Material?    @relation("ConfirmedMaterial", fields: [confirmedMaterialId], references: [id])
+  project           Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  confirmedMaterial Material?         @relation("ConfirmedMaterial", fields: [confirmedMaterialId], references: [id])
   options           SpecOption[]
   veHistory         VEHistory[]
   rfqs              RFQ[]
   siteLogs          SiteLog[]
+  engagements       EngagementEvent[] // Phase 5 (inert)
 
   @@index([projectId, sortOrder])
 }
@@ -339,14 +344,15 @@ model Material {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  seller        Organization   @relation(fields: [sellerOrgId], references: [id], onDelete: Cascade)
-  brand         Brand?         @relation(fields: [brandId], references: [id])
+  seller        Organization      @relation(fields: [sellerOrgId], references: [id], onDelete: Cascade)
+  brand         Brand?            @relation(fields: [brandId], references: [id])
   specOptions   SpecOption[]
-  confirmedIn   SpecItem[]     @relation("ConfirmedMaterial")
-  veFrom        VEHistory[]    @relation("VEFrom")
-  veTo          VEHistory[]    @relation("VETo")
+  confirmedIn   SpecItem[]        @relation("ConfirmedMaterial")
+  veFrom        VEHistory[]       @relation("VEFrom")
+  veTo          VEHistory[]       @relation("VETo")
   rfqRecipients RFQRecipient[]
   reviews       Review[]
+  engagements   EngagementEvent[] // Phase 5 (inert)
 
   @@index([category, status])
   @@index([sellerOrgId])
@@ -383,11 +389,12 @@ model RFQ {
   slaDueAt    DateTime?
   createdAt   DateTime  @default(now())
 
-  specItem   SpecItem       @relation(fields: [specItemId], references: [id], onDelete: Cascade)
-  project    Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdBy  User?          @relation("RFQCreatedBy", fields: [createdById], references: [id])
-  recipients RFQRecipient[]
-  quotes     Quote[]
+  specItem    SpecItem          @relation(fields: [specItemId], references: [id], onDelete: Cascade)
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy   User?             @relation("RFQCreatedBy", fields: [createdById], references: [id])
+  recipients  RFQRecipient[]
+  quotes      Quote[]
+  engagements EngagementEvent[] // Phase 5 (inert) — quote_request events
 
   @@index([status, slaDueAt])
   @@index([projectId])
@@ -512,10 +519,10 @@ model Invoice {
 // ── Spec Book (versioned export) ───────────────────────────────────────
 
 model SpecBook {
-  id        String   @id @default(cuid())
-  projectId String
-  version   Int
-  pdfUrl    String?
+  id             String    @id @default(cuid())
+  projectId      String
+  version        Int
+  pdfUrl         String?
   // ลิงก์แชร์สาธารณะ (nullable = ยังไม่เปิดแชร์) — เพิกถอนได้โดยตั้งกลับเป็น null
   shareToken     String?   @unique
   // ลิงก์หมดอายุอัตโนมัติ (ตั้งตอนเปิดแชร์) — 5F expiring link
@@ -523,9 +530,9 @@ model SpecBook {
   // Frozen render data for this version (project + items + options + material
   // details at export time). The PDF is regenerated from this so an old version
   // stays faithful even after the schedule changes. pdfUrl stays for future S3.
-  snapshot  Json?
-  createdBy String?
-  createdAt DateTime @default(now())
+  snapshot       Json?
+  createdBy      String?
+  createdAt      DateTime  @default(now())
 
   project  Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   feedback ShareFeedback[]
@@ -641,4 +648,88 @@ model ShareFeedback {
   specBook SpecBook @relation(fields: [specBookId], references: [id], onDelete: Cascade)
 
   @@index([specBookId, itemCode])
+}
+
+// ── Phase 5 — Billable Engagement Events (FOUNDATION, inert) ─────────────
+// ข้อเสนอ docs/proposals/MONETIZATION_REWORK.md — วาง schema + logic ไว้ก่อน
+// แต่ "ปิดสวิตช์" ทั้งหมด:
+//   • ไม่มี charge จริง (creditCost มาจาก config placeholder = 0 จน validate ราคา)
+//   • sample_request / contact_request มี enum ไว้ แต่ยังไม่มี UI/ไม่เก็บ PII
+//     (ที่อยู่จัดส่ง/contact) จนกว่าทนายอนุมัติ PDPA — กติกาเหล็กข้อ 5
+//   • ไม่ผูกเข้ากับ flow RFQ→Quote เดิม (เพิ่มข้าง ๆ ลด risk)
+// สรุป: ตารางพร้อม แต่ระบบ engagement-billing ถูก gate ด้วย ENV flag (ปิด default)
+
+enum EngagementType {
+  sample_request // 🔒 PDPA-gated (ที่อยู่จัดส่ง)
+  contact_request // 🔒 PDPA-gated (เปิดเผย contact ดีไซเนอร์)
+  quote_request // = RFQ เดิม
+  // spec_sync ไม่อยู่ที่นี่ — เก็บเป็น AnalyticsEvent เท่านั้น (ไม่ผูก billing)
+}
+
+enum EngagementBillingStatus {
+  pending
+  billed
+  waived
+  refunded
+}
+
+enum CreditTxnType {
+  topup // เติมเงินล่วงหน้า → ผูก Invoice/payment (พึ่ง Phase 3.5)
+  debit // event หักเครดิต
+  refund
+  adjustment // แอดมินปรับมือ (มี AuditLog)
+}
+
+// สมุดบันทึก intent/billing ต่อ event — ราคาเท่ากันทุกผู้ขายใน type (กติกาข้อ 2)
+model EngagementEvent {
+  id            String                  @id @default(cuid())
+  type          EngagementType
+  designerOrgId String
+  sellerOrgId   String
+  specItemId    String?
+  materialId    String?
+  rfqId         String? // set เมื่อ type = quote_request (link RFQ เดิม)
+  // billing (inert จน validate ราคา + เปิด flag)
+  creditCost    Int                     @default(0)
+  billingStatus EngagementBillingStatus @default(pending)
+  // anti-broadcast — กันเก็บซ้ำเจ้าเดิม×ดีไซเนอร์เดิม×spec เดิม ในหน้าต่างเวลา
+  dedupKey      String
+  createdAt     DateTime                @default(now())
+
+  designerOrg Organization @relation("DesignerEngagements", fields: [designerOrgId], references: [id], onDelete: Cascade)
+  sellerOrg   Organization @relation("SellerEngagements", fields: [sellerOrgId], references: [id], onDelete: Cascade)
+  specItem    SpecItem?    @relation(fields: [specItemId], references: [id])
+  material    Material?    @relation(fields: [materialId], references: [id])
+  rfq         RFQ?         @relation(fields: [rfqId], references: [id])
+
+  @@unique([dedupKey])
+  @@index([sellerOrgId, type, billingStatus])
+  @@index([designerOrgId])
+}
+
+// กระเป๋าเครดิตผู้ขาย (prepaid) — inert จน Phase 3.5 (payment) พร้อม
+model SellerWallet {
+  id             String   @id @default(cuid())
+  orgId          String   @unique
+  balanceCredits Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  org          Organization        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  transactions CreditTransaction[]
+}
+
+model CreditTransaction {
+  id           String        @id @default(cuid())
+  walletId     String
+  type         CreditTxnType
+  amount       Int // + สำหรับ topup/refund, − สำหรับ debit
+  balanceAfter Int
+  engagementId String? // set เมื่อ type = debit
+  invoiceId    String? // set เมื่อ type = topup
+  note         String?
+  createdAt    DateTime      @default(now())
+
+  wallet SellerWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
 }

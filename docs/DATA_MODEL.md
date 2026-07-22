@@ -114,7 +114,20 @@ Organization ──< Subscription ──< Invoice
 - Thread: id, designer_org_id, seller_org_id, project_id (บริบท)
 - Message: id, thread_id, sender_user_id, body, attachments, created_at
 
+### EngagementEvent / SellerWallet / CreditTransaction (Phase 5 — FOUNDATION, inert)
+> ข้อเสนอ: `docs/proposals/MONETIZATION_REWORK.md` · schema ลงแล้วแต่ **ปิดสวิตช์**
+> (billing gate ด้วย ENV `ENGAGEMENT_BILLING_ENABLED`, default OFF) ยังไม่ผูก flow จริง
+- **EngagementEvent**: id, type (sample_request | contact_request | quote_request),
+  designer_org_id, seller_org_id, spec_item_id?, material_id?, rfq_id?, credit_cost
+  (placeholder 0 จน validate ราคา), billing_status, dedup_key (unique — กัน broadcast), created_at
+  - sample_request / contact_request = **PDPA-gated** (เก็บที่อยู่จัดส่ง/เปิดเผย contact) → เปิดไม่ได้จนทนายอนุมัติ (กติกาข้อ 5)
+  - spec_sync **ไม่อยู่** ที่นี่ — เก็บเป็น AnalyticsEvent เท่านั้น (ไม่ผูก billing)
+  - ราคาอิง *type* ล้วน เท่ากันทุกผู้ขาย (กติกาข้อ 2)
+- **SellerWallet**: id, org_id (unique), balance_credits, updated_at — prepaid, พึ่ง Phase 3.5 (payment)
+- **CreditTransaction**: id, wallet_id, type (topup | debit | refund | adjustment), amount, balance_after, engagement_id?, invoice_id?, note, created_at
+
 ## Index ที่ต้องมี (performance)
 - Material: (category, status), (seller_org_id), full-text บน name_th/name_en/brand/model/sku
 - RFQ: (status, sla_due_at), (project_id)
 - SpecItem: (project_id, sort_order)
+- EngagementEvent: unique(dedup_key), (seller_org_id, type, billing_status), (designer_org_id)
