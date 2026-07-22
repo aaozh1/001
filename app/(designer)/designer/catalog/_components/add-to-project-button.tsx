@@ -14,10 +14,13 @@ export function AddToProjectButton({
   materialId,
   size = "sm",
   variant = "ghost",
+  compact = false,
 }: {
   materialId: string;
   size?: "sm" | "md";
   variant?: "primary" | "ghost";
+  /** 2C card style: small "+ เพิ่ม" pill like the mock's "+ Add". */
+  compact?: boolean;
 }) {
   const t = useTranslations("catalog");
   const [open, setOpen] = useState(false);
@@ -42,9 +45,20 @@ export function AddToProjectButton({
 
   return (
     <>
-      <Button variant={variant} size={size} onClick={openModal}>
-        {t("addToProject")}
-      </Button>
+      {compact ? (
+        <button
+          type="button"
+          onClick={openModal}
+          title={t("addToProject")}
+          className="shrink-0 rounded-pill border border-brand-line bg-brand-soft px-2.5 py-1 text-xs font-semibold text-brand transition hover:bg-brand hover:text-white"
+        >
+          ＋ {t("addShort")}
+        </button>
+      ) : (
+        <Button variant={variant} size={size} onClick={openModal}>
+          {t("addToProject")}
+        </Button>
+      )}
       <Modal open={open} onClose={() => setOpen(false)} title={t("pickProject")}>
         <p className="text-sm text-sub">{t("pickHint")}</p>
 

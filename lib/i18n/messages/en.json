@@ -294,7 +294,8 @@
     "chatSeller": "Chat with seller",
     "openSpecsheet": "Open Specsheet (PDF)",
     "openCatalogPdf": "Open Catalog",
-    "reviewsCount": "reviews"
+    "reviewsCount": "reviews",
+    "addShort": "Add"
   },
   "projects": {
     "title": "My projects",

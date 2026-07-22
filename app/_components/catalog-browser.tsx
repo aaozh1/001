@@ -12,7 +12,6 @@ import {
   catalogParams,
 } from "@/lib/materials/catalog-query";
 import { categoryIcon, categoryLabel } from "@/lib/materials/categories";
-import { CatalogSearch } from "@/app/(designer)/designer/catalog/_components/catalog-search";
 import { CatalogFilterBar } from "@/app/_components/catalog-filter-bar";
 import { CatalogResults } from "@/app/_components/catalog-results";
 
@@ -66,18 +65,16 @@ export async function CatalogBrowser({
 
   return (
     <div className="mx-auto max-w-6xl">
-      <header className="mb-4">
-        <h1 className="text-2xl font-bold tracking-tight text-ink">{t("title")}</h1>
-        <p className="mt-1 text-sub">{t("subtitle")}</p>
-        <div className="mt-4 max-w-xl">
-          <CatalogSearch basePath={basePath} category={filters.category} initial={q ?? ""} />
-          <p className="mt-1.5 font-mono text-[11.5px] text-mut">{t("neutral")}</p>
-        </div>
-      </header>
+      {/* 2C: no big page header — the top-bar search is THE search, and the
+          category rail starts right away like the mock. */}
+      <h1 className="sr-only">{t("title")}</h1>
 
       {/* Category strip — the per-family "small buttons"; each is a preset
           filter the user can keep adjusting. */}
-      <nav aria-label={t("chooseCategory")} className="mb-3 flex flex-wrap gap-1.5">
+      <nav
+        aria-label={t("chooseCategory")}
+        className="flex flex-wrap gap-1.5 border-b border-line pb-3"
+      >
         <CategoryChip href={chipHref(undefined)} active={!filters.category}>
           {t("allCategories")} · {categories.reduce((s, c) => s + c.count, 0)}
         </CategoryChip>
@@ -92,7 +89,8 @@ export async function CatalogBrowser({
         ))}
       </nav>
 
-      <div className="mb-4 rounded-card border border-line bg-surface p-3 shadow-soft">
+      {/* Detailed filters — flat band under the rail (no boxed card) */}
+      <div className="mb-4 border-b border-line py-3">
         <CatalogFilterBar
           basePath={basePath}
           q={q}
@@ -102,8 +100,26 @@ export async function CatalogBrowser({
         />
       </div>
 
-      <div className="mb-3 text-sm text-sub">
-        {heading} · {result.total} {t("items")}
+      {/* 2C results row: bold count left, mono neutrality note right */}
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <span className="flex flex-wrap items-baseline gap-2 text-sm text-ink">
+          <span>
+            <span className="font-bold">{result.total.toLocaleString()}</span>{" "}
+            {t("items")}
+            <span className="text-sub"> · {heading}</span>
+          </span>
+          {/* Active search term chip — the search box lives in the top bar
+              now, so the term needs a visible home + a way to clear it. */}
+          {q && (
+            <Link
+              href={`${basePath}?${catalogParams({ filters, sort }).toString()}`}
+              className="rounded-pill border border-line-2 bg-canvas px-2 py-0.5 font-mono text-[11px] text-sub transition hover:border-brand hover:text-brand"
+            >
+              🔍 {q} ✕
+            </Link>
+          )}
+        </span>
+        <span className="font-mono text-[11.5px] text-mut">{t("neutral")}</span>
       </div>
 
       {result.materials.length === 0 ? (
@@ -166,7 +182,7 @@ function CategoryChip({
       className={cn(
         "rounded-pill border px-2.5 py-1 text-[13px] transition",
         active
-          ? "border-brand bg-brand font-medium text-white"
+          ? "border-dark bg-dark font-medium text-white"
           : "border-line-2 bg-surface text-sub hover:border-brand hover:text-brand",
       )}
     >
