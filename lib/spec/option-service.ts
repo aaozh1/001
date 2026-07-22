@@ -24,6 +24,50 @@ export type AddOptionResult =
   | { ok: true }
   | { ok: false; error: "not_found" | "limit" | "duplicate" | "material_not_found" };
 
+export type AddCustomOptionResult = { ok: true } | { ok: false; error: "not_found" | "limit" };
+
+/**
+ * 3N: add an UNLISTED product as an option. The material row is created as a
+ * DRAFT owned by the DESIGNER org, so it can never surface in the public
+ * catalog or touch ranking (rule #1) — it exists only inside this workspace.
+ */
+export async function addCustomOption(
+  ctx: DesignerContext,
+  itemId: string,
+  input: { name: string; brand: string | null },
+): Promise<AddCustomOptionResult> {
+  const item = await prisma.specItem.findFirst({
+    where: { id: itemId, project: { orgId: ctx.orgId } },
+    select: { id: true, category: true, options: { select: { id: true } } },
+  });
+  if (!item) return { ok: false, error: "not_found" };
+  if (!canAddOption(item.options.length)) return { ok: false, error: "limit" };
+
+  await prisma.$transaction(async (tx) => {
+    const material = await tx.material.create({
+      data: {
+        sellerOrgId: ctx.orgId,
+        nameTh: input.name,
+        model: input.brand,
+        category: item.category ?? "custom",
+        status: "draft",
+        noteTh: "วัสดุกำหนดเอง — เพิ่มโดยผู้ออกแบบ ไม่แสดงในคลังวัสดุ",
+      },
+      select: { id: true },
+    });
+    await tx.specOption.create({ data: { specItemId: itemId, materialId: material.id } });
+    await writeAudit(tx, {
+      orgId: ctx.orgId,
+      userId: ctx.userId,
+      entityType: AUDIT_ENTITY,
+      entityId: itemId,
+      action: "add_custom_option",
+      diff: { name: input.name, brand: input.brand },
+    });
+  });
+  return { ok: true };
+}
+
 export async function addOption(
   ctx: DesignerContext,
   itemId: string,

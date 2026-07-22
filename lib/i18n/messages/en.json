@@ -109,7 +109,29 @@
     "panelB2": "Verified sellers, replies in 48 h",
     "panelB3": "No paid placement, ever",
     "panelTagline": "Every material. One list.",
-    "pwHint": "At least 8 characters"
+    "pwHint": "At least 8 characters",
+    "or": "or",
+    "googleCta": "Continue with Google",
+    "googleUnavailable": "Google OAuth is not configured yet (GOOGLE_CLIENT_ID/SECRET)",
+    "soon": "coming soon",
+    "forgot": "Forgot?",
+    "forgotTitle": "Reset your password",
+    "forgotSubtitle": "Enter the email you registered with and we'll send a reset link",
+    "forgotCta": "Send reset link",
+    "forgotSent": "If that email has an account, a reset link is on its way (valid 1 hour)",
+    "forgotMailNote": "Real email delivery arrives with the email vendor — until then the link lands in the server log",
+    "backToLogin": "Back to log in",
+    "emailLabel": "Email",
+    "sending": "Sending…",
+    "resetTitle": "Set a new password",
+    "resetSubtitle": "Choose a new password for your account",
+    "resetInvalid": "This link has expired or was already used",
+    "resetRequestAgain": "Request a new link",
+    "resetMismatch": "The two passwords don't match",
+    "resetDone": "Password updated — log in with the new one",
+    "resetCta": "Save new password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password"
   },
   "designer": {
     "workspace": "Designer Workspace",
@@ -271,7 +293,8 @@
     "keySpec": "Key spec",
     "chatSeller": "Chat with seller",
     "openSpecsheet": "Open Specsheet (PDF)",
-    "openCatalogPdf": "Open Catalog"
+    "openCatalogPdf": "Open Catalog",
+    "reviewsCount": "reviews"
   },
   "projects": {
     "title": "My projects",
@@ -397,7 +420,31 @@
     "revitSoon": "Coming soon — on the roadmap",
     "inlineHint": "Tap code / location / quantity to edit inline",
     "tickedSummary": "{n} items ticked",
-    "noMaterialYet": "No material yet"
+    "noMaterialYet": "No material yet",
+    "budgetTotal": "Budget (best offers) {total}",
+    "budgetSavings": "{n} below list",
+    "budgetLines": "from {priced}/{total} priced lines",
+    "budgetNone": "No priced lines yet — add quantities and materials first",
+    "bulkSelected": "{n} selected",
+    "bulkDelete": "Delete",
+    "bulkDeleteConfirm": "Delete {n} selected lines? Their options and quotes go too.",
+    "bulkClear": "Clear selection",
+    "shortcutsTitle": "Keyboard shortcuts",
+    "scSearch": "Focus search",
+    "scNewRow": "New line item",
+    "scRfq": "RFQ from ticked rows",
+    "scPalette": "Command palette",
+    "scToggle": "Toggle this overlay",
+    "scClose": "Close dialogs",
+    "addCustom": "Add custom material",
+    "customTitle": "Add an unlisted product",
+    "customHint": "For products with no seller here yet — custom or imported items",
+    "customName": "Material name",
+    "customBrand": "Brand / model (optional)",
+    "customNote": "Lives only inside your office's projects — never in the public catalog",
+    "customAdd": "Add as option",
+    "sbNoChanges": "No changes",
+    "sbPinnedNote": "Every RFQ snapshot is pinned to the rev it was sent from — sellers always quote a fixed spec"
   },
   "seller": {
     "center": "Seller Center",
@@ -470,7 +517,10 @@
     "attachAdd": "Attach spec sheet / install guide link",
     "attachPlaceholder": "https://… (spec sheet or install guide)",
     "neutrality": "Same lead fee for every seller — quotes compete on merit",
-    "chatBtn": "Chat"
+    "chatBtn": "Chat",
+    "quickPlaceholder": "฿ price per unit — one lead price for every seller",
+    "quickSend": "Send quote",
+    "respondFull": "Full reply"
   },
   "chat": {
     "title": "Chat",
@@ -1011,5 +1061,23 @@
     "empty": "No line items in this project yet",
     "errFailed": "Could not save — try again",
     "errTooLarge": "File is over 5MB"
+  },
+  "reviews": {
+    "title": "Reviews from real users",
+    "write": "Write a review",
+    "verifiedOnly": "Verified purchases only",
+    "verified": "Verified",
+    "placeholder": "How did it perform — color true to sample, delivered on time…",
+    "empty": "No reviews yet — the first one will come from a verified purchase",
+    "failed": "Could not submit (verified purchases only)",
+    "cancel": "Cancel",
+    "send": "Submit review",
+    "sending": "Sending…",
+    "role": {
+      "architect": "Architect",
+      "contractor": "Contractor",
+      "designer": "Designer",
+      "owner": "Owner"
+    }
   }
 }

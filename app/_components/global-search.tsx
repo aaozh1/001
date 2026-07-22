@@ -25,7 +25,7 @@ export function GlobalSearch({
   }
 
   return (
-    <form onSubmit={submit} role="search" className={cn("relative", className)}>
+    <form onSubmit={submit} role="search" data-global-search className={cn("relative", className)}>
       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sub">
         🔍
       </span>

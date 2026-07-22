@@ -123,6 +123,21 @@ model User {
   projectsCreated Project[]     @relation("ProjectCreatedBy")
   rfqsCreated     RFQ[]         @relation("RFQCreatedBy")
   siteLogsCreated SiteLog[]     @relation("SiteLogCreatedBy")
+  resetTokens     PasswordResetToken[]
+}
+
+// รีเซ็ตรหัสผ่าน — เก็บเฉพาะ hash ของ token (ลิงก์จริงอยู่ในอีเมลเท่านั้น)
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // One model for both design offices and seller companies, split by `type`.

@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { StatusChip, Swatch } from "@/components/ui";
+import { Modal, StatusChip, Swatch } from "@/components/ui";
 import { cn } from "@/lib/ui/cn";
 import { categoryTexture } from "@/lib/materials/categories";
 import { boardOrder, type BoardLayout } from "@/lib/spec/board";
+import { computeBudget } from "@/lib/spec/budget";
 import { SpecTable } from "./spec-table";
 import { RfqSendModal } from "./rfq-send-modal";
 import { SpecBookModal, type SpecBookVersion } from "./spec-book-modal";
@@ -84,11 +86,14 @@ export function SpecViews({
   boardLayout: BoardLayout | null;
 }) {
   const t = useTranslations("projects");
+  const router = useRouter();
   const [view, setView] = useState<SpecView>("full");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [modal, setModal] = useState<"rfq" | "book" | "studio" | null>(null);
   const [cols, setCols] = useState<MlistCol[]>(DEFAULT_MLIST_COLS);
   const [colsOpen, setColsOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   useEffect(() => {
     try {
@@ -137,6 +142,79 @@ export function SpecViews({
   ).length;
   const quoted = items.filter((i) => i.rfq.state === "quoted").length;
   const pct = items.length > 0 ? Math.round((confirmed / items.length) * 100) : 0;
+
+  // 5B budget roll-up: best offer (quote else list price) × qty per line.
+  const budget = useMemo(
+    () =>
+      computeBudget(
+        items.map((i) => {
+          const opt = i.options.find((o) => o.isConfirmed) ?? i.options[0] ?? null;
+          const quotes = i.rfq.quotes
+            .map((q) => Number(q.pricePerUnit))
+            .filter((n) => Number.isFinite(n) && n > 0);
+          return {
+            qty: i.qty || null,
+            listPrice: opt?.price ?? null,
+            bestQuote: quotes.length > 0 ? Math.min(...quotes) : null,
+          };
+        }),
+      ),
+    [items],
+  );
+
+  // 5C real keyboard shortcuts: ? overlay · / search · N new row · R RFQ.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const el = e.target as HTMLElement | null;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          el.tagName === "SELECT" ||
+          el.isContentEditable)
+      )
+        return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "?") {
+        e.preventDefault();
+        setShortcutsOpen((v) => !v);
+      } else if (e.key === "/") {
+        const inp = document.querySelector<HTMLInputElement>("[data-global-search] input");
+        if (inp) {
+          e.preventDefault();
+          inp.focus();
+        }
+      } else if ((e.key === "n" || e.key === "N") && canManage && view === "full") {
+        e.preventDefault();
+        document.querySelector<HTMLButtonElement>("[data-add-row]")?.click();
+      } else if ((e.key === "r" || e.key === "R") && canManage) {
+        if (selectedValid.length > 0) {
+          e.preventDefault();
+          setModal("rfq");
+        }
+      } else if (e.key === "Escape") {
+        setShortcutsOpen(false);
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canManage, view, selected, items]);
+
+  async function bulkDelete() {
+    if (bulkBusy || selected.size === 0) return;
+    if (!window.confirm(t("bulkDeleteConfirm", { n: selected.size }))) return;
+    setBulkBusy(true);
+    try {
+      for (const id of selected) {
+        await fetch(`/api/items/${id}`, { method: "DELETE" }).catch(() => undefined);
+      }
+      setSelected(new Set());
+      router.refresh();
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   return (
     <div>
@@ -279,28 +357,101 @@ export function SpecViews({
         <MaterialBoard projectId={projectId} items={items} canManage={canManage} initialLayout={boardLayout} />
       )}
 
-      {/* 2D bottom bar: ticked summary + RFQ CTA (the mock's Request Samples
-          + Quotes row). Same action as the toolbar button. */}
+      {/* 2D/5B bottom bar: budget roll-up left, ticked summary + RFQ CTA right */}
       {view === "full" && canManage && (
-        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3">
           <span className="font-mono text-xs text-mut">
-            {t("tickedSummary", { n: selectedValid.length })}
+            {budget.pricedLines > 0 ? (
+              <>
+                {t("budgetTotal", { total: `฿${Math.round(budget.bestTotal).toLocaleString()}` })}
+                {budget.savings > 0 && (
+                  <span className="text-ok">
+                    {" "}
+                    · {t("budgetSavings", { n: `฿${Math.round(budget.savings).toLocaleString()}` })}
+                  </span>
+                )}{" "}
+                · {t("budgetLines", { priced: budget.pricedLines, total: budget.totalLines })}
+              </>
+            ) : (
+              t("budgetNone")
+            )}
+          </span>
+          <span className="flex items-center gap-3">
+            <span className="font-mono text-xs text-mut">
+              {t("tickedSummary", { n: selectedValid.length })}
+            </span>
+            <button
+              type="button"
+              onClick={() => setModal("rfq")}
+              disabled={selectedValid.length === 0}
+              className={cn(
+                "rounded-sm px-[18px] py-2.5 text-sm font-semibold transition",
+                selectedValid.length > 0
+                  ? "bg-brand text-white hover:bg-brand-deep"
+                  : "cursor-not-allowed bg-canvas-2 text-mut",
+              )}
+            >
+              📨 {t("requestQuote")}
+            </button>
+          </span>
+        </div>
+      )}
+
+      {/* 5B floating bulk-action bar — appears while rows are ticked */}
+      {view === "full" && canManage && selected.size > 0 && (
+        <div className="fixed bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-pill bg-dark px-5 py-2.5 shadow-lifted">
+          <span className="font-mono text-xs text-dark-text">
+            {t("bulkSelected", { n: selected.size })}
           </span>
           <button
             type="button"
             onClick={() => setModal("rfq")}
             disabled={selectedValid.length === 0}
-            className={cn(
-              "rounded-sm px-[18px] py-2.5 text-sm font-semibold transition",
-              selectedValid.length > 0
-                ? "bg-brand text-white hover:bg-brand-deep"
-                : "cursor-not-allowed bg-canvas-2 text-mut",
-            )}
+            className="rounded-pill bg-brand px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-deep disabled:opacity-40"
           >
             📨 {t("requestQuote")}
           </button>
+          <button
+            type="button"
+            onClick={() => void bulkDelete()}
+            disabled={bulkBusy}
+            className="rounded-pill border border-dark-line px-3.5 py-1.5 text-xs font-semibold text-dark-text transition hover:border-error hover:text-error-soft disabled:opacity-40"
+          >
+            {bulkBusy ? "…" : t("bulkDelete")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelected(new Set())}
+            aria-label={t("bulkClear")}
+            className="text-dark-text hover:text-white"
+          >
+            ✕
+          </button>
         </div>
       )}
+
+      {/* 5C shortcuts overlay (press ?) — only shortcuts that actually work */}
+      <Modal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} title={`⌨ ${t("shortcutsTitle")}`}>
+        <ul className="flex flex-col divide-y divide-line text-sm">
+          {(
+            [
+              ["/", t("scSearch")],
+              ["N", t("scNewRow")],
+              ["R", t("scRfq")],
+              ["Ctrl+K", t("scPalette")],
+              ["?", t("scToggle")],
+              ["Esc", t("scClose")],
+            ] as const
+          ).map(([key, label]) => (
+            <li key={key} className="flex items-center justify-between gap-4 py-2.5">
+              <span className="text-ink">{label}</span>
+              <kbd className="rounded-[6px] border border-line-3 bg-canvas px-2 py-0.5 font-mono text-xs text-ink-2">
+                {key}
+              </kbd>
+            </li>
+          ))}
+        </ul>
+      </Modal>
 
       {canManage && (
         <>
