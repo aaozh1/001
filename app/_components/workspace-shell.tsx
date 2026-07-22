@@ -11,6 +11,7 @@ import { NotificationBell } from "./notification-bell";
 import { CommandPalette } from "./command-palette";
 import { LangToggle } from "./lang-toggle";
 import { LogoutButton } from "./logout-button";
+import { Logo } from "./logo";
 import { SidebarNav, type SideNavItem } from "./sidebar-nav";
 
 // Workspace chrome (design handoff 2B/3G): 240px sidebar — warm-cream for the
@@ -94,10 +95,7 @@ export async function WorkspaceShell({
         }
       >
         <Link href="/" className="flex items-center gap-[9px] px-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-brand text-[15px] font-bold text-white">
-            M
-          </span>
-          <span className="text-[18px] font-bold tracking-tight text-brand">MatList</span>
+          <Logo />
           {dark && (
             <span className="rounded-[5px] bg-dark-3 px-[7px] py-[3px] font-mono text-[9.5px] tracking-[.08em] text-dark-text">
               SELLER
@@ -147,10 +145,7 @@ export async function WorkspaceShell({
         <header className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line bg-surface px-6 py-3">
           {/* Brand appears here only when the sidebar is hidden */}
           <Link href="/" className="flex items-center gap-2 lg:hidden">
-            <span className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-brand text-[13px] font-bold text-white">
-              M
-            </span>
-            <span className="text-[16px] font-bold tracking-tight text-brand">MatList</span>
+            <Logo />
           </Link>
           <div className="order-last w-full flex-none sm:order-none sm:flex sm:w-auto sm:flex-1 sm:justify-center">
             <GlobalSearch

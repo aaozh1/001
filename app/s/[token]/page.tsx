@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui";
 import { getSharedSpecBook, listShareFeedback } from "@/lib/spec-book/service";
 import type { SpecBookSnapshot } from "@/lib/spec-book/snapshot";
+import { Logo } from "@/app/_components/logo";
 import { GuestFeedback } from "./_components/guest-feedback";
 
 type Props = { params: Promise<{ token: string }> };
@@ -31,7 +32,7 @@ export default async function SharedSpecBookPage({ params }: Props) {
         <div className="mx-auto flex max-w-5xl flex-wrap items-baseline justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-lg font-bold text-brand">MatList</span>
+              <Logo />
               {/* 5F: view-only chip like the mock */}
               <span className="rounded-pill bg-canvas-2 px-2.5 py-0.5 font-mono text-[10.5px] uppercase tracking-[.06em] text-sub">
                 {t("viewOnly")} · {book.project.org.name}
