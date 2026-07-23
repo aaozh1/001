@@ -72,7 +72,8 @@
 - [ ] **5.0 คนตัดสินก่อน 🛑** — อนุมัติ schema diff (`EngagementEvent`/`SellerWallet`/`CreditTransaction`) + ค่า dedup/cap + ราคาต่อ type (validate ผู้ขาย 5–10 ราย) · ยืนยัน `spec_sync` ไม่เก็บเงินผู้ขาย
 - [ ] **5.1 PDPA/ทนายอนุมัติ 🛑** (= ปลดล็อก Phase 4.1) — flow consent ที่อยู่จัดส่ง (`sample_request`) + เปิดเผย contact (`contact_request`)
 - [x] **5.2 Migration** `EngagementEvent` + `SellerWallet` + `CreditTransaction` (additive — ไม่แตะ RFQ→Quote เดิม) · schema + DATA_MODEL อัปเดตแล้ว
-- [~] **5.3 Backend** — ✅ pure logic + test (`lib/billing/engagement.ts`: dedupKey, creditCost, debitWallet) วางไว้แล้วแต่ **inert** (ENV `ENGAGEMENT_BILLING_ENABLED` = OFF, ราคา placeholder 0) · ⏳ เดินสายเข้า flow จริง + hook RFQ→quote_request รอ decision Q1/Q6 + PDPA
+- [~] **5.3 Backend** — ✅ pure logic + test (`lib/billing/engagement.ts`) · ✅ **บันทึก quote_request event ตอนส่ง RFQ แล้ว** (inert ledger, best-effort, dedup 24 ชม., creditCost=0) · ⏳ เปิด charge จริง + sample/contact รอ Q6(ราคา)+PDPA
+  - default ที่ใช้ (ปรับได้): dedup **24 ชม.**, **ยังไม่ cap** fan-out, `spec_sync` = analytics เท่านั้น (ไม่เก็บเงินผู้ขาย)
   - AC: ราคาเท่ากันทุกผู้ขายใน type · dedup กันเก็บซ้ำ · หักเครดิตไม่ติดลบ · ไม่มี boost/ซื้ออันดับ (ข้อ 1)
 - [ ] **5.4 UI reframe** — RFQ ลดจาก CTA กลาง → action ต่อแถวสเปก (คู่ "ขอตัวอย่าง"/"ขอติดต่อ") · CTA กลางดีไซเนอร์ = material list/sync · inbox ผู้ขายแยก type + ยอด wallet · i18n TH/EN ครบ
 - [ ] **5.5 เปิด + วัดผล** ผ่าน analytics (spec_sync = signal อย่างเดียว ไม่ผูก billing)
