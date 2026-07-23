@@ -22,7 +22,11 @@ export async function nudgeSellerAction(
       id: rfqId,
       project: { id: projectId, orgId: ctx.orgId },
       recipients: { some: { sellerOrgId, respondedAt: null } },
-      status: "open",
+      // Nudge-able while the RFQ is still soliciting quotes. The first quote
+      // flips status open→quoted (lib/quote/logic.ts), but the OTHER invited
+      // sellers who haven't answered still deserve a reminder — so allow both.
+      // closed_won/closed_lost/expired correctly can't be nudged.
+      status: { in: ["open", "quoted"] },
     },
     select: { id: true, specItem: { select: { code: true, project: { select: { name: true } } } } },
   });

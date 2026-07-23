@@ -117,7 +117,7 @@ export function BrandsClient({ rows, canEdit }: { rows: BrandRow[]; canEdit: boo
               <Input
                 value={editing.form.logoUrl}
                 onChange={(e) => set("logoUrl", e.target.value)}
-                placeholder="https://…"
+                placeholder={t("fLogoPlaceholder")}
               />
             </label>
             <label className="flex flex-col gap-1 text-sm font-medium text-ink">
