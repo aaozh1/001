@@ -133,7 +133,7 @@ export function TeamClient({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="teammate@company.co.th"
+                placeholder={t("fEmailPlaceholder")}
               />
             </label>
             <label className="flex flex-col gap-1 text-sm font-medium text-ink">

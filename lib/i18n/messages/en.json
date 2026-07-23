@@ -788,7 +788,8 @@
     "save": "Save",
     "saving": "Saving…",
     "cancel": "Cancel",
-    "errFailed": "Save failed, please try again"
+    "errFailed": "Save failed, please try again",
+    "fLogoPlaceholder": "https://…"
   },
   "sellerTeam": {
     "title": "Team & roles",
@@ -814,7 +815,8 @@
     "errUserNotFound": "No MatList user with that email",
     "errAlreadyMember": "Already a member",
     "errFailed": "Something went wrong, please try again",
-    "rolesLegend": "Owner = everything + billing · Manager = quote + edit products · Sales = quote only · Content = edit products only"
+    "rolesLegend": "Owner = everything + billing · Manager = quote + edit products · Sales = quote only · Content = edit products only",
+    "fEmailPlaceholder": "teammate@company.co.th"
   },
   "ops": {
     "title": "Platform metrics",

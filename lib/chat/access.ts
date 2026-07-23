@@ -1,5 +1,6 @@
 import "server-only";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/db";
 import { jsonError } from "@/lib/http";
 import { canManageProjects } from "@/lib/permissions";
 import { getDesignerContext } from "@/lib/projects/service";
@@ -24,17 +25,32 @@ type Resolved =
   | { ok: false; response: ReturnType<typeof jsonError> };
 
 /**
- * Resolve the calling user as a chat participant. A user may hold both roles;
- * we act on their designer workspace first, else their seller workspace. The
- * per-thread access check (org must match the thread) happens in the service.
+ * Resolve the calling user as a participant of a SPECIFIC thread. A user may
+ * hold BOTH roles (CLAUDE.md), so we must pick the side that matches this
+ * thread — not just "designer first". We look at the thread's two orgs and
+ * match against the user's designer/seller contexts; the side they belong to
+ * on this thread wins. (A thread's designerOrg and sellerOrg are different
+ * orgs of different types, so at most one side can match — unambiguous.)
  */
-export async function resolveChatActor(): Promise<Resolved> {
+export async function resolveChatActorForThread(threadId: string): Promise<Resolved> {
   const session = await auth();
   if (!session?.user?.id) {
     return { ok: false, response: jsonError("unauthorized", "Login required", 401) };
   }
-  const designer = await getDesignerContext(session.user.id);
-  if (designer) {
+
+  const thread = await prisma.chatThread.findUnique({
+    where: { id: threadId },
+    select: { designerOrgId: true, sellerOrgId: true },
+  });
+  // 404, not 403 — don't reveal whether a thread exists to non-participants.
+  if (!thread) return { ok: false, response: jsonError("not_found", "Thread not found", 404) };
+
+  const [designer, seller] = await Promise.all([
+    getDesignerContext(session.user.id),
+    getSellerContext(session.user.id),
+  ]);
+
+  if (designer && designer.orgId === thread.designerOrgId) {
     return {
       ok: true,
       actor: {
@@ -45,8 +61,7 @@ export async function resolveChatActor(): Promise<Resolved> {
       },
     };
   }
-  const seller = await getSellerContext(session.user.id);
-  if (seller) {
+  if (seller && seller.orgId === thread.sellerOrgId) {
     return {
       ok: true,
       actor: {
@@ -57,5 +72,5 @@ export async function resolveChatActor(): Promise<Resolved> {
       },
     };
   }
-  return { ok: false, response: jsonError("forbidden", "No workspace", 403) };
+  return { ok: false, response: jsonError("not_found", "Thread not found", 404) };
 }
