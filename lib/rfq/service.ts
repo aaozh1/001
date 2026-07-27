@@ -4,6 +4,7 @@ import { writeAudit } from "@/lib/audit";
 import { EVENTS } from "@/lib/analytics/events";
 import { track } from "@/lib/analytics/track";
 import { notifyOrg } from "@/lib/notifications/service";
+import { computeDedupKey, creditCostFor } from "@/lib/billing/engagement";
 import type { DesignerContext } from "@/lib/projects/service";
 import {
   computeSlaDueAt,
@@ -58,6 +59,18 @@ export async function sendRfqs(
   let skipped = 0;
   let recipientCount = 0;
   const notifiedSellerOrgs = new Set<string>();
+  // Phase 5 (inert): collect quote_request engagement rows to record AFTER the
+  // RFQ commits — a best-effort ledger, so it can never break the RFQ send.
+  const engagementRows: {
+    type: "quote_request";
+    designerOrgId: string;
+    sellerOrgId: string;
+    specItemId: string;
+    materialId: string | null;
+    rfqId: string;
+    creditCost: number;
+    dedupKey: string;
+  }[] = [];
 
   await prisma.$transaction(async (tx) => {
     for (const item of items) {
@@ -106,7 +119,25 @@ export async function sendRfqs(
       });
       created++;
       recipientCount += recipients.length;
-      for (const r of recipients) notifiedSellerOrgs.add(r.sellerOrgId);
+      for (const r of recipients) {
+        notifiedSellerOrgs.add(r.sellerOrgId);
+        engagementRows.push({
+          type: "quote_request",
+          designerOrgId: ctx.orgId,
+          sellerOrgId: r.sellerOrgId,
+          specItemId: item.id,
+          materialId: r.materialId,
+          rfqId: rfq.id,
+          creditCost: creditCostFor("quote_request"), // 0 while billing OFF (inert)
+          dedupKey: computeDedupKey({
+            type: "quote_request",
+            designerOrgId: ctx.orgId,
+            sellerOrgId: r.sellerOrgId,
+            specItemId: item.id,
+            nowMs: now.getTime(),
+          }),
+        });
+      }
 
       await writeAudit(tx, {
         orgId: ctx.orgId,
@@ -120,6 +151,17 @@ export async function sendRfqs(
   });
 
   if (created > 0) {
+    // Phase 5 (inert): record the quote_request leads. `skipDuplicates` applies
+    // the anti-broadcast dedup (same seller×spec×window counted once) and keeps
+    // this from ever throwing into the RFQ result. Wrapped best-effort too.
+    try {
+      await prisma.engagementEvent.createMany({
+        data: engagementRows,
+        skipDuplicates: true,
+      });
+    } catch {
+      // The inert ledger must never break RFQ sending.
+    }
     await track(EVENTS.rfqSent, {
       orgId: ctx.orgId,
       userId: ctx.userId,
